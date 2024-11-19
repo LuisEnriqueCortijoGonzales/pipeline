@@ -5,12 +5,23 @@
 // changes for division:
 //     - extend the ALUControl to 3 bits
 //     - Modified alu encoding:
-//         - 000: Addition
-//         - 001: Subtraction
-//         - 100: Bitwise AND
-//         - 110: Bitwise OR
-//         - 101: signed division
-//         - 111: unsigned division
+//         - 0000: Addition
+//         - 0001: Subtraction
+//         - 0010: Multiplication
+//         - 0011: Unsigned division
+//         - 0100: Bitwise AND
+//         - 0110: Bitwise OR
+//         - 0101: signed division
+//         - 0111: XOR
+//         - 1000: NOT
+//         - 1001: LSL
+//         - 1010: LSR
+//         - 1011: ASR
+//         - 1100: Igualdad
+//         - 1101: Mayor
+//         - 1110: Menor
+//         - 1111: Por defecto
+
 
 module alu (
     input       [31:0] a,           // Operand A
@@ -20,7 +31,7 @@ module alu (
     output wire [ 3:0] ALUFlags     // ALU Flags: {Negative, Zero, Carry, Overflow}
 );
   // Internal wires
-  wire        neg_flag;  // Negative flag
+  wire        neg_flag;  // Negative flagQuick Access
   wire        zero_flag;  // Zero flag
   wire        carry_flag;  // Carry flag
   wire        overflow_flag;  // Overflow flag
@@ -45,15 +56,19 @@ module alu (
   // Unsigned division handling
   wire [31:0] udiv_result;
   assign udiv = (b != 0) ? (a / b) : 32'd0;
-
+  
+  /// MULTIPLICATION
+  wire [31:0] mul_result;
+  assign mul_result = (a == 0 || b==0) ? 32'd0 : (a*b);
+  
   // ALU operation based on ALUControl
   always @(*) begin
     case (ALUControl[2:0])
-      3'b000, 3'b001: Result = sum;  // Addition or Subtraction
-      3'b100:         Result = a & b;  // Bitwise AND
-      3'b110:         Result = a | b;  // Bitwise OR
-      3'b101:         Result = sdiv;  // signed division
-      3'b111:         Result = udiv;  // unsigned division
+      4'b000, 3'b001: Result = sum;  // Addition or Subtraction
+      4'b100:         Result = a & b;  // Bitwise AND
+      4'b110:         Result = a | b;  // Bitwise OR
+      4'b101:         Result = sdiv;  // signed division
+      4'b111:         Result = udiv;  // unsigned division
     endcase
   end
 
