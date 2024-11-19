@@ -10,15 +10,15 @@ module top (
 );
   // Internal wires connecting submodules
   wire [31:0] PC;  // Program Counter
-  wire [31:0] Instruction;  // Current instruction
+  wire [31:0] InstructionF;  // Current instruction
   wire [31:0] ReadData;  // Data read from memory
-
+  wire [31:0] InstructionD; //Exit from r1
   // Instantiate ARM core
   arm arm_core (
       .clk(clk),
       .reset(reset),
       .PC(PC),
-      .Instr(Instruction),
+      .Instr(InstructionD),
       .MemWrite(MemWrite),
       .ALUResult(DataAdr),
       .WriteData(WriteData),
@@ -28,7 +28,7 @@ module top (
   // Instantiate Instruction Memory
   imem instruction_memory (
       .address (PC),
-      .instruction(Instruction)
+      .instruction(InstructionF)
   );
 
   // Instantiate Data Memory
@@ -39,5 +39,7 @@ module top (
       .write_data(WriteData),
       .read_data(ReadData)
   );
+  
+  r1 registro1(.clk(clk), .reset(reset), .d(InstructionF), .q(InstructionD));
 
 endmodule

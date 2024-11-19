@@ -7,16 +7,17 @@ module controller (
     input  wire [31:12] Instr,       // Instruction bits [31:12]
     input  wire [  3:0] ALUFlags,    // ALU Flags (Negative, Zero, Carry, Overflow)
     output wire [  1:0] RegSrc,      // Register source selector
-    output wire         RegWrite,    // Register write enable
+    output wire         RegWriteD,    // Register write enable
     output wire [  1:0] ImmSrc,      // Immediate value source selector
-    output wire         ALUSrc,      // ALU source selector
-    output wire [  2:0] ALUControl,  // ALU operation control
-    output wire         MemWrite,    // Memory write enable
-    output wire         MemtoReg,    // Memory to Register selector
-    output wire         PCSrc        // Program Counter source selector
+    output wire         ALUSrcD,      // ALU source selector
+    output wire [  2:0] ALUControlD,  // ALU operation control
+    output wire         MemWriteD,    // Memory write enable
+    output wire         MemtoRegD,    // Memory to Register selector
+    output wire         PCSrcD,        // Program Counter source selector
+    output wire [1:0] FlagWriteD // Flag write enable signals
 );
   // Internal control signals from decoder
-  wire [1:0] FlagWrite; // Flag write enable signals
+  
   wire BranchSignal;    // Branch signal
   wire RegisterWrite;   // Register write signal
   wire MemoryWrite;     // Memory write signal
