@@ -9,11 +9,24 @@
 
 - Alu Operations
 ### Basic Set
-  ´ADD []´
-  ´SUB []´
-  ´SLT []´
-  ´´
-
+  ´ADD/SUB []´ <BR>
+  ´AND []´ <BR>
+  ´ORR []´ <BR>
+  ´MUL []´ <BR>
+### Secondary Set
+  ´STR []´ <BR>
+  ´LDR []´ <BR>
+  ´LSL []´ <BR>
+  ´LSR []´ <BR>
+### Suplementary Set
+  ´SLT []´ <BR>
+  ´ASR []´ <BR>
+  ´STR [] (With immediate)´ <BR>
+  ´LDR [] (With immediate)´ <BR>
+### Premium Set
+  ´All ADD / SUB variants´ <BR>
+  ´All MUL variants´ <BR>
+  ´All Carry ops´ <BR>
 ## Tables
 
 ## Description
