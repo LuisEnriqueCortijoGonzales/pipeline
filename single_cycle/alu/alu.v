@@ -78,7 +78,7 @@ module alu (
       4'b1100:         Result = (a==b) ? 32'd1: 32'd0;//Igualdad para logica
       4'b1101:         Result = (a>b) ? 32'd1: 32'd0; //Mayor para logica
       4'b1110:         Result =  (a<b) ? 32'd1: 32'd0;//Menor para logica
-      4'b1111:         Result =  32'd0;//meme
+      4'b1111:         Result =  a; //supuesto MOV posiblmente espero quiero pensar con fe
       
     endcase
   end
