@@ -18,15 +18,21 @@
   ´LDR []´ <BR>
   ´LSL []´ <BR>
   ´LSR []´ <BR>
-### Suplementary Set
+### DLC Set
   ´SLT []´ <BR>
   ´ASR []´ <BR>
   ´STR [] (With immediate)´ <BR>
   ´LDR [] (With immediate)´ <BR>
 ### Premium Set
-  ´All ADD / SUB variants´ <BR>
-  ´All MUL variants´ <BR>
-  ´All Carry ops´ <BR>
+  ´All ADD / SUB variants´ (x5) (x7) <BR>
+  ´All MUL variants´ (x7) <BR>
+  ´All DIV variants´ (x2) <BR>
+  ´All Logic Operands´ (x10) <BR>
+  ´All testers´ (x8) <BR>
+  ´Move operands´ (x2) <BR>
+  ´All branch operations´ (x8) <BR>
+### Completionist Set
+  ´All Load/Store variants´ (x14) <BR>
 ## Tables
 
 ## Description
