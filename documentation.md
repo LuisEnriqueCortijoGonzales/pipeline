@@ -9,30 +9,31 @@
 
 - Alu Operations
 ### Basic Set
-  ´ADD/SUB []´ <BR>
-  ´AND []´ <BR>
-  ´ORR []´ <BR>
-  ´MUL []´ <BR>
+  ´ADD [000000/000000]´ <BR>
+  ´SUB [000000]´ <BR>
+  ´AND [000000]´ <BR>
+  ´ORR [000000]´ <BR>
+  ´MUL [000000]´ <BR>
 ### Secondary Set
-  ´STR []´ <BR>
-  ´LDR []´ <BR>
-  ´LSL []´ <BR>
-  ´LSR []´ <BR>
+  ´STR [000000]´ <BR>
+  ´LDR [000000]´ <BR>
+  ´LSL [000000]´ <BR>
+  ´LSR [000000]´ <BR>
 ### DLC Set
-  ´SLT []´ <BR>
-  ´ASR []´ <BR>
-  ´STR [] (With immediate)´ <BR>
-  ´LDR [] (With immediate)´ <BR>
+  ´SLT [000000]´ <BR>
+  ´ASR [000000]´ <BR>
+  ´STR [000000] (With immediate)´ <BR>
+  ´LDR [000000] (With immediate)´ <BR>
 ### Premium Set
-  ´All ADD / SUB variants´ (x5) (x7) <BR>
-  ´All MUL variants´ (x7) <BR>
-  ´All DIV variants´ (x2) <BR>
-  ´All Logic Operands´ (x10) <BR>
-  ´All testers´ (x8) <BR>
-  ´Move operands´ (x2) <BR>
-  ´All branch operations´ (x8) <BR>
+  ´All ADD / SUB variants´ (x5) (x7) [X1XXX0] <BR>
+  ´All MUL variants´ (x7) [XXX001] <BR>
+  ´All DIV variants´ (x2) [X10000] <BR>
+  ´All Logic Operands´ (x10) [X1XXX0] <BR>
+  ´All testers´ (x8) [010XXX] <BR>
+  ´Move operands´ (x2) [1X0000]<BR>
+  ´All branch operations´ (x8) [00XXX1] <BR>
 ### Completionist Set
-  ´All Load/Store variants´ (x14) <BR>
+  ´All Load/Store variants´ (x14) <BR> (XD)
 ## Tables
 
 ## Description
