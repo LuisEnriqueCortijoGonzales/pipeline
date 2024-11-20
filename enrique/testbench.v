@@ -13,12 +13,12 @@ module testbench;
   wire MemWrite;
 
   // Instantiate the top-level processor module
-  top processor (
+  arm_processor processor (
       .clk(clk),
       .reset(reset),
-      .WriteData(WriteData),
+      .MemWrite(MemWrite),
       .DataAdr(DataAdr),
-      .MemWrite(MemWrite)
+      .WriteData(WriteData)
   );
 
   // Clock generation: 10ns period (100MHz)
@@ -45,57 +45,43 @@ module testbench;
     $finish;
   end
 
-  // // Monitor signals in the console
-  // initial begin
-  //   $monitor(
-  //       "Time: %0t | PC: %h |  ALUResult: %h | WriteData: %h | MemWrite: %b | CTRL: %b | Registers: %b %b %b %b ",
-  //       $time,
-  //       // Program counter
-  //       processor.arm_core.data_path.PC,
-  //       // Instruction
-  //       processor.arm_core.data_path.Instr,
-  //       // ALU srcs
-  //       processor.arm_core.ALUSrc, processor.arm_core.data_path.SrcA,
-  //       processor.arm_core.data_path.SrcB,
-  //       // ALU result
-  //       processor.arm_core.data_path.ALUResult, WriteData, MemWrite,
-  //       // ALU control
-  //       processor.arm_core.control_unit.ALUControl,
-  //       // RD0, RD1, RD2, RD3
-  //       processor.arm_core.data_path.registers.rf[0], processor.arm_core.data_path.registers.rf[1],
-  //       processor.arm_core.data_path.registers.rf[2], processor.arm_core.data_path.registers.rf[3]);
-  // end
+  // Monitor signals in the console
+  initial begin
+    $monitor("Time: %0t | PC: %h | Alu control: %b | Registers: %b %b %b %b ", $time,
+             // Program counter
+             processor.data_path.PC,
+             // ALU control
+             processor.control_unit.ALUControl);
+    // RD0, RD1, RD2, RD3
+    // processor.data_path.registers.rf[0], processor.arm_core.data_path.registers.rf[1],
+    // processor.data_path.registers.rf[2], processor.arm_core.data_path.registers.rf[3]);
+  end
 
-  // // Verify results after certain time
-  // initial begin
-  //   // Wait until after reset and a few cycles
-  //   #100;
-  //
-  //   // Check specific registers
-  //   // Adjust the hierarchical names based on your module instantiations
-  //
-  //   if (processor.arm_core.data_path.registers.rf[0] !== 32'd0) begin
-  //     $display("Error: R0 != 0");
-  //     $stop;
-  //   end
-  //
-  //   if (processor.arm_core.data_path.registers.rf[1] !== 32'd4) begin
-  //     $display("Error: R1 != 4");
-  //     $stop;
-  //   end
-  //
-  //   if (processor.arm_core.data_path.registers.rf[2] !== 32'd2) begin
-  //     $display("Error: R2 != 2");
-  //     $stop;
-  //   end
-  //
-  //   if (processor.arm_core.data_path.registers.rf[3] !== 32'd2) begin
-  //     $display("Error: R3 != 2");
-  //     $stop;
-  //   end
-  //
-  //
-  //   $display("All checks passed.");
-  // end
+  // Verify results after certain time
+  initial begin
+    // Wait until after reset and a few cycles
+    #100;
+
+    // Check specific registers
+    // Adjust the hierarchical names based on your module instantiations
+
+    if (processor.data_path.registers.rf[0] !== 32'd0) begin
+      $display("Error: R0 != 0");
+      $stop;
+    end
+
+    if (processor.data_path.registers.rf[1] !== 32'd4) begin
+      $display("Error: R1 != 4");
+      $stop;
+    end
+
+    if (processor.data_path.registers.rf[2] !== 32'd2) begin
+      $display("Error: R2 != 2");
+      $stop;
+    end
+
+
+    $display("All checks passed.");
+  end
 
 endmodule
