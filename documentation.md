@@ -1,45 +1,68 @@
-### ALU structure documentation
+# ALU Structure Documentation
 
 ## Components
 
-- ALU (Codification)_(Arithmetical and logical).
-- Decoder (Codification)_(Assignment for operation).
+- **ALU (Codification)**  
+  Responsible for executing arithmetic and logical operations.  
+- **Decoder (Codification)**  
+  Assigns and decodes operations for execution in the ALU.
 
-## Stata
+---
 
-- Alu Operations
-### Basic Set
-  ´ADD [000000/000000]´ <BR>
-  ´SUB [000000]´ <BR>
-  ´AND [000000]´ <BR>
-  ´ORR [000000]´ <BR>
-  ´MUL [000000]´ <BR>
-### Secondary Set
-  ´STR [000000]´ <BR>
-  ´LDR [000000]´ <BR>
-  ´LSL [000000]´ <BR>
-  ´LSR [000000]´ <BR>
-### DLC Set
-  ´SLT [000000]´ <BR>
-  ´ASR [000000]´ <BR>
-  ´STR [000000] (With immediate)´ <BR>
-  ´LDR [000000] (With immediate)´ <BR>
-### Premium Set
-  ´All ADD / SUB variants´ (x5) (x7) [X1XXX0] <BR>
-  ´All MUL variants´ (x7) [XXX001] <BR>
-  ´All DIV variants´ (x2) [X10000] <BR>
-  ´All Logic Operands´ (x10) [X1XXX0] <BR>
-  ´All testers´ (x8) [010XXX] <BR>
-  ´Move operands´ (x2) [1X0000]<BR>
-  ´All branch operations´ (x8) [00XXX1] <BR>
-### Completionist Set
-  ´All Load/Store variants´ (x14) <BR> (XD)
+## Operations
+
+### ALU Operations
+
+#### **Basic Set**
+- `ADD [000000/000000]`  
+- `SUB [000000]`  
+- `AND [000000]`  
+- `ORR [000000]`  
+- `MUL [000000]`  
+
+#### **Secondary Set**
+- `STR [000000]`  
+- `LDR [000000]`  
+- `LSL [000000]`  
+- `LSR [000000]`  
+
+#### **DLC Set**
+- `SLT [000000]`  
+- `ASR [000000]`  
+- `STR [000000]` *(With immediate)*  
+- `LDR [000000]` *(With immediate)*  
+
+#### **Premium Set**
+- Variants of arithmetic and logical operations, optimized for advanced use cases:  
+  - **All ADD / SUB variants**: (x5) and (x7) `[X1XXX0]`  
+  - **All MUL variants**: (x7) `[XXX001]`  
+  - **All DIV variants**: (x2) `[X10000]`  
+  - **All logical operands**: (x10) `[X1XXX0]`  
+  - **Testers** (e.g., SLT): (x8) `[010XXX]`  
+  - **Move operands**: (x2) `[1X0000]`  
+  - **Branch operations**: (x8) `[00XXX1]`  
+
+#### **Completionist Set**
+- **All Load/Store variants**: (x14)  
+- *(Includes advanced configurations such as XD)*  
+
+---
+
 ## Tables
+
+*(No content provided—consider adding tables for operation encoding or timing information.)*
+
+---
 
 ## Description
 
-The ALU stage performs all arithmetic and logic operations, and generates the condition codes for instructions that set these operations.
+The ALU stage performs all arithmetic and logical operations and generates condition codes for instructions requiring flag setting.
 
-The ALU stage consists of a logic unit, an arithmetic unit, and a flag generator. The pipeline logic evaluates the flag settings in parallel with the main adder in the ALU. The flag generator is enabled only on flag-setting operations.
+### Key Features:
+1. **Logic Unit**: Handles logical operations like AND, ORR, etc.  
+2. **Arithmetic Unit**: Executes operations such as ADD, SUB, MUL, and DIV.  
+3. **Flag Generator**: Enabled for flag-setting operations, evaluates condition flags in parallel with the main adder.  
 
-The ALU stage separates the carry chains of the main adder enable 8 and 16-bit SIMD instructions for DSP operations.
+### Pipeline Optimization:
+- The ALU stage separates carry chains in the main adder to enable 8-bit and 16-bit SIMD instructions for DSP operations.
+- The pipeline logic allows efficient evaluation of flag settings, improving overall performance for both scalar and SIMD operations.
