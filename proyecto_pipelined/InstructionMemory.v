@@ -1,4 +1,7 @@
-module InstructionMemory (input wire [31:0] address, output wire [31:0] instruction);
+module InstructionMemory (
+    input  wire [31:0] address,
+    output wire [31:0] instruction
+);
   // Declaración de un array de memoria que almacena las instrucciones
   // Cada instrucción tiene 32 bits y la memoria puede almacenar hasta 2,097,152 instrucciones
   reg [31:0] RAM[2097151:0];

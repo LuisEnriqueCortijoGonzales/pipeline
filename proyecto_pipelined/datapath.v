@@ -1,36 +1,37 @@
-module datapath (input wire clk,
-                 input wire reset,
-                 input wire [1:0] RegSrcD,
-                 input wire [1:0] ImmSrcD,
-                 input wire ALUSrcE,
-                 input wire BranchTakenE,
-                 input wire [1:0] ALUControlE,
-                 input wire MemtoRegW,
-                 input wire PCSrcW,
-                 input wire RegWriteW,
-                 output wire [31:0] PCF,
-                 input wire [31:0] InstrF,
-                 output wire [31:0] InstrD,
-                 output wire [31:0] ALUOutM,
-                 output wire [31:0] WriteDataM,
-                 input wire [31:0] ReadDataM,
-                 output wire [3:0] ALUFlagsE,
-                
-                //variables del manejo de hazards
-                 
-output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
-output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E
-output wire Match_2E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el segundo registro fuente en la etapa E
-output wire Match_2E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el segundo registro fuente en la etapa E
-output wire Match_12D_E, // Indica si hay coincidencia entre los registros de escritura en la etapa E y los registros fuente en la etapa D
-input wire [1:0] ForwardAE, // Controla el bypassing para el primer operando de la ALU
-input wire [1:0] ForwardBE, // Controla el bypassing para el segundo operando de la ALU
-input wire StallF, // Señal para detener la etapa F del pipeline
-input wire StallD, // Señal para detener la etapa D del pipeline
-input wire FlushD // Señal para limpiar la etapa D del pipeline
+module datapath (
+    input wire clk,
+    input wire reset,
+    input wire [1:0] RegSrcD,
+    input wire [1:0] ImmSrcD,
+    input wire ALUSrcE,
+    input wire BranchTakenE,
+    input wire [1:0] ALUControlE,
+    input wire MemtoRegW,
+    input wire PCSrcW,
+    input wire RegWriteW,
+    output wire [31:0] PCF,
+    input wire [31:0] InstrF,
+    output wire [31:0] InstrD,
+    output wire [31:0] ALUOutM,
+    output wire [31:0] WriteDataM,
+    input wire [31:0] ReadDataM,
+    output wire [3:0] ALUFlagsE,
+
+    //variables del manejo de hazards
+
+    output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
+    output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E
+    output wire Match_2E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el segundo registro fuente en la etapa E
+    output wire Match_2E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el segundo registro fuente en la etapa E
+    output wire Match_12D_E, // Indica si hay coincidencia entre los registros de escritura en la etapa E y los registros fuente en la etapa D
+    input wire [1:0] ForwardAE,  // Controla el bypassing para el primer operando de la ALU
+    input wire [1:0] ForwardBE,  // Controla el bypassing para el segundo operando de la ALU
+    input wire StallF,  // Señal para detener la etapa F del pipeline
+    input wire StallD,  // Señal para detener la etapa D del pipeline
+    input wire FlushD  // Señal para limpiar la etapa D del pipeline
 );
-  
-//fin de las variables del manejo de hazards
+
+  //fin de las variables del manejo de hazards
 
   wire [31:0] PCPlus4F;
   wire [31:0] PCnext1F;
@@ -65,10 +66,10 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
   mux2 #(
       .WIDTH(4)
   ) ra1_mux (
-      .d0(InstrD[19:16]), // Selección de bits de la instrucción
-      .d1(4'b1111),       // Valor alternativo (literal)
-      .s (RegSrcD[0]),    // Señal de selección
-      .y (RA1D)           // Salida del mux
+      .d0(InstrD[19:16]),  // Selección de bits de la instrucción
+      .d1(4'b1111),        // Valor alternativo (literal)
+      .s (RegSrcD[0]),     // Señal de selección
+      .y (RA1D)            // Salida del mux
   );
   // Este multiplexor selecciona la dirección del segundo registro fuente
   // para la etapa de decodificación, permitiendo elegir entre dos
@@ -76,14 +77,14 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
   mux2 #(
       .WIDTH(4)
   ) ra2_mux (
-      .d0(InstrD[3:0]),   // Selección de bits de la instrucción
-      .d1(InstrD[15:12]), // Alternativa de selección
-      .s (RegSrcD[1]),    // Señal de selección
-      .y (RA2D)           // Salida del mux
+      .d0(InstrD[3:0]),    // Selección de bits de la instrucción
+      .d1(InstrD[15:12]),  // Alternativa de selección
+      .s (RegSrcD[1]),     // Señal de selección
+      .y (RA2D)            // Salida del mux
   );
   // Este multiplexor selecciona la siguiente dirección del contador de programa (PC),
- // permitiendo elegir entre la dirección secuencial (PC + 4) o el resultado de una
- // operación previa, como un salto o una llamada a subrutina.
+  // permitiendo elegir entre la dirección secuencial (PC + 4) o el resultado de una
+  // operación previa, como un salto o una llamada a subrutina.
   mux2 #(
       .WIDTH(32)
   ) pc_next_mux (
@@ -93,8 +94,8 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .y (PCnext1F)
   );
   // Este multiplexor decide si el pipeline debe seguir con la siguiente instrucción
- // secuencial o si debe tomar una rama, utilizando el resultado de la ALU para
- // calcular la nueva dirección del PC en caso de que se tome la rama.
+  // secuencial o si debe tomar una rama, utilizando el resultado de la ALU para
+  // calcular la nueva dirección del PC en caso de que se tome la rama.
   mux2 #(
       .WIDTH(32)
   ) branch_mux (
@@ -103,9 +104,9 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .s (BranchTakenE),
       .y (PCnextF)
   );
-// Stall: Controla el estancamiento de instrucciones en el pipeline para
-// resolver dependencias de datos o control, insertando burbujas cuando sea
-// necesario.
+  // Stall: Controla el estancamiento de instrucciones en el pipeline para
+  // resolver dependencias de datos o control, insertando burbujas cuando sea
+  // necesario.
   registro_flanco_positivo_habilitacion #(
       .WIDTH(32)
   ) pc_reg_Stalls (
@@ -124,98 +125,98 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .y(PCPlus4F)
   );
   assign PCPlus8D = PCPlus4F;
-// Flush: Limpia las instrucciones en el pipeline en respuesta a cambios de
-// control, como saltos o predicciones de ramas incorrectas, para mantener
-// la coherencia del flujo de instrucciones.
+  // Flush: Limpia las instrucciones en el pipeline en respuesta a cambios de
+  // control, como saltos o predicciones de ramas incorrectas, para mantener
+  // la coherencia del flujo de instrucciones.
   registro_flanco_positivo_habilitacion_limpieza #(
       .WIDTH(32)
   ) instr_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .en(~StallD),       // Habilitación del registro, se activa cuando no hay estancamiento
-      .clear(FlushD),     // Limpia el registro si hay un cambio de control
-      .d(InstrF),         // Dato de entrada, la instrucción actual
-      .q(InstrD)          // Dato de salida, la instrucción almacenada
+      .clk  (clk),      // Reloj del sistema
+      .reset(reset),    // Señal de reinicio
+      .en   (~StallD),  // Habilitación del registro, se activa cuando no hay estancamiento
+      .clear(FlushD),   // Limpia el registro si hay un cambio de control
+      .d    (InstrF),   // Dato de entrada, la instrucción actual
+      .q    (InstrD)    // Dato de salida, la instrucción almacenada
   );
-  regfile Registros (//el registro de registros para ver los registros 
-      .clk(clk),          // Reloj del sistema
-      .we3(RegWriteW),    // Señal de escritura
-      .ra1(RA1D),         // Dirección del primer registro a leer
-      .ra2(RA2D),         // Dirección del segundo registro a leer
-      .wa3(WA3W),         // Dirección del registro a escribir
-      .wd3(ResultW),      // Dato a escribir
-      .r15(PCPlus8D),     // Valor del registro 15 (PC + 8)
-      .rd1(rd1D),         // Salida del primer registro leído
-      .rd2(rd2D)          // Salida del segundo registro leído
+  regfile Registros (  //el registro de registros para ver los registros
+      .clk(clk),        // Reloj del sistema
+      .we3(RegWriteW),  // Señal de escritura
+      .ra1(RA1D),       // Dirección del primer registro a leer
+      .ra2(RA2D),       // Dirección del segundo registro a leer
+      .wa3(WA3W),       // Dirección del registro a escribir
+      .wd3(ResultW),    // Dato a escribir
+      .r15(PCPlus8D),   // Valor del registro 15 (PC + 8)
+      .rd1(rd1D),       // Salida del primer registro leído
+      .rd2(rd2D)        // Salida del segundo registro leído
   );
   extend extender (
-      .Instr (InstrD[23:0]), // Parte de la instrucción a extender
-      .ImmSrc(ImmSrcD),      // Control de la extensión
-      .ExtImm(ExtImmD)       // Salida del valor extendido
+      .Instr (InstrD[23:0]),  // Parte de la instrucción a extender
+      .ImmSrc(ImmSrcD),       // Control de la extensión
+      .ExtImm(ExtImmD)        // Salida del valor extendido
   );
   // Este registro almacena el valor del primer operando leído de los registros
- // en la etapa de decodificación y lo transfiere a la etapa de ejecución.
+  // en la etapa de decodificación y lo transfiere a la etapa de ejecución.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) rd1_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .d(rd1D),           // Dato de entrada
-      .q(rd1E)            // Dato de salida
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (rd1D),   // Dato de entrada
+      .q    (rd1E)    // Dato de salida
   );
   // Este registro almacena el valor del segundo operando leído de los registros
- // en la etapa de decodificación y lo transfiere a la etapa de ejecución.
+  // en la etapa de decodificación y lo transfiere a la etapa de ejecución.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) rd2_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .d(rd2D),           // Dato de entrada
-      .q(rd2E)            // Dato de salida
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (rd2D),   // Dato de entrada
+      .q    (rd2E)    // Dato de salida
   );
   // Este registro almacena el valor inmediato extendido en la etapa de decodificación
- // y lo transfiere a la etapa de ejecución para su uso en operaciones aritméticas.
+  // y lo transfiere a la etapa de ejecución para su uso en operaciones aritméticas.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) imm_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .d(ExtImmD),        // Dato de entrada
-      .q(ExtImmE)         // Dato de salida
+      .clk  (clk),      // Reloj del sistema
+      .reset(reset),    // Señal de reinicio
+      .d    (ExtImmD),  // Dato de entrada
+      .q    (ExtImmE)   // Dato de salida
   );
-   // Este registro almacena la dirección del registro de destino en la etapa de decodificación
- // y la transfiere a la etapa de ejecución para determinar dónde escribir el resultado.
+  // Este registro almacena la dirección del registro de destino en la etapa de decodificación
+  // y la transfiere a la etapa de ejecución para determinar dónde escribir el resultado.
   registro_flanco_positivo #(
       .WIDTH(4)
   ) wa3e_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .d(InstrD[15:12]),  // Dato de entrada
-      .q(WA3E)            // Dato de salida
+      .clk  (clk),            // Reloj del sistema
+      .reset(reset),          // Señal de reinicio
+      .d    (InstrD[15:12]),  // Dato de entrada
+      .q    (WA3E)            // Dato de salida
   );
   // Este registro almacena la dirección del primer registro fuente en la etapa de decodificación
- // y la transfiere a la etapa de ejecución para el acceso a los datos.
+  // y la transfiere a la etapa de ejecución para el acceso a los datos.
   registro_flanco_positivo #(
       .WIDTH(4)
   ) ra1_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .d(RA1D),           // Dato de entrada
-      .q(RA1E)            // Dato de salida
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (RA1D),   // Dato de entrada
+      .q    (RA1E)    // Dato de salida
   );
   // Este registro almacena la dirección del segundo registro fuente en la etapa de decodificación
- // y la transfiere a la etapa de ejecución para el acceso a los datos.
+  // y la transfiere a la etapa de ejecución para el acceso a los datos.
   registro_flanco_positivo #(
       .WIDTH(4)
   ) ra2_reg (
-      .clk(clk),          // Reloj del sistema
-      .reset(reset),      // Señal de reinicio
-      .d(RA2D),           // Dato de entrada
-      .q(RA2E)            // Dato de salida
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (RA2D),   // Dato de entrada
+      .q    (RA2E)    // Dato de salida
   );
-// Forwarding/Bypassing: Utiliza multiplexores para redirigir los resultados
-// de la ALU y datos de escritura directamente a las instrucciones que los
-// requieren, evitando riesgos de datos en el pipeline.
+  // Forwarding/Bypassing: Utiliza multiplexores para redirigir los resultados
+  // de la ALU y datos de escritura directamente a las instrucciones que los
+  // requieren, evitando riesgos de datos en el pipeline.
 
   mux3 #(
       .WIDTH(32)
@@ -235,9 +236,9 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .s (ForwardBE),
       .y (WriteDataE)
   );
-//fin del forwarding/bypassing
-// Este multiplexor selecciona el segundo operando para la ALU en la etapa de ejecución,
-// permitiendo elegir entre los datos a escribir o un valor inmediato extendido.
+  //fin del forwarding/bypassing
+  // Este multiplexor selecciona el segundo operando para la ALU en la etapa de ejecución,
+  // permitiendo elegir entre los datos a escribir o un valor inmediato extendido.
   mux2 #(
       .WIDTH(32)
   ) srcb_mux (
@@ -255,7 +256,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .Flags(ALUFlagsE)
   );
   // Este registro almacena el resultado de la ALU en la etapa de ejecución
- // y lo transfiere a la etapa de memoria para operaciones posteriores.
+  // y lo transfiere a la etapa de memoria para operaciones posteriores.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) alu_res_reg (
@@ -265,7 +266,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .q(ALUOutM)
   );
   // Este registro almacena los datos a escribir en memoria desde la etapa de ejecución
- // y los transfiere a la etapa de memoria.
+  // y los transfiere a la etapa de memoria.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) wd_reg (
@@ -274,8 +275,8 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .d(WriteDataE),
       .q(WriteDataM)
   );
-   // Este registro almacena la dirección del registro de destino desde la etapa de ejecución
- // y la transfiere a la etapa de memoria para determinar dónde escribir el resultado.
+  // Este registro almacena la dirección del registro de destino desde la etapa de ejecución
+  // y la transfiere a la etapa de memoria para determinar dónde escribir el resultado.
   registro_flanco_positivo #(
       .WIDTH(4)
   ) wa3m_reg (
@@ -285,7 +286,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .q(WA3M)
   );
   // Este registro almacena el resultado de la ALU desde la etapa de memoria
- // y lo transfiere a la etapa de escritura para su uso final.
+  // y lo transfiere a la etapa de escritura para su uso final.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) alu_out_reg (
@@ -295,7 +296,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .q(ALUOutW)
   );
   // Este registro almacena los datos leídos de memoria en la etapa de memoria
- // y los transfiere a la etapa de escritura.
+  // y los transfiere a la etapa de escritura.
   registro_flanco_positivo #(
       .WIDTH(32)
   ) rd_reg (
@@ -305,7 +306,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .q(ReadDataW)
   );
   // Este registro almacena la dirección del registro de destino desde la etapa de memoria
- // y la transfiere a la etapa de escritura para determinar dónde escribir el resultado final.
+  // y la transfiere a la etapa de escritura para determinar dónde escribir el resultado final.
   registro_flanco_positivo #(
       .WIDTH(4)
   ) wa3w_reg (
@@ -315,7 +316,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .q(WA3W)
   );
   // Este multiplexor selecciona el valor que se escribirá de vuelta en los registros,
- // permitiendo elegir entre el resultado de la ALU o los datos leídos de memoria.
+  // permitiendo elegir entre el resultado de la ALU o los datos leídos de memoria.
   mux2 #(
       .WIDTH(32)
   ) res_mux (
@@ -325,8 +326,8 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .y (ResultW)
   );
   // Este comparador verifica si el registro de destino en la etapa de memoria
- // coincide con el primer registro fuente en la etapa de ejecución, para detectar
- // riesgos de datos.
+  // coincide con el primer registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
   comparador_igualdad #(
       .WIDTH(4)
   ) m0 (
@@ -335,8 +336,8 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .y(Match_1E_M)
   );
   // Este comparador verifica si el registro de destino en la etapa de escritura
- // coincide con el primer registro fuente en la etapa de ejecución, para detectar
- // riesgos de datos.
+  // coincide con el primer registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
   comparador_igualdad #(
       .WIDTH(4)
   ) m1 (
@@ -344,9 +345,9 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .b(RA1E),
       .y(Match_1E_W)
   );
-   // Este comparador verifica si el registro de destino en la etapa de memoria
- // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
- // riesgos de datos.
+  // Este comparador verifica si el registro de destino en la etapa de memoria
+  // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
   comparador_igualdad #(
       .WIDTH(4)
   ) m2 (
@@ -354,9 +355,9 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .b(RA2E),
       .y(Match_2E_M)
   );
-   // Este comparador verifica si el registro de destino en la etapa de escritura
- // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
- // riesgos de datos.
+  // Este comparador verifica si el registro de destino en la etapa de escritura
+  // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
   comparador_igualdad #(
       .WIDTH(4)
   ) m3 (
@@ -365,8 +366,8 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .y(Match_2E_W)
   );
   // Este comparador verifica si el registro de destino en la etapa de ejecución
- // coincide con el primer registro fuente en la etapa de decodificación, para detectar
- // riesgos de datos.
+  // coincide con el primer registro fuente en la etapa de decodificación, para detectar
+  // riesgos de datos.
   comparador_igualdad #(
       .WIDTH(4)
   ) m4a (
@@ -375,8 +376,8 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .y(Match_1D_E)
   );
   // Este comparador verifica si el registro de destino en la etapa de ejecución
- // coincide con el segundo registro fuente en la etapa de decodificación, para detectar
- // riesgos de datos.
+  // coincide con el segundo registro fuente en la etapa de decodificación, para detectar
+  // riesgos de datos.
   comparador_igualdad #(
       .WIDTH(4)
   ) m4b (
@@ -384,7 +385,7 @@ input wire FlushD // Señal para limpiar la etapa D del pipeline
       .b(RA2D),
       .y(Match_2D_E)
   );
-   // Esta asignación lógica combina las coincidencias de los registros fuente
- // en la etapa de decodificación con el registro de destino en la etapa de ejecución.
+  // Esta asignación lógica combina las coincidencias de los registros fuente
+  // en la etapa de decodificación con el registro de destino en la etapa de ejecución.
   assign Match_12D_E = Match_1D_E | Match_2D_E;
 endmodule

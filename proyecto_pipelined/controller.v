@@ -1,6 +1,22 @@
-module controller (input wire clk, input wire reset, input wire [31:12] InstrD, input wire [3:0] ALUFlagsE, output wire [1:0] RegSrcD,
-output wire [1:0] ImmSrcD, output wire ALUSrcE, output wire BranchTakenE, output wire [1:0] ALUControlE, output wire MemWriteM, output wire MemtoRegW,
-output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire MemtoRegE, output wire PCWrPendingF, input wire FlushE);
+module controller (
+    input wire clk,
+    input wire reset,
+    input wire [31:12] InstrD,
+    input wire [3:0] ALUFlagsE,
+    output wire [1:0] RegSrcD,
+    output wire [1:0] ImmSrcD,
+    output wire ALUSrcE,
+    output wire BranchTakenE,
+    output wire [1:0] ALUControlE,
+    output wire MemWriteM,
+    output wire MemtoRegW,
+    output wire PCSrcW,
+    output wire RegWriteW,
+    output wire RegWriteM,
+    output wire MemtoRegE,
+    output wire PCWrPendingF,
+    input wire FlushE
+);
 
   reg var_control;
   reg [9:0] controlsD;
