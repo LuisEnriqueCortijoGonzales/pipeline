@@ -31,4 +31,5 @@ module extend (
         ExtImm = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     endcase
   end
+    // Declare end
 endmodule
