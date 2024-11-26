@@ -22,24 +22,29 @@ module hazardUnit (
   
   input wire clk;
   input wire reset;
+
   input wire Match_1E_M;
   input wire Match_1E_W;
   input wire Match_2E_M;
   input wire Match_2E_W;
   input wire Match_12D_E;
+
   input wire RegWriteM;
   input wire RegWriteW;
   input wire BranchTakenE;
   input wire MemtoRegE;
   input wire PCWrPendingF;
   input wire PCSrcW;
+
   output reg [1:0] ForwardAE;
   output reg [1:0] ForwardBE;
+
+  wire ldrStallD; // Señal interna para detectar un stall debido a una carga
+
   output wire StallF;
   output wire StallD;
   output wire FlushD;
   output wire FlushE;
-  wire ldrStallD; // Señal interna para detectar un stall debido a una carga
 
   // El Hazard Unit detecta y maneja riesgos en un procesador pipelined.
   // Los riesgos de datos ocurren cuando una instrucción necesita un resultado
