@@ -54,29 +54,29 @@
 
 [= = =][Division 1] :
   - Arithmetic: (x16)
-  +   ADD / IMM. ADD
-  +   ADC
-  +   QADD
-  +   SUB / IMM. SUB
-  +   SBS / IMM. SBS
-  +   RSB / IMM. RSB / POSTINT. RSB
-  +   QSUB
-  +   MUL
-  +   MLA
-  +   MLS
-  +   UMULL
-  +   UMLAL
-  +   SMULL
-  +   SMLAL
-  +   UDIV
-  +   SDIV
+    +   ADD / IMM. ADD
+    +   ADC
+    +   QADD
+    +   SUB / IMM. SUB
+    +   SBS / IMM. SBS
+    +   RSB / IMM. RSB / POSTINT. RSB
+    +   QSUB
+    +   MUL
+    +   MLA
+    +   MLS
+    +   UMULL
+    +   UMLAL
+    +   SMULL
+    +   SMLAL
+    +   UDIV
+    +   SDIV
 [= = =][Division 2] :
   - Logic: (x5)
-  +   AND / IMM. AND
-  +   BIC / IMM. BIC
-  +   ORR / IMM. ORR
-  +   ORN / IMM. ORN
-  +   EOR / IMM. EOR
+    +   AND / IMM. AND
+    +   BIC / IMM. BIC
+    +   ORR / IMM. ORR
+    +   ORN / IMM. ORN
+    +   EOR / IMM. EOR
 [= = =][Division 3] :
 [= = =][Division 4] :
 
