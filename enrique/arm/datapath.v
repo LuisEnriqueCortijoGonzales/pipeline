@@ -26,9 +26,11 @@ module datapath (
   wire [31:0] ExtendedImm;  // Extended immediate value
   wire [31:0] SrcA;  // Source A for ALU
   wire [31:0] SrcB;  // Source B for ALU
-  wire [31:0] WriteDataMuxed;  // Data to write to register
+  wire [31:0] ResultW;  // Data to write to register
   wire [ 3:0] RA1;  // Register Address 1
   wire [ 3:0] RA2;  // Register Address 2
+
+  wire [ 3:0] WA3W;  // EL GRANDE
 
   /// STAGE 1: FETCH
 
@@ -41,7 +43,7 @@ module datapath (
   // Mux for selecting next PC: PC + 4 or branch target
   mux2 #(32) pc_mux (
       .d0(PCPlus4),
-      .d1(WriteDataMuxed),  // Assuming ALUResult holds branch target
+      .d1(ResultW),  // Assuming ALUResult holds branch target
       .s (PCSrc),
       .y (PCNext)
   );
@@ -91,9 +93,11 @@ module datapath (
 
   // SrcA 32
   // WriteData 32
+  // Instr[15:12] 4
   // ExtendedImm 32
-  wire [95:0] DECODE_IN;
-  wire [95:0] DECODE_OUT;
+  //
+  wire [99:0] DECODE_IN;
+  wire [99:0] DECODE_OUT;
 
   // Mux for Register Address 1: Instr[19:16] or R15 (PC)
   // + 32
@@ -126,9 +130,9 @@ module datapath (
       .we3(RegWrite),
       .ra1(RA1),
       .ra2(RA2),
-      .wa3(Instr_decode[15:12]),  // Destination register
-      .wd3(WriteDataMuxed),
-      .r15(PCPlus8),              // R15 (PC) holds PC + 8
+      .wa3(WA3W),      // Destination register
+      .wd3(ResultW),
+      .r15(PCPlus8),   // R15 (PC) holds PC + 8
       .rd1(SrcA),
       .rd2(WriteData)
   );
@@ -140,9 +144,9 @@ module datapath (
       .ExtImm(ExtendedImm)
   );
 
-  assign DECODE_IN = {SrcA, WriteData, ExtendedImm};
+  assign DECODE_IN = {SrcA, WriteData, Instr_decode[15:12], ExtendedImm};
 
-  flopr #(96) decode_register (
+  flopr #(100) decode_register (
       .clk(clk),
       .reset(reset),
       .d(DECODE_IN),
@@ -152,20 +156,24 @@ module datapath (
 
   wire [31:0] SrcA_execute;
   wire [31:0] WriteData_execute;
+  wire [ 3:0] WA3D_execute;
   wire [31:0] ExtendedImm_execute;
 
-  assign SrcA_execute = DECODE_OUT[95:64];
-  assign WriteData_execute = DECODE_OUT[63:32];
+  assign SrcA_execute = DECODE_OUT[99:68];
+  assign WriteData_execute = DECODE_OUT[67:36];
+  assign WA3D_execute = DECODE_OUT[35:32];
   assign ExtendedImm_execute = DECODE_OUT[31:0];
+
 
 
   /// STAGE 3: EXECUTE
 
   // WriteData 32
   // ALUResult 32
+  // WA3E 4
 
-  wire [63:0] EXECUTE_IN;
-  wire [63:0] EXECUTE_OUT;
+  wire [67:0] EXECUTE_IN;
+  wire [67:0] EXECUTE_OUT;
 
 
   // Mux for ALU Source B: Register Data or Extended Immediate
@@ -185,9 +193,9 @@ module datapath (
       .ALUFlags(ALUFlags)
   );
 
-  assign EXECUTE_IN = {WriteData, ALUResult};
+  assign EXECUTE_IN = {WriteData, ALUResult, WA3D_execute};
 
-  flopr #(64) execute_register (
+  flopr #(68) execute_register (
       .clk(clk),
       .reset(reset),
       .d(EXECUTE_IN),
@@ -196,17 +204,20 @@ module datapath (
 
   wire [31:0] WriteData_memory;
   wire [31:0] ALUResult_memory;
+  wire [ 3:0] WA3E_memory;
 
 
-  assign WriteData_memory = EXECUTE_OUT[63:32];
-  assign ALUResult_memory = EXECUTE_OUT[31:0];
+  assign WriteData_memory = EXECUTE_OUT[67:36];
+  assign ALUResult_memory = EXECUTE_OUT[35:4];
+  assign WA3E_memory = EXECUTE_OUT[3:0];
 
   /// STAGE 4: MEMORY
 
   // ALUResult 32
   // ReadData 32
-  wire [63:0] MEMORY_IN;
-  wire [63:0] MEMORY_OUT;
+  // WA3M 4
+  wire [67:0] MEMORY_IN;
+  wire [67:0] MEMORY_OUT;
 
   dmem data_memory (
       .clk(clk),
@@ -217,24 +228,27 @@ module datapath (
   );
 
 
-  assign MEMORY_IN = {ALUResult, ReadData};
+  assign MEMORY_IN = {ALUResult, ReadData, WA3E_memory};
 
-  flopr #(64) memory_register (
+  flopr #(68) memory_register (
       .clk(clk),
       .reset(reset),
       .d(MEMORY_IN),
       .q(MEMORY_OUT)
   );
 
+  wire [31:0] ALUResult_writeback;
+  wire [31:0] ReadData_writeback;
+
 
   /// STAGE 5: WRITE BACK
 
   // Mux for Write Data: ALUResult or Data from Memory
   mux2 #(32) write_data_mux (
-      .d0(ALUResult),
-      .d1(ReadData),
+      .d0(ALUResult_writeback),
+      .d1(ReadData_writeback),
       .s (MemtoReg),
-      .y (WriteDataMuxed)
+      .y (ResultW)
   );
 
 endmodule

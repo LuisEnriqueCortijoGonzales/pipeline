@@ -7,11 +7,6 @@ module testbench;
   reg clk;
   reg reset;
 
-  // Processor outputs (for observation)
-  wire [31:0] WriteData;
-  wire [31:0] DataAdr;
-  wire MemWrite;
-
   // Instantiate the top-level processor module
   arm_processor processor (
       .clk(clk),
@@ -34,8 +29,10 @@ module testbench;
     $dumpvars(0, testbench);
 
     // Initialize signals
+    reset = 0;  // De-assert reset
+    #50;  // Hold reset for 20ns
     reset = 1;  // Assert reset
-    #20;  // Hold reset for 20ns
+    #50;  // Hold reset for 20ns
     reset = 0;  // De-assert reset
 
     // Let the processor run for a certain number of cycles
@@ -46,21 +43,40 @@ module testbench;
   end
 
   // Monitor signals in the console
+  // initial begin
+  //   $monitor("Time: %0t | PC: %h | Alu control: %b | Registers: %b %b %b  ", $time,
+  //            // Program counter
+  //            processor.data_path.PC,
+  //            // ALU control
+  //            processor.control_unit.ALUControl,
+  //            // RD0, RD1, RD2, RD3
+  //            processor.data_path.registers.rf[0], processor.data_path.registers.rf[1],
+  //            processor.data_path.registers.rf[2]);
+  // end
+
   initial begin
-    $monitor("Time: %0t | PC: %h | Alu control: %b | Registers: %b %b %b %b ", $time,
-             // Program counter
-             processor.data_path.PC,
-             // ALU control
-             processor.control_unit.ALUControl);
-    // RD0, RD1, RD2, RD3
-    // processor.data_path.registers.rf[0], processor.arm_core.data_path.registers.rf[1],
-    // processor.data_path.registers.rf[2], processor.arm_core.data_path.registers.rf[3]);
+    $monitor(
+        "Time: %0t | PC: %h | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
+        $time,
+        // Program counter
+        processor.data_path.PC,
+        // Instruction
+        // processor.data_path.Instr,
+        // ALU srcs
+        processor.ALUSrc, processor.data_path.SrcA, processor.data_path.SrcB,
+        // ALU result
+        processor.data_path.ALUResult,
+        // ALU control
+        processor.control_unit.ALUControl,
+        // RD0, RD1, RD2, RD3
+        processor.data_path.registers.rf[0], processor.data_path.registers.rf[1],
+        processor.data_path.registers.rf[2]);
   end
 
   // Verify results after certain time
   initial begin
     // Wait until after reset and a few cycles
-    #100;
+    #200;
 
     // Check specific registers
     // Adjust the hierarchical names based on your module instantiations
