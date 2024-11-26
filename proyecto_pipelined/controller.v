@@ -18,7 +18,6 @@ module controller (
     input wire FlushE
 );
 
-  reg var_control;
   reg [9:0] controlsD;
   wire CondExE;
   wire ALUOpD;
@@ -43,7 +42,6 @@ module controller (
   wire [3:0] FlagsNextE;
   wire [3:0] CondE;
   always @(*) begin
-    if (var_control);
     casex (InstrD[27:26])
       2'b00:   if (InstrD[25]) controlsD = 10'b0000101001;
  else controlsD = 10'b0000001001;
@@ -55,7 +53,6 @@ module controller (
   end
   assign {RegSrcD, ImmSrcD, ALUSrcD, MemtoRegD, RegWriteD, MemWriteD, BranchD, ALUOpD} = controlsD;
   always @(*) begin
-    if (var_control);
     if (ALUOpD) begin
       case (InstrD[24:21])
         4'b0100: ALUControlD = 2'b00;
@@ -139,5 +136,4 @@ module controller (
       .q({MemtoRegW, RegWriteW, PCSrcW})
   );
   assign PCWrPendingF = (PCSrcD | PCSrcE) | PCSrcM;
-  initial var_control = 0;
 endmodule
