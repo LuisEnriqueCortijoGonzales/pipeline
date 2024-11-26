@@ -1,9 +1,23 @@
-module datapath (input wire clk, input wire reset, input wire [1:0] RegSrcD, input wire [1:0] ImmSrcD,
-input wire ALUSrcE, input wire BranchTakenE, input wire [1:0] ALUControlE, input wire MemtoRegW,
-input wire PCSrcW, input wire RegWriteW, output wire [31:0] PCF, input wire [31:0] InstrF,
-output wire [31:0] InstrD, output wire [31:0] ALUOutM, output wire [31:0] WriteDataM,
-input wire [31:0] ReadDataM, output wire [3:0] ALUFlagsE,
-//variables del manejo de hazards
+module datapath (input wire clk,
+                 input wire reset,
+                 input wire [1:0] RegSrcD,
+                 input wire [1:0] ImmSrcD,
+                 input wire ALUSrcE,
+                 input wire BranchTakenE,
+                 input wire [1:0] ALUControlE,
+                 input wire MemtoRegW,
+                 input wire PCSrcW,
+                 input wire RegWriteW,
+                 output wire [31:0] PCF,
+                 input wire [31:0] InstrF,
+                 output wire [31:0] InstrD,
+                 output wire [31:0] ALUOutM,
+                 output wire [31:0] WriteDataM,
+                 input wire [31:0] ReadDataM,
+                 output wire [3:0] ALUFlagsE,
+                
+                //variables del manejo de hazards
+                 
 output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
 output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E
 output wire Match_2E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el segundo registro fuente en la etapa E
@@ -15,6 +29,7 @@ input wire StallF, // Señal para detener la etapa F del pipeline
 input wire StallD, // Señal para detener la etapa D del pipeline
 input wire FlushD // Señal para limpiar la etapa D del pipeline
 );
+  
 //fin de las variables del manejo de hazards
 
   wire [31:0] PCPlus4F;
