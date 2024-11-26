@@ -7,7 +7,7 @@ module controller (
     output wire [1:0] ImmSrcD,
     output wire ALUSrcE,
     output wire BranchTakenE,
-    output wire [1:0] ALUControlE,
+    output wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
     output wire MemWriteM,
     output wire MemtoRegW,
     output wire PCSrcW,
@@ -17,11 +17,12 @@ module controller (
     output wire PCWrPendingF,
     input wire FlushE
 );
+  parameter ALUCONTROL_WIDTH = 4;
 
   reg [9:0] controlsD;
   wire CondExE;
   wire ALUOpD;
-  reg [1:0] ALUControlD;
+  reg [ALUCONTROL_WIDTH-1:0] ALUControlD;
   wire ALUSrcD;
   wire MemtoRegD;
   wire MemtoRegM;
@@ -41,6 +42,7 @@ module controller (
   wire [3:0] FlagsE;
   wire [3:0] FlagsNextE;
   wire [3:0] CondE;
+
   always @(*) begin
     casex (InstrD[27:26])
       2'b00:   if (InstrD[25]) controlsD = 10'b0000101001;
@@ -55,20 +57,21 @@ module controller (
   always @(*) begin
     if (ALUOpD) begin
       case (InstrD[24:21])
-        4'b0100: ALUControlD = 2'b00;
-        4'b0010: ALUControlD = 2'b01;
-        4'b0000: ALUControlD = 2'b10;
-        4'b1100: ALUControlD = 2'b11;
-        default: ALUControlD = 2'bxx;
+        4'b0100: ALUControlD = 4'b0000;
+        4'b0010: ALUControlD = 4'b0100;
+        4'b0000: ALUControlD = 4'b1000;
+        4'b1100: ALUControlD = 4'b1100;
+        default: ALUControlD = 4'bxx00;
       endcase
       FlagWriteD[1] = InstrD[20];
-      FlagWriteD[0] = InstrD[20] & ((ALUControlD == 2'b00) | (ALUControlD == 2'b01));
+      FlagWriteD[0] = InstrD[20] & ((ALUControlD == 4'b0000) | (ALUControlD == 4'b0100));
     end else begin
-      ALUControlD = 2'b00;
-      FlagWriteD  = 2'b00;
+      ALUControlD = 4'b0000;
+      FlagWriteD  = 4'b0000;
     end
   end
   assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD) | BranchD;
+
   registro_flanco_positivo_habilitacion_limpieza #(
       .WIDTH(7)
   ) flushedregsE (
@@ -80,7 +83,7 @@ module controller (
       .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE})
   );
   registro_flanco_positivo #(
-      .WIDTH(3)
+      .WIDTH(ALUCONTROL_WIDTH + 1)
   ) regsE (
       .clk(clk),
       .reset(reset),

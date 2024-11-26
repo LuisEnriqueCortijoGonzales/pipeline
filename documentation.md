@@ -1,56 +1,47 @@
-# ALU Structure Documentation
+# Encoding (instruction decoder & ALU)
 
-## Components
+## Instruction Decoder
 
-- **ALU (Codification)**  
-  Responsible for executing arithmetic and logical operations.  
-- **Decoder (Codification)**  
-  Assigns and decodes operations for execution in the ALU.
+## ALU controller
 
----
+### **ALU Operations and ALUControl Encodings**
 
-## Operations
-
-### ALU Operations
-
-#### **Basic Set**
-- `ADD [000000/000000]`  
-- `SUB [000000]`  
-- `AND [000000]`  
-- `ORR [000000]`  
-- `MUL [000000]`  
-
-#### **Secondary Set**
-- `STR [000000]`  
-- `LDR [000000]`  
-- `LSL [000000]`  
-- `LSR [000000]`  
-
-#### **DLC Set**
-- `SLT [000000]`  
-- `ASR [000000]`  
-- `STR [000000]` *(With immediate)*  
-- `LDR [000000]` *(With immediate)*  
+| **Operation** | **ALUControl Encoding (4 bits)** | **Description**                                     |
+| ------------- | -------------------------------- | --------------------------------------------------- |
+| `ADD`         | `0000`                           | Adds two operands.                                  |
+| `SUB`         | `0001`                           | Subtracts the second operand from the first.        |
+| `MUL`         | `0010`                           | Multiplies two operands.                            |
+| `SDIV`        | `0011`                           | Divides the first operand by the second (signed).   |
+| `UDIV`        | `0100`                           | Divides the first operand by the second (unsigned). |
+| `AND`         | `0101`                           | Performs a bitwise AND operation.                   |
+| `OR`          | `0110`                           | Performs a bitwise OR operation.                    |
+| `XOR`         | `0111`                           | Performs a bitwise Exclusive OR (XOR) operation.    |
+| `SHIFTL`      | `1000`                           | Shifts bits to the left (Logical Shift Left).       |
+| `SHIFTR`      | `1001`                           | Shifts bits to the right (Logical Shift Right).     |
+| `BIC`         | `1010`                           | Bit Clear: Performs `Rd = Rn & ~Operand2`.          |
+| `ORN`         | `1011`                           | OR Not: Performs `Rd = Rn v ~Operand2`.             |
 
 #### **Premium Set**
-- Variants of arithmetic and logical operations, optimized for advanced use cases:  
-  - **All ADD / SUB variants**: (x5) and (x7) `[X1XXX0]`  
-  - **All MUL variants**: (x7) `[XXX001]`  
-  - **All DIV variants**: (x2) `[X10000]`  
-  - **All logical operands**: (x10) `[X1XXX0]`  
-  - **Testers** (e.g., SLT): (x8) `[010XXX]`  
-  - **Move operands**: (x2) `[1X0000]`  
-  - **Branch operations**: (x8) `[00XXX1]`  
+
+- Variants of arithmetic and logical operations, optimized for advanced use cases:
+  - **All ADD / SUB variants**: (x5) and (x7) `[X1XXX0]`
+  - **All MUL variants**: (x7) `[XXX001]`
+  - **All DIV variants**: (x2) `[X10000]`
+  - **All logical operands**: (x10) `[X1XXX0]`
+  - **Testers** (e.g., SLT): (x8) `[010XXX]`
+  - **Move operands**: (x2) `[1X0000]`
+  - **Branch operations**: (x8) `[00XXX1]`
 
 #### **Completionist Set**
-- **All Load/Store variants**: (x14)  
-- *(Includes advanced configurations such as XD)*  
+
+- **All Load/Store variants**: (x14)
+- _(Includes advanced configurations such as XD)_
 
 ---
 
 ## Tables
 
-*(No content provided—consider adding tables for operation encoding or timing information.)*
+_(No content provided—consider adding tables for operation encoding or timing information.)_
 
 [= = =][Division 1] :
   - Arithmetic: (x16)
@@ -132,10 +123,12 @@
 The ALU stage performs all arithmetic and logical operations and generates condition codes for instructions requiring flag setting.
 
 ### Key Features:
-1. **Logic Unit**: Handles logical operations like AND, ORR, etc.  
-2. **Arithmetic Unit**: Executes operations such as ADD, SUB, MUL, and DIV.  
-3. **Flag Generator**: Enabled for flag-setting operations, evaluates condition flags in parallel with the main adder.  
+
+1. **Logic Unit**: Handles logical operations like AND, ORR, etc.
+2. **Arithmetic Unit**: Executes operations such as ADD, SUB, MUL, and DIV.
+3. **Flag Generator**: Enabled for flag-setting operations, evaluates condition flags in parallel with the main adder.
 
 ### Pipeline Optimization:
+
 - The ALU stage separates carry chains in the main adder to enable 8-bit and 16-bit SIMD instructions for DSP operations.
 - The pipeline logic allows efficient evaluation of flag settings, improving overall performance for both scalar and SIMD operations.

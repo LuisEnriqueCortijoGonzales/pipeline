@@ -5,9 +5,12 @@ module alu (
     Result,  // Resultado de la operación
     Flags  // Flags de estado resultantes de la operación
 );
+
+  parameter ALUCONTROL_WIDTH = 4;
+
   input wire [31:0] a;  // Entrada 'a' de 32 bits
   input wire [31:0] b;  // Entrada 'b' de 32 bits
-  input wire [1:0] ALUControl;  // Señal de control de 2 bits para seleccionar la operación
+  input wire [ALUCONTROL_WIDTH-1:0] ALUControl;  // Señal de control de 2 bits para seleccionar la operación
   output reg [31:0] Result;    // Salida 'Result' de 32 bits que contiene el resultado de la operación
   output wire [3:0] Flags;  // Salida 'Flags' de 4 bits que contiene los flags de estado
 

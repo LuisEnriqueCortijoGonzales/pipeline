@@ -5,7 +5,7 @@ module datapath (
     input wire [1:0] ImmSrcD,
     input wire ALUSrcE,
     input wire BranchTakenE,
-    input wire [1:0] ALUControlE,
+    input wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
     input wire MemtoRegW,
     input wire PCSrcW,
     input wire RegWriteW,
@@ -30,6 +30,7 @@ module datapath (
     input wire StallD,  // Señal para detener la etapa D del pipeline
     input wire FlushD  // Señal para limpiar la etapa D del pipeline
 );
+  parameter ALUCONTROL_WIDTH = 4;
 
   //fin de las variables del manejo de hazards
 
