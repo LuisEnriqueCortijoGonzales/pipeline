@@ -78,10 +78,8 @@ _(No content provided—consider adding tables for operation encoding or timing 
     +  CMP / CONS.
     +  
 [= = =][Division 4] :
-  - Move: (x2)
+  - Move: (x1)
     +  MOV
-    +  MOV & CONS.
-    +  
 [= = =][Division 5] :
   - Shift/Rot: (x5)
     +  LSR / IMM. LSR
