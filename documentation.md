@@ -78,8 +78,46 @@
     +   ORN / IMM. ORN
     +   EOR / IMM. EOR
 [= = =][Division 3] :
+  - Test: (X4)
+    +  CMN / CONS.
+    +  TST / CONS.
+    +  TEQ / CONS.
+    +  CMP / CONS.
 [= = =][Division 4] :
-
+  - Move: (x2)
+    +  MOV
+    +  MOV & CONS.
+[= = =][Division 5] :
+  - Shift/Rot: (x5)
+    +  LSR / IMM. LSR
+    +  ASR / IMM. ASR
+    +  LFL / IMM. LFL
+    +  ROR / IMM. ROR
+    +  RRX / IMM. RRX
+[= = =][Division 6] :
+  - Load & Store: (x2)
+    +  LDR (x7)
+      + Offset
+      + Pre-offset
+      + Post-offset
+      + Indexed
+      + Literal
+      + Positive/Negative Stack (STMIA)
+    +  STR (x7)
+      + Offset
+      + Pre-offset
+      + Post-offset
+      + Indexed
+      + Literal
+      + Positive/Negative Stack (LDMDB)
+[= = =][Division 6] :
+  - Branch: (x2)
+    +  Branch On Flags (x2)
+      + B
+      + BL
+    +  Test & Branch (x2) 
+      + CBZ
+      + CBNZ
 
 ---
 
