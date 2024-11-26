@@ -102,28 +102,28 @@
 [= = =][Division 6] :
   - Load & Store: (x2)
     +  LDR (x7)
-      + Offset
-      + Pre-offset
-      + Post-offset
-      + Indexed
-      + Literal
-      + Positive/Negative Stack (STMIA)
+      - Offset
+      - Pre-offset
+      - Post-offset
+      - Indexed
+      - Literal
+      - Positive/Negative Stack (STMIA)
     +  STR (x7)
-      + Offset
-      + Pre-offset
-      + Post-offset
-      + Indexed
-      + Literal
-      + Positive/Negative Stack (LDMDB)
+      - Offset
+      - Pre-offset
+      - Post-offset
+      - Indexed
+      - Literal
+      - Positive/Negative Stack (LDMDB)
       + 
 [= = =][Division 6] :
   - Branch: (x2)
     +  Branch On Flags (x2)
-      + B
-      + BL
+      - B
+      - BL
     +  Test & Branch (x2) 
-      + CBZ
-      + CBNZ
+      - CBZ
+      - CBNZ
       + 
 ---
 
