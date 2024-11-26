@@ -10,92 +10,73 @@ module adder (
   assign y = a + b; // Realiza la suma de 'a' y 'b'
 endmodule
 
-module eqcmp (
-    a, // Primer operando de entrada
-    b, // Segundo operando de entrada
-    y // Resultado de la comparación
+module comparador_igualdad (
+   a, // Primer operando de entrada
+   b, // Segundo operando de entrada
+   y // Resultado de la comparación
 );
-  parameter WIDTH = 8; // Ancho de los operandos
-  input wire [WIDTH - 1:0] a; // Entrada 'a' de WIDTH bits
-  input wire [WIDTH - 1:0] b; // Entrada 'b' de WIDTH bits
-  output wire y; // Salida 'y', 1 si 'a' es igual a 'b', 0 en caso contrario
-  assign y = a == b; // Compara si 'a' es igual a 'b'
+ parameter WIDTH = 8; // Ancho de los operandos
+ input wire [WIDTH - 1:0] a; // Entrada 'operando_a' de WIDTH bits
+ input wire [WIDTH - 1:0] b; // Entrada 'operando_b' de WIDTH bits
+ output wire y; // Salida 'resultado', 1 si 'operando_a' es igual a 'operando_b', 0 en caso contrario
+ assign y = a == b; // Compara si 'operando_a' es igual a 'operando_b'
 endmodule
 
-module flopenrc (
-    clk, // Señal de reloj
-    reset, // Señal de reinicio
-    en, // Señal de habilitación
-    clear, // Señal de limpieza
-    d, // Datos de entrada
-    q // Datos de salida
+module registro_flanco_positivo_habilitacion_limpieza (
+   clk, // Señal de reloj
+   reset, // Señal de reinicio
+   en, // Señal de habilitación
+   clear, // Señal de limpieza
+   d, // Datos de entrada
+   q // Datos de salida
 );
-  parameter WIDTH = 8; // Ancho de los datos
-  input wire clk; // Entrada de reloj
-  input wire reset; // Entrada de reinicio
-  input wire en; // Entrada de habilitación
-  input wire clear; // Entrada de limpieza
-  input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
-  output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
-  always @(posedge clk or posedge reset)
-    if (reset) q <= 0; // Reinicia 'q' a 0 si 'reset' está activo
-    else if (en) begin
-      if (clear) q <= 0; // Limpia 'q' a 0 si 'clear' está activo
-      else q <= d; // De lo contrario, carga 'd' en 'q'
-    end
+ parameter WIDTH = 8; // Ancho de los datos
+ input wire clk; // Entrada de reloj
+ input wire reset; // Entrada de reinicio
+ input wire en; // Entrada de habilitación
+ input wire clear; // Entrada de limpieza
+ input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
+ output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
+ always @(posedge clk or posedge reset)
+   if (reset) q <= 0; // Reinicia 'datos_salida' a 0 si 'reinicio' está activo
+   else if (en) begin
+     if (clear) q <= 0; // Limpia 'datos_salida' a 0 si 'limpieza' está activo
+     else q <= d; // De lo contrario, carga 'datos_entrada' en 'datos_salida'
+   end
 endmodule
 
-module flopenr (
-    clk, // Señal de reloj
-    reset, // Señal de reinicio
-    en, // Señal de habilitación
-    d, // Datos de entrada
-    q // Datos de salida
+module registro_flanco_positivo_habilitacion (
+   clk, // Señal de reloj
+   reset, // Señal de reinicio
+   en, // Señal de habilitación
+   d, // Datos de entrada
+   q // Datos de salida
 );
-  parameter WIDTH = 8; // Ancho de los datos
-  input wire clk; // Entrada de reloj
-  input wire reset; // Entrada de reinicio
-  input wire en; // Entrada de habilitación
-  input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
-  output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
-  always @(posedge clk or posedge reset)
-    if (reset) q <= 0; // Reinicia 'q' a 0 si 'reset' está activo
-    else if (en) q <= d; // Si 'en' está activo, carga 'd' en 'q'
+ parameter WIDTH = 8; // Ancho de los datos
+ input wire clk; // Entrada de reloj
+ input wire reset; // Entrada de reinicio
+ input wire en; // Entrada de habilitación
+ input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
+ output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
+ always @(posedge clk or posedge reset)
+   if (reset) q <= 0; // Reinicia 'datos_salida' a 0 si 'reinicio' está activo
+   else if (en) q <= d; // Si 'habilitacion' está activo, carga 'datos_entrada' en 'datos_salida'
 endmodule
 
-module flopr (
-    clk, // Señal de reloj
-    reset, // Señal de reinicio
-    d, // Datos de entrada
-    q // Datos de salida
+module registro_flanco_positivo (
+   clk, // Señal de reloj
+   reset, // Señal de reinicio
+   d, // Datos de entrada
+   q // Datos de salida
 );
-  parameter WIDTH = 8; // Ancho de los datos
-  input wire clk; // Entrada de reloj
-  input wire reset; // Entrada de reinicio
-  input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
-  output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
-  always @(posedge clk or posedge reset)
-    if (reset) q <= 0; // Reinicia 'q' a 0 si 'reset' está activo
-    else q <= d; // De lo contrario, carga 'd' en 'q'
-endmodule
-
-module floprc (
-    clk, // Señal de reloj
-    reset, // Señal de reinicio
-    clear, // Señal de limpieza
-    d, // Datos de entrada
-    q // Datos de salida
-);
-  parameter WIDTH = 8; // Ancho de los datos
-  input wire clk; // Entrada de reloj
-  input wire reset; // Entrada de reinicio
-  input wire clear; // Entrada de limpieza
-  input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
-  output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
-  always @(posedge clk or posedge reset)
-    if (reset) q <= 0; // Reinicia 'q' a 0 si 'reset' está activo
-    else if (clear) q <= 0; // Limpia 'q' a 0 si 'clear' está activo
-    else q <= d; // De lo contrario, carga 'd' en 'q'
+ parameter WIDTH = 8; // Ancho de los datos
+ input wire clk; // Entrada de reloj
+ input wire reset; // Entrada de reinicio
+ input wire [WIDTH - 1:0] d; // Datos de entrada de WIDTH bits
+ output reg [WIDTH - 1:0] q; // Datos de salida de WIDTH bits
+ always @(posedge clk or posedge reset)
+   if (reset) q <= 0; // Reinicia 'datos_salida' a 0 si 'reinicio' está activo
+   else q <= d; // De lo contrario, carga 'datos_entrada' en 'datos_salida'
 endmodule
 
 module mux2 (

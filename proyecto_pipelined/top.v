@@ -9,7 +9,7 @@ output wire [31:0] DataAdrM, output wire MemWriteM);
   wire [31:0] ReadDataM; // Datos leídos de la memoria
   // Instancia del módulo 'arm', que representa el núcleo del procesador.
   // Este módulo maneja la ejecución de instrucciones y la interacción con la memoria.
-  arm arm (.clk(clk), .reset(reset), .PC(PC), .InstrF(InstrF), .MemWriteM(MemWriteM), .ALUOutM(DataAdrM),
+  arm arm (.clk(clk), .reset(reset), .PCF(PCF), .InstrF(InstrF), .MemWriteM(MemWriteM), .ALUOutM(DataAdrM),
     .WriteDataM(WriteDataM), .ReadDataM(ReadDataM));
   // Memoria de instrucciones: almacena las instrucciones que el procesador ejecutará.
   // 'PCF' es la dirección de la instrucción actual, y 'InstrF' es la instrucción leída.

@@ -2,7 +2,7 @@ module controller (input wire clk, input wire reset, input wire [31:12] InstrD, 
 output wire [1:0] ImmSrcD, output wire ALUSrcE, output wire BranchTakenE, output wire [1:0] ALUControlE, output wire MemWriteM, output wire MemtoRegW,
 output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire MemtoRegE, output wire PCWrPendingF, input wire FlushE);
 
-  reg _sv2v_0;
+  reg var_control;
   reg [9:0] controlsD;
   wire CondExE;
   wire ALUOpD;
@@ -27,7 +27,7 @@ output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire Me
   wire [3:0] FlagsNextE;
   wire [3:0] CondE;
   always @(*) begin
-    if (_sv2v_0);
+    if (var_control);
     casex (InstrD[27:26])
       2'b00:   if (InstrD[25]) controlsD = 10'b0000101001;
  else controlsD = 10'b0000001001;
@@ -39,7 +39,7 @@ output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire Me
   end
   assign {RegSrcD, ImmSrcD, ALUSrcD, MemtoRegD, RegWriteD, MemWriteD, BranchD, ALUOpD} = controlsD;
   always @(*) begin
-    if (_sv2v_0);
+    if (var_control);
     if (ALUOpD) begin
       case (InstrD[24:21])
         4'b0100: ALUControlD = 2'b00;
@@ -56,16 +56,17 @@ output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire Me
     end
   end
   assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD) | BranchD;
-  floprc #(
+  registro_flanco_positivo_habilitacion_limpieza #(
       .WIDTH(7)
   ) flushedregsE (
       .clk(clk),
       .reset(reset),
+      .en(1'b1),
       .clear(FlushE),
       .d({FlagWriteD, BranchD, MemWriteD, RegWriteD, PCSrcD, MemtoRegD}),
       .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE})
   );
-  flopr #(
+  registro_flanco_positivo #(
       .WIDTH(3)
   ) regsE (
       .clk(clk),
@@ -73,7 +74,7 @@ output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire Me
       .d({ALUSrcD, ALUControlD}),
       .q({ALUSrcE, ALUControlE})
   );
-  flopr #(
+  registro_flanco_positivo #(
       .WIDTH(4)
   ) condregE (
       .clk(clk),
@@ -81,7 +82,7 @@ output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire Me
       .d(InstrD[31:28]),
       .q(CondE)
   );
-  flopr #(
+  registro_flanco_positivo #(
       .WIDTH(4)
   ) flagsreg (
       .clk(clk),
@@ -97,27 +98,30 @@ output wire PCSrcW, output wire RegWriteW, output wire RegWriteM, output wire Me
       .CondEx(CondExE),
       .FlagsNext(FlagsNextE)
   );
+  // Branch Predictor: Determina si una rama debe tomarse basándose en la
+  // condición evaluada en la etapa de ejecución, mejorando la precisión de
+  // predicción y reduciendo el número de instrucciones incorrectas en el pipeline.
   assign BranchTakenE   = BranchE & CondExE;
   assign RegWriteGatedE = RegWriteE & CondExE;
   assign MemWriteGatedE = MemWriteE & CondExE;
   wire PCSrcGatedE;
   assign PCSrcGatedE = PCSrcE & CondExE;
-  flopr #(
+  registro_flanco_positivo #(
       .WIDTH(4)
-  ) regsM (
+  ) regs_M (
       .clk(clk),
       .reset(reset),
       .d({MemWriteGatedE, MemtoRegE, RegWriteGatedE, PCSrcGatedE}),
       .q({MemWriteM, MemtoRegM, RegWriteM, PCSrcM})
   );
-  flopr #(
+  registro_flanco_positivo #(
       .WIDTH(3)
-  ) regsW (
+  ) regs_W (
       .clk(clk),
       .reset(reset),
       .d({MemtoRegM, RegWriteM, PCSrcM}),
       .q({MemtoRegW, RegWriteW, PCSrcW})
   );
   assign PCWrPendingF = (PCSrcD | PCSrcE) | PCSrcM;
-  initial _sv2v_0 = 0;
+  initial var_control = 0;
 endmodule

@@ -20,7 +20,7 @@ module regfile (
   // Si la señal de habilitación de escritura (we3) está activa, escribe 'wd3' en el registro 'wa3'
   always @(negedge clk) 
     if (we3) 
-      rf[wa3] <= wd3;
+      Registros[wa3] <= wd3;
 
   // Asignación de salida para 'rd1'
   // Si 'ra1' es 15 (4'b1111), se devuelve 'r15', de lo contrario, se lee del registro 'ra1'
