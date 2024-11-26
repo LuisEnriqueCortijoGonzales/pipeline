@@ -3,7 +3,7 @@ module testbench;
   reg reset;
   wire [31:0] WriteData;
   wire [31:0] DataAdr;
-  wire MemWrite;
+  wire MemWrite; // MemWrite asimilation declaration.
   top pipelined (
       clk,
       reset,
@@ -23,11 +23,11 @@ module testbench;
     #(5);
   end
   always @(negedge clk)
-    if (MemWrite) begin
+    if (MemWrite) begin // Declare initialization if MemWrite is flagged.
       if ((DataAdr === 100) & (WriteData === 7)) begin
         $display("Simulation succeeded");
         $stop;
-      end else if (DataAdr !== 96) begin
+      end else if (DataAdr !== 96) begin // Alternative initialization if MemWrite is negated DataAdr diff from 96.
         $display("Simulation failed");
         $stop;
       end
