@@ -1,4 +1,4 @@
-//El del libro
+// Generic RegFile implementation
 
 module regfile (
   input wire clk, // Señal de reloj
@@ -30,4 +30,5 @@ module regfile (
   // Si 'ra2' es 15 (4'b1111), se devuelve 'r15', de lo contrario, se lee del registro 'ra2'
   assign rd2 = (ra2 == 4'b1111 ? r15 : Registros[ra2]);
 
+// Close
 endmodule
