@@ -1,11 +1,8 @@
 module extend (
-    Instr,  // Instrucción de entrada de 24 bits
-    ImmSrc,  // Fuente del inmediato, determina cómo extender la instrucción
-    ExtImm  // Inmediato extendido de salida de 32 bits
+    input  wire [23:0] Instr,   // Instrucción de entrada
+    input  wire [ 1:0] ImmSrc,  // Selección de la fuente del inmediato
+    output reg  [31:0] ExtImm   // Inmediato extendido de salida
 );
-  input wire [23:0] Instr;  // Instrucción de entrada
-  input wire [1:0] ImmSrc;  // Selección de la fuente del inmediato
-  output reg [31:0] ExtImm;  // Inmediato extendido de salida
 
   // El módulo 'extend' toma una parte de la instrucción y la extiende
   // a 32 bits según el tipo de instrucción. Esto es necesario para
