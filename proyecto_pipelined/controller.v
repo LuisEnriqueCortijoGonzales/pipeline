@@ -117,8 +117,37 @@ module controller (
       FlagWriteD[1] = InstrD[20];
       FlagWriteD[0] = InstrD[20] & ((ALUControlD == 5'b0000) | (ALUControlD == 5'b0100));
     end else begin
-      ALUControlD = 5'b00000;
-      FlagWriteD  = 4'b0000;
+        if (is_branch) begin
+        case (InstrD[24:21])
+            4'b0000: ALUControlD = 5'b00000;  // B
+            4'b0001: ALUControlD = 5'b00001;  // BL
+            4'b1010: ALUControlD = 5'b10010;  // CBZ Test & branch
+            4'b1011: ALUControlD = 5'b10011;  // CBNZ Test & branch
+            default: ALUControlD = 5'bxxxxx;
+        endcase
+        FlagWriteD  = 4'b0000;
+    end else begin
+        case (InstrD[24:21])
+            4'b0000: ALUControlD = 5'b00010;  // LDR Offset
+            4'b0001: ALUControlD = 5'b00011;  // STR Offset
+            4'b0010: ALUControlD = 5'b00100;  // LDR Pre-offset
+            4'b0011: ALUControlD = 5'b00101;  // STR Pre-offset
+            4'b0100: ALUControlD = 5'b00110;  // LDR Post-offset
+            4'b0101: ALUControlD = 5'b00111;  // STR Post-offset
+            4'b0110: ALUControlD = 5'b01000;  // LDR Indexed
+            4'b0111: ALUControlD = 5'b01001;  // STR Indexed
+            4'b1000: ALUControlD = 5'b01010;  // LDR Literal
+            4'b1001: ALUControlD = 5'b01011;  // STR Literal
+            4'b1010: ALUControlD = 5'b01100;  // STMIA Positive stack
+            4'b1011: ALUControlD = 5'b01101;  // LDMDB Positive stack
+            4'b1100: ALUControlD = 5'b01110;  // STMDB Negative stack
+            4'b1101: ALUControlD = 5'b01111;  // LDMIA Negative stack
+            4'b0100: ALUControlD = 5'b10000;  // B Branch on flags
+            4'b0101: ALUControlD = 5'b10001;  // BL Branch on flags
+            default: ALUControlD = 5'bxxxxx;
+        endcase
+            FlagWriteD = 4'b0000;
+        end
     end
   end
   assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD) | BranchD;
