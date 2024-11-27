@@ -47,7 +47,7 @@ Encoding input syntax:
 
 - [1] : Condition ()
 - [2] : OP ()
-- [3] : Function
+- [3] : Function (BIT 25 = Immidiat ; BIT 20 flags)
 - [4] : Rn ()
 - [5] : Rd ()
 - [6] : imm|Rm ()
