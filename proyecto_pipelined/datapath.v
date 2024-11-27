@@ -40,8 +40,11 @@ module datapath (
   wire [31:0] PCnext1F;
   wire [31:0] PCnextF;
   wire [31:0] ExtImmD;
+
   wire [31:0] rd1D;
   wire [31:0] rd2D;
+  wire [31:0] rd3D;
+
   wire [31:0] PCPlus8D;
   wire [31:0] rd1E;
   wire [31:0] rd2E;
@@ -53,13 +56,23 @@ module datapath (
   wire [31:0] ReadDataW;
   wire [31:0] ALUOutW;
   wire [31:0] ResultW;
+
   wire [3:0] RA1D;
   wire [3:0] RA2D;
+  wire [3:0] RA3D;
+
   wire [3:0] RA1E;
   wire [3:0] RA2E;
+  wire [3:0] RA3E;
+
   wire [3:0] WA3E;
   wire [3:0] WA3M;
   wire [3:0] WA3W;
+
+  wire [3:0] WA3_2E;
+  wire [3:0] WA3_2M;
+  wire [3:0] WA3_2W;
+
   wire Match_1D_E;
   wire Match_2D_E;
 
@@ -142,15 +155,19 @@ module datapath (
       .q    (InstrD)    // Dato de salida, la instrucción almacenada
   );
   regfile Registros (  //el registro de registros para ver los registros
-      .clk(clk),        // Reloj del sistema
-      .we3(RegWriteW),  // Señal de escritura
-      .ra1(RA1D),       // Dirección del primer registro a leer
-      .ra2(RA2D),       // Dirección del segundo registro a leer
-      .wa3(WA3W),       // Dirección del registro a escribir
-      .wd3(ResultW),    // Dato a escribir
-      .r15(PCPlus8D),   // Valor del registro 15 (PC + 8)
-      .rd1(rd1D),       // Salida del primer registro leído
-      .rd2(rd2D)        // Salida del segundo registro leído
+      .clk  (clk),        // Reloj del sistema
+      .we3  (RegWriteW),  // Señal de escritura
+      .ra1  (RA1D),       // Dirección del primer registro a leer
+      .ra2  (RA2D),       // Dirección del segundo registro a leer
+      .ra3  (RA3D),       // Dirección del tercer registro (LMUL)
+      .wa3  (WA3W),       // Dirección del registro a escribir
+      .wa3_2(WA3_2W),     // Dirección del segundo registro a escribir (LMUL)
+      .wd3  (ResultW),    // Dato a escribir
+      .wd3_2(Result_2W),  // Dato a escribir, segunda parte
+      .r15  (PCPlus8D),   // Valor del registro 15 (PC + 8)
+      .rd1  (rd1D),       // Salida del primer registro leído
+      .rd2  (rd2D),       // Salida del segundo registro leído
+      .rd3  (rd3D)        // Salida del 3er registro
   );
   extend extender (
       .Instr (InstrD[23:0]),  // Parte de la instrucción a extender
