@@ -24,12 +24,12 @@ module alu (
 
   localparam MUL = 5'b00111;
   // More complex multiplications are implemented in the mac module
-  // localparam MLA    = 5'b01000;
-  // localparam MLS    = 5'b01001;
-  // localparam UMULL  = 5'b01010;
-  // localparam UMLAL  = 5'b01011;
-  // localparam SMULL  = 5'b01100;
-  // localparam SMLAL  = 5'b01101;
+  localparam MLA = 5'b01000;
+  localparam MLS = 5'b01001;
+  localparam UMULL = 5'b01010;
+  localparam UMLAL = 5'b01011;
+  localparam SMULL = 5'b01100;
+  localparam SMLAL = 5'b01101;
 
   localparam UDIV = 5'b01110;
   localparam SDIV = 5'b01111;
@@ -97,8 +97,14 @@ module alu (
       QSUB:
       Result = extended_sub > SATURATED_MAX ? SATURATED_MAX : (extended_sub < SATURATED_MIN ? SATURATED_MIN : extended_sub[DATA_WIDTH-1: 0]);
 
-      MUL: Result = a * b;
+      MUL:   Result = a * b;
       // More complex multiplications are implemented in the mac module
+      MLA:   Result = MulOrigin + (a * b);
+      MLS:   Result = MulOrigin - (a * b);
+      UMULL: Result = $unsigned(a * b);
+      UMLAL: Result = $unsigned(MulOrigin + (a * b));
+      SMULL: Result = $signed(a * b);
+      SMLAL: Result = $signed(MulOrigin + (a * b));
 
       UDIV: Result = udiv_result;
       SDIV: Result = sdiv_result;
@@ -123,6 +129,16 @@ module alu (
       default: Result = 32'b0;
 
     endcase
+
+    case (ALUControl)
+
+      MLA, MLS, UMULL, UMLAL, SMULL, SMLAL: Result = Result;
+
+      default: Result = {32'b0, Result[DATA_WIDTH-1:0]};
+
+    endcase
+
+
   end
 
   // Flag wires
