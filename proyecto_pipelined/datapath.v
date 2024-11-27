@@ -254,6 +254,7 @@ module datapath (
   alu ALU (
       .a(SrcAE),
       .b(SrcBE),
+      .MulOrigin(MulOriginE),
       .ALUControl(ALUControlE),
       .CarryIn(carryE),
       .Result(ALUResultE),
