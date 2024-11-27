@@ -27,9 +27,9 @@ module testbench;
 
     // Initialize signals
     reset = 0;  // De-assert reset
-    #50;  // Hold reset for 20ns
+    #20;  // Hold reset for 20ns
     reset = 1;  // Assert reset
-    #50;  // Hold reset for 20ns
+    #20;  // Hold reset for 20ns
     reset = 0;  // De-assert reset
 
     // Let the processor run for a certain number of cycles
