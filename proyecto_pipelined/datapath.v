@@ -300,7 +300,7 @@ module datapath (
   alu ALU (
       .a(SrcAE),
       .b(SrcBE),
-      .MulOrigin(rd3E),
+      .MulOrigin(MulOriginE),
       .ALUControl(ALUControlE),
       .CarryIn(carryE),
       .Result(ALUResultE),
