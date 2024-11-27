@@ -1,10 +1,11 @@
 module top (
     input wire clk,
-    input wire reset,
-    output wire [31:0] WriteDataM,
-    output wire [31:0] DataAdrM,
-    output wire MemWriteM
+    input wire reset
 );
+
+  wire [31:0] WriteData;
+  wire [31:0] DataAdr;
+  wire MemWrite;
 
   // El módulo 'top' es el punto de entrada principal del procesador pipelined.
   // Recibe señales de reloj (clk) y de reinicio (reset) y produce señales de salida
