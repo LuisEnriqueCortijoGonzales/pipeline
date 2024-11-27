@@ -31,26 +31,38 @@ def arm_to_bin_hex(instruction):
         "ASR": "111011",
         "LSL": "111100",
         "ROR": "111101",
-        "RRX": "111110"
+        "RRX": "111110",
     }
 
     # Separar la instrucción en partes
     parts = instruction.split()
     op = parts[0]
-    rd = parts[1].strip(',')
-    rn = parts[2].strip(',') if len(parts) > 3 else "R0"  # Asumimos Rn si hay más de dos operandos
+    rd = parts[1].strip(",")
+    rn = (
+        parts[2].strip(",") if len(parts) > 3 else "R0"
+    )  # Asumimos Rn si hay más de dos operandos
     operand2 = parts[3] if len(parts) > 3 else parts[2]
 
     # Codificación por defecto
     condition = "1110"
-    op_code = encoding_dict[op][:2]  # Los dos primeros bits de op dependen de encoding_dict
+    op_code = encoding_dict[op][
+        :2
+    ]  # Los dos primeros bits de op dependen de encoding_dict
     encoding = encoding_dict[op]
-    bit_25 = "1" if operand2.startswith('#') else "0"  # Usamos inmediato si empieza con '#'
+    bit_25 = (
+        "1" if operand2.startswith("#") else "0"
+    )  # Usamos inmediato si empieza con '#'
     function = f"{bit_25}{encoding[2:]}"  # Primer bit de func es bit_25, los siguientes 4 son del encoding
-    bit_20 = "1" if op in ["MOV", "CMP", "TST", "TEQ"] else "0"  # Flags para ciertas operaciones
-    rn_bin = format(int(rn[1:]), '04b')
-    rd_bin = format(int(rd[1:]), '04b')
-    imm_bin = format(int(operand2.strip('#')), '012b') if bit_25 == "1" else format(int(operand2[1:]), '012b')
+    bit_20 = (
+        "1" if op in ["MOV", "CMP", "TST", "TEQ"] else "0"
+    )  # Flags para ciertas operaciones
+    rn_bin = format(int(rn[1:]), "04b")
+    rd_bin = format(int(rd[1:]), "04b")
+    imm_bin = (
+        format(int(operand2.strip("#")), "012b")
+        if bit_25 == "1"
+        else format(int(operand2[1:]), "012b")
+    )
 
     # Construir el binario completo
     binary = f"{condition}{op_code}{function}{bit_20}{rn_bin}{rd_bin}{imm_bin}"
@@ -60,9 +72,12 @@ def arm_to_bin_hex(instruction):
 
     return binary, hex_output
 
-# Ejemplo de uso
-instruction = "EOR R4, R0, R2"
-binary, hex_output = arm_to_bin_hex(instruction)
-print("// " +instruction)
-print("// " + binary)
-print(hex_output)
+
+instructions = ["MOV R1, #2"]
+
+
+for instruction in instructions:
+    binary, hex_output = arm_to_bin_hex(instruction)
+    print("// " + instruction)
+    print("// " + binary)
+    print(hex_output)
