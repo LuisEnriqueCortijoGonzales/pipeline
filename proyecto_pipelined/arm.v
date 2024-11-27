@@ -35,6 +35,7 @@ module arm (
   wire Match_2E_W;
   wire Match_12D_E;
 
+  wire CarryE;
 
   controller Control_unit (
       .clk(clk),
@@ -46,6 +47,7 @@ module arm (
       .ALUSrcE(ALUSrcE),
       .BranchTakenE(BranchTakenE),
       .ALUControlE(ALUControlE),
+      .CarryE(CarryE),
       .MemWriteM(MemWriteM),
       .MemtoRegW(MemtoRegW),
       .PCSrcW(PCSrcW),
@@ -65,6 +67,7 @@ module arm (
       .ALUSrcE(ALUSrcE),
       .BranchTakenE(BranchTakenE),
       .ALUControlE(ALUControlE),
+      .CarryE(CarryE),
       .MemtoRegW(MemtoRegW),
       .PCSrcW(PCSrcW),
       .RegWriteW(RegWriteW),

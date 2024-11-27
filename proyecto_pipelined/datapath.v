@@ -6,6 +6,7 @@ module datapath (
     input wire ALUSrcE,
     input wire BranchTakenE,
     input wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
+    input wire CarryE,
     input wire MemtoRegW,
     input wire PCSrcW,
     input wire RegWriteW,
@@ -253,8 +254,9 @@ module datapath (
       .a(SrcAE),
       .b(SrcBE),
       .ALUControl(ALUControlE),
+      .CarryIn(carryE),
       .Result(ALUResultE),
-      .Flags(ALUFlagsE)
+      .ALUFlags(ALUFlagsE)
   );
   // Este registro almacena el resultado de la ALU en la etapa de ejecución
   // y lo transfiere a la etapa de memoria para operaciones posteriores.

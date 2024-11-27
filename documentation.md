@@ -6,6 +6,8 @@
 
 ### **ALU Operations and ALUControl Encodings**
 
+The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
+
 | **Operation** | **ALUControl Encoding (5 bits)** | **Description**                                                                                   |
 | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `ADD`         | `00000`                          | Adds two operands: `Result = A + B`.                                                              |
@@ -35,7 +37,7 @@
 
 ---
 
-#### Multiplication (Multiply-Accumulate unit?)
+#### **Multiplication Operations and ALUControl Encodings**
 
 | **Operation** | **ALUControl Encoding (5 bits)** | **Description**                                                                                   |
 | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -45,6 +47,8 @@
 | `UMLAL`       | `10010`                          | Unsigned Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                          |
 | `SMULL`       | `10011`                          | Signed Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`).   |
 | `SMLAL`       | `10100`                          | Signed Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                            |
+
+---
 
 TODO: Fix the md syntax
 [= = =][Division 1] :

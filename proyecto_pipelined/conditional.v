@@ -4,12 +4,12 @@ module conditional (
     input  wire [3:0] ALUFlags,    // Flags generados por la ALU
     input  wire [1:0] FlagsWrite,  // Control de escritura de flags
     output reg        CondEx,      // Salida que indica si la condición se cumple
-    output wire [3:0] FlagsNext    // Flags que se escribirán en el siguiente ciclo
+    output wire [3:0] FlagsNext,   // Flags que se escribirán en el siguiente ciclo
+    output wire       carry
 );
   // Descomposición de los flags en señales individuales
   wire neg;  // Flag de negativo
   wire zero;  // Flag de cero
-  wire carry;  // Flag de acarreo
   wire overflow;  // Flag de desbordamiento
   wire ge;  // Señal que indica si es mayor o igual
 
