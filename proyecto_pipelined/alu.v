@@ -112,7 +112,7 @@ module alu (
       TST: Result = a & b;
       TEQ: Result = a ^ b;
       CMP: Result = a - b;
-      // MOV?
+      MOV: Result = b;
 
       LSHIFT: Result = a << shift_amount;
       ASHIFT: Result = $signed(a) >>> shift_amount;
