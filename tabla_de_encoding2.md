@@ -16,7 +16,7 @@
 | LDMDB       | 001011   | Positive stack  |
 | STMDB       | 001100   | Negative stack  |
 | LDMIA       | 001101   | Negative stack  |
-| B           | 001110   | Branch on flags |
-| BL          | 001111   | Branch on flags |
-| CBZ         | 010000   | Test & branch   |
-| CBNZ        | 010001   | Test & branch   |
+| B           | 010000   | Branch on flags |
+| BL          | 010001   | Branch on flags |
+| CBZ         | 010010   | Test & branch   |
+| CBNZ        | 010011   | Test & branch   |
