@@ -38,9 +38,11 @@ We hope this doesn't cause any trouble, and we appreciate our instructor's under
 ### Format: 
 We utilize a special encoding and format for our functions and instructions for the Pipelined Proccesor.
 
-Encoding input syntax: `XXXX XX XXXXXX XXXX XXXX XXXXXXXXXXXX` <BR>
+Encoding input syntax: 
 
-                       `[ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ]` 
+  `XXXX XX XXXXXX XXXX XXXX XXXXXXXXXXXX` 
+  `[ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ]` 
+  
 - [1] : Condition ()
 - [2] : OP ()
 - [3] : Function
