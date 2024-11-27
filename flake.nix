@@ -27,9 +27,9 @@
 
             xterm
 
+            python3
           ] ++ (with nix-xilinx.packages.x86_64-linux; [ vivado vitis ]);
-          shellHook = nix-xilinx.shellHooksCommon;
-
+        shellHook = nix-xilinx.shellHooksCommon;
 
       };
     };

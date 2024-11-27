@@ -13,7 +13,7 @@ module datapath (
     output wire [31:0] PCF,
     input wire [31:0] InstrF,
     output wire [31:0] InstrD,
-    output wire [31:0] ALUOutM,
+    output wire [(DATA_WIDTH*2)-1:0] ALUOutM,
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
@@ -33,6 +33,7 @@ module datapath (
 );
   localparam ALU_FLAGS_WIDTH = 5;
   parameter ALUCONTROL_WIDTH = 5;
+  parameter DATA_WIDTH = 32;
 
   //fin de las variables del manejo de hazards
 
@@ -40,28 +41,52 @@ module datapath (
   wire [31:0] PCnext1F;
   wire [31:0] PCnextF;
   wire [31:0] ExtImmD;
+
   wire [31:0] rd1D;
   wire [31:0] rd2D;
+  wire [31:0] rd3D;
+
   wire [31:0] PCPlus8D;
+
   wire [31:0] rd1E;
   wire [31:0] rd2E;
+  wire [31:0] rd3E;
+
   wire [31:0] ExtImmE;
+
   wire [31:0] SrcAE;
   wire [31:0] SrcBE;
+  wire [31:0] MulOriginE;
+
   wire [31:0] WriteDataE;
-  wire [31:0] ALUResultE;
+
+  wire [(DATA_WIDTH*2)-1:0] ALUResultE;
+
   wire [31:0] ReadDataW;
-  wire [31:0] ALUOutW;
-  wire [31:0] ResultW;
+  wire [(DATA_WIDTH*2)-1:0] ALUOutW;
+
+  wire [(DATA_WIDTH*2)-1:0] ResultW;
+
   wire [3:0] RA1D;
   wire [3:0] RA2D;
+  wire [3:0] RA3D;
+
   wire [3:0] RA1E;
   wire [3:0] RA2E;
+  wire [3:0] RA3E;
+
   wire [3:0] WA3E;
   wire [3:0] WA3M;
   wire [3:0] WA3W;
+
+  wire [3:0] WA3_2E;
+  wire [3:0] WA3_2M;
+  wire [3:0] WA3_2W;
+
   wire Match_1D_E;
   wire Match_2D_E;
+
+  assign RA3D = InstrD[11:8];
 
   // Este multiplexor selecciona la dirección del primer registro fuente
   // para la etapa de decodificación, permitiendo elegir entre un valor
@@ -89,13 +114,14 @@ module datapath (
   // permitiendo elegir entre la dirección secuencial (PC + 4) o el resultado de una
   // operación previa, como un salto o una llamada a subrutina.
   mux2 #(
-      .WIDTH(32)
+      .WIDTH(DATA_WIDTH)
   ) pc_next_mux (
       .d0(PCPlus4F),
-      .d1(ResultW),
+      .d1(ResultW[DATA_WIDTH-1:0]),
       .s (PCSrcW),
       .y (PCnext1F)
   );
+
   // Este multiplexor decide si el pipeline debe seguir con la siguiente instrucción
   // secuencial o si debe tomar una rama, utilizando el resultado de la ALU para
   // calcular la nueva dirección del PC en caso de que se tome la rama.
@@ -103,10 +129,11 @@ module datapath (
       .WIDTH(32)
   ) branch_mux (
       .d0(PCnext1F),
-      .d1(ALUResultE),
+      .d1(ALUResultE[31:0]),
       .s (BranchTakenE),
       .y (PCnextF)
   );
+
   // Stall: Controla el estancamiento de instrucciones en el pipeline para
   // resolver dependencias de datos o control, insertando burbujas cuando sea
   // necesario.
@@ -141,16 +168,21 @@ module datapath (
       .d    (InstrF),   // Dato de entrada, la instrucción actual
       .q    (InstrD)    // Dato de salida, la instrucción almacenada
   );
+
   regfile Registros (  //el registro de registros para ver los registros
-      .clk(clk),        // Reloj del sistema
+      .clk(clk),  // Reloj del sistema
       .we3(RegWriteW),  // Señal de escritura
-      .ra1(RA1D),       // Dirección del primer registro a leer
-      .ra2(RA2D),       // Dirección del segundo registro a leer
-      .wa3(WA3W),       // Dirección del registro a escribir
-      .wd3(ResultW),    // Dato a escribir
-      .r15(PCPlus8D),   // Valor del registro 15 (PC + 8)
-      .rd1(rd1D),       // Salida del primer registro leído
-      .rd2(rd2D)        // Salida del segundo registro leído
+      .ra1(RA1D),  // Dirección del primer registro a leer
+      .ra2(RA2D),  // Dirección del segundo registro a leer
+      .ra3(RA3D),  // Dirección del tercer registro (LMUL)
+      .wa3(WA3W),  // Dirección del registro a escribir
+      .wa3_2(WA3_2W),  // Dirección del segundo registro a escribir (LMUL)
+      .wd3(ResultW[DATA_WIDTH-1:0]),  // Dato a escribir
+      .wd3_2(ResultW[(DATA_WIDTH*2)-1:DATA_WIDTH]),  // Dato a escribir (LMUL)
+      .r15(PCPlus8D),  // Valor del registro 15 (PC + 8)
+      .rd1(rd1D),  // Salida del primer registro leído
+      .rd2(rd2D),  // Salida del segundo registro leído
+      .rd3(rd3D)  // Salida del 3er registro
   );
   extend extender (
       .Instr (InstrD[23:0]),  // Parte de la instrucción a extender
@@ -177,6 +209,18 @@ module datapath (
       .d    (rd2D),   // Dato de entrada
       .q    (rd2E)    // Dato de salida
   );
+
+
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) rd3_reg (
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (rd3D),   // Dato de entrada
+      .q    (rd3E)    // Dato de salida
+  );
+
+
   // Este registro almacena el valor inmediato extendido en la etapa de decodificación
   // y lo transfiere a la etapa de ejecución para su uso en operaciones aritméticas.
   registro_flanco_positivo #(
@@ -217,28 +261,30 @@ module datapath (
       .d    (RA2D),   // Dato de entrada
       .q    (RA2E)    // Dato de salida
   );
+
   // Forwarding/Bypassing: Utiliza multiplexores para redirigir los resultados
   // de la ALU y datos de escritura directamente a las instrucciones que los
   // requieren, evitando riesgos de datos en el pipeline.
-
   mux3 #(
       .WIDTH(32)
   ) by_pass1_mux (
       .d0(rd1E),
-      .d1(ResultW),
-      .d2(ALUOutM),
+      .d1(ResultW[DATA_WIDTH-1:0]),
+      .d2(ALUOutM[DATA_WIDTH-1:0]),
       .s (ForwardAE),
       .y (SrcAE)
   );
+
   mux3 #(
       .WIDTH(32)
   ) by_pass2_mux (
       .d0(rd2E),
-      .d1(ResultW),
-      .d2(ALUOutM),
+      .d1(ResultW[DATA_WIDTH-1:0]),
+      .d2(ALUOutM[DATA_WIDTH-1:0]),
       .s (ForwardBE),
       .y (WriteDataE)
   );
+
   //fin del forwarding/bypassing
   // Este multiplexor selecciona el segundo operando para la ALU en la etapa de ejecución,
   // permitiendo elegir entre los datos a escribir o un valor inmediato extendido.
@@ -254,6 +300,7 @@ module datapath (
   alu ALU (
       .a(SrcAE),
       .b(SrcBE),
+      .MulOrigin(MulOriginE),
       .ALUControl(ALUControlE),
       .CarryIn(carryE),
       .Result(ALUResultE),
@@ -262,7 +309,7 @@ module datapath (
   // Este registro almacena el resultado de la ALU en la etapa de ejecución
   // y lo transfiere a la etapa de memoria para operaciones posteriores.
   registro_flanco_positivo #(
-      .WIDTH(32)
+      .WIDTH(64)
   ) alu_res_reg (
       .clk(clk),
       .reset(reset),
@@ -292,7 +339,7 @@ module datapath (
   // Este registro almacena el resultado de la ALU desde la etapa de memoria
   // y lo transfiere a la etapa de escritura para su uso final.
   registro_flanco_positivo #(
-      .WIDTH(32)
+      .WIDTH(64)
   ) alu_out_reg (
       .clk(clk),
       .reset(reset),
@@ -322,12 +369,13 @@ module datapath (
   // Este multiplexor selecciona el valor que se escribirá de vuelta en los registros,
   // permitiendo elegir entre el resultado de la ALU o los datos leídos de memoria.
   mux2 #(
-      .WIDTH(32)
+      .WIDTH(64)
   ) res_mux (
       .d0(ALUOutW),
-      .d1(ReadDataW),
-      .s (MemtoRegW),
-      .y (ResultW)
+      .d1({ReadDataW, 32'h00000000}),
+
+      .s(MemtoRegW),
+      .y(ResultW)
   );
   // Este comparador verifica si el registro de destino en la etapa de memoria
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar

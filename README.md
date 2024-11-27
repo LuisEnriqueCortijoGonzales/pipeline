@@ -33,7 +33,24 @@ We hope this doesn't cause any trouble, and we appreciate our instructor's under
 
 ## Directory distribution
 
+## Usage guide
 
+### Format: 
+We utilize a special encoding and format for our functions and instructions for the Pipelined Proccesor.
+
+Encoding input syntax: 
+
+---
+    `XXXX XX XXXXXX XXXX XXXX XXXXXXXXXXXX` 
+    `[ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ]` 
+--- 
+
+- [1] : Condition ()
+- [2] : OP ()
+- [3] : Function (BIT 25 = Immidiat ; BIT 20 flags)
+- [4] : Rn ()
+- [5] : Rd ()
+- [6] : imm|Rm ()
 
 ## Not the book, 100% legal sources:
 - https://dl.acm.org/doi/pdf/10.5555/2815529
