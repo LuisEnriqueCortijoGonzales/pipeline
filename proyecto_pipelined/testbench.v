@@ -16,7 +16,7 @@ module testbench;
   // Clock generation: 10ns period (100MHz)
   initial begin
     clk = 0;
-    forever #5 clk = ~clk;  // Toggle clock every 5ns
+    forever #2 clk = ~clk;  // Toggle clock every 5ns
   end
 
   // Initialize signals and apply reset
@@ -33,7 +33,7 @@ module testbench;
     reset = 0;  // De-assert reset
 
     // Let the processor run for a certain number of cycles
-    #200;  // Adjust as needed to allow program execution
+    #100;  // Adjust as needed to allow program execution
 
     // Finish simulation
     $finish;
@@ -53,13 +53,9 @@ module testbench;
 
   initial begin
     $monitor(
-        "Time: %0t| PC: %h | Instr: %b | funct: %b | Funct24: %b | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
+        "Time: %0t | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
         $time,
-        // processor.WriteDataM, processor.arm.Data_path.rd2D,
 
-        // Program counter
-        processor.PCF, processor.arm.Data_path.InstrD, processor.arm.Data_path.InstrD[27:21],
-        processor.arm.Data_path.InstrD[24:21],
         // ALU srcs
         processor.arm.ALUSrcE, processor.arm.Data_path.SrcAE, processor.arm.Data_path.SrcBE,
         // ALU result
@@ -69,19 +65,42 @@ module testbench;
         // RD0, RD1, RD2
         processor.arm.Data_path.Registros.Registros[0],
         processor.arm.Data_path.Registros.Registros[1],
-        processor.arm.Data_path.Registros.Registros[2]);
+        processor.arm.Data_path.Registros.Registros[2],
+        processor.arm.Data_path.Registros.Registros[3],
+        processor.arm.Data_path.Registros.Registros[4],
+        processor.arm.Data_path.Registros.Registros[5]);
   end
 
   // Verify results after certain time
   initial begin
     // Wait until after reset and a few cycles
-    #400;
+    #10000;
 
     // Check specific registers
     // Adjust the hierarchical names based on your module instantiations
 
-    if (processor.arm.Data_path.Registros.Registros[0] !== 32'd0) begin
-      $display("Error: R0 != 0");
+    if (processor.arm.Data_path.Registros.Registros[0] !== 32'd9) begin
+      $display("Error: R0 != 9");
+      $stop;
+    end
+    if (processor.arm.Data_path.Registros.Registros[1] !== 32'd15) begin
+      $display("Error: R1 != 15");
+      $stop;
+    end
+    if (processor.arm.Data_path.Registros.Registros[2] !== 32'd8) begin
+      $display("Error: R2 != 8");
+      $stop;
+    end
+    if (processor.arm.Data_path.Registros.Registros[3] !== 32'd30) begin
+      $display("Error: R3 != 120");
+      $stop;
+    end
+    if (processor.arm.Data_path.Registros.Registros[4] !== 32'd1) begin
+      $display("Error: R3 != 120");
+      $stop;
+    end
+    if (processor.arm.Data_path.Registros.Registros[5] !== 32'd8) begin
+      $display("Error: R5 != 8");
       $stop;
     end
 
