@@ -2,9 +2,10 @@ module top (
     input wire clk,
     input wire reset
 );
+  parameter DATA_WIDTH = 32;
 
+  output wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;
-  wire [31:0] DataAdrM;
   wire MemWriteM;
 
   // El módulo 'top' es el punto de entrada principal del procesador pipelined.
@@ -46,7 +47,7 @@ module top (
   DataMemory DataMem (
       .clk(clk),
       .we(MemWriteM),
-      .address(DataAdrM),
+      .address(DataAdrM[DATA_WIDTH-1:0]),
       .write_data(WriteDataM),
       .read_data(ReadDataM)
   );

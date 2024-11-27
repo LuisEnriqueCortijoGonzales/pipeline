@@ -4,7 +4,7 @@ module alu (
     input wire [DATA_WIDTH-1:0] MulOrigin,
     input wire [ALUCONTROL_WIDTH-1:0] ALUControl,
     input wire CarryIn,  // Carry used for ADC, SBC, etc.
-    output reg [DATA_WIDTH-1:0] Result,
+    output reg [(DATA_WIDTH * 2)-1:0] Result,
     output wire [ALUCONTROL_WIDTH-1:0] ALUFlags
 );
 
