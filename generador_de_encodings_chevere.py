@@ -73,7 +73,7 @@ def arm_to_bin_hex(instruction):
     return binary, hex_output
 
 
-instructions = ["MOV R1, #2"]
+instructions = ["MOV R1, #23"]
 
 
 for instruction in instructions:
