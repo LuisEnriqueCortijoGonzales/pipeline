@@ -78,9 +78,6 @@ module controller (
 
   always @(*) begin
     if (ALUOpD) begin
-      // controller.v:80: error: Concatenation/replication may not have zero width in this context.
-      //         controller.v:81: error: Unable to bind wire/reg/memory `instr['sd26]' in `testbench.pipelined.arm.Control_unit'
-      // controller.v:81: error: Unable to bind wire/reg/memory `instr['sd24:'sd21]' in `testbench.pipelined.arm.Control_unit'
       case ({
         InstrD[26], InstrD[24:21]
       })

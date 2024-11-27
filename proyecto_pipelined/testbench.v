@@ -53,11 +53,13 @@ module testbench;
 
   initial begin
     $monitor(
-        "Time: %0t | WriteDataM: %d | rd2D: %d | PC: %h | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
-        $time, processor.WriteDataM, processor.arm.Data_path.rd2D,
+        "Time: %0t| PC: %h | Instr: %b | funct: %b | Funct24: %b | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
+        $time,
+        // processor.WriteDataM, processor.arm.Data_path.rd2D,
 
         // Program counter
-        processor.PCF,
+        processor.PCF, processor.arm.Data_path.InstrD, processor.arm.Data_path.InstrD[27:21],
+        processor.arm.Data_path.InstrD[24:21],
         // ALU srcs
         processor.arm.ALUSrcE, processor.arm.Data_path.SrcAE, processor.arm.Data_path.SrcBE,
         // ALU result
