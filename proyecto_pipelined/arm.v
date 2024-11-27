@@ -8,7 +8,8 @@ module arm (
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM
 );
-  parameter ALUCONTROL_WIDTH = 5;
+  localparam ALUCONTROL_WIDTH = 5;
+  localparam ALU_FLAGS_WIDTH = 5;
 
   wire [1:0] RegSrcD;
   wire [1:0] ImmSrcD;
@@ -18,7 +19,7 @@ module arm (
   wire MemtoRegW;
   wire PCSrcW;
   wire RegWriteW;
-  wire [3:0] ALUFlagsE;
+  wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE;
   wire [31:0] InstrD;
   wire RegWriteM;
   wire MemtoRegE;

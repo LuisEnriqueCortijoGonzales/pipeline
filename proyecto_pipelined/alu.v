@@ -8,8 +8,8 @@ module alu (
 );
 
   parameter ALUCONTROL_WIDTH = 5;
-  parameter DATA_WIDTH = 32;
   localparam ALU_FLAGS_WIDTH = 5;
+  parameter DATA_WIDTH = 32;
 
   // ALUControl Encodings
   localparam ADD = 5'b00000;

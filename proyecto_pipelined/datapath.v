@@ -16,7 +16,7 @@ module datapath (
     output wire [31:0] ALUOutM,
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM,
-    output wire [3:0] ALUFlagsE,
+    output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
 
     //variables del manejo de hazards
 
@@ -31,6 +31,7 @@ module datapath (
     input wire StallD,  // Señal para detener la etapa D del pipeline
     input wire FlushD  // Señal para limpiar la etapa D del pipeline
 );
+  localparam ALU_FLAGS_WIDTH = 5;
   parameter ALUCONTROL_WIDTH = 5;
 
   //fin de las variables del manejo de hazards

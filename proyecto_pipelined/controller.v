@@ -2,7 +2,7 @@ module controller (
     input wire clk,
     input wire reset,
     input wire [31:12] InstrD,
-    input wire [3:0] ALUFlagsE,
+    input wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
     output wire [1:0] RegSrcD,
     output wire [1:0] ImmSrcD,
     output wire ALUSrcE,
@@ -18,7 +18,8 @@ module controller (
     output wire PCWrPendingF,
     input wire FlushE
 );
-  parameter ALUCONTROL_WIDTH = 5;
+  localparam ALUCONTROL_WIDTH = 5;
+  localparam ALU_FLAGS_WIDTH = 5;
 
   wire CondExE;
   wire ALUOpD;
@@ -75,11 +76,13 @@ module controller (
   assign ALUOpD          = is_data_op ? 1'b1 : is_branch ? 1'b0 : 1'b0;
 
 
-
   always @(*) begin
     if (ALUOpD) begin
+      // controller.v:80: error: Concatenation/replication may not have zero width in this context.
+      //         controller.v:81: error: Unable to bind wire/reg/memory `instr['sd26]' in `testbench.pipelined.arm.Control_unit'
+      // controller.v:81: error: Unable to bind wire/reg/memory `instr['sd24:'sd21]' in `testbench.pipelined.arm.Control_unit'
       case ({
-        instr[26], instr[24:21]
+        InstrD[26], InstrD[24:21]
       })
         5'b00000: ALUControlD = 5'b00000;  // ADD
         5'b00001: ALUControlD = 5'b00001;  // ADC
