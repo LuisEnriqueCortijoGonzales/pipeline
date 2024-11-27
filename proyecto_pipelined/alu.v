@@ -158,5 +158,5 @@ module alu (
 
 
   // Combinación de los flags en un solo bus de salida
-  assign ALUFlags = {neg, zero, CarryIn, overflow, saturated};
+  assign ALUFlags = {saturated, neg, zero, CarryIn, overflow};
 endmodule

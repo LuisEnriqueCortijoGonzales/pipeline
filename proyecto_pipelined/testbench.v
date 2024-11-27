@@ -53,12 +53,11 @@ module testbench;
 
   initial begin
     $monitor(
-        "Time: %0t | PC: %h | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
-        $time,
+        "Time: %0t | WriteDataM: %d | rd2D: %d | PC: %h | AluSRC %b | AluA %d - AluB %d | ALUResult: %d | AluCTRL: %b | Registers: %d %d %d ",
+        $time, processor.WriteDataM, processor.arm.Data_path.rd2D,
+
         // Program counter
         processor.PCF,
-        // Instruction
-        // processor.data_path.Instr,
         // ALU srcs
         processor.arm.ALUSrcE, processor.arm.Data_path.SrcAE, processor.arm.Data_path.SrcBE,
         // ALU result
@@ -74,7 +73,7 @@ module testbench;
   // Verify results after certain time
   initial begin
     // Wait until after reset and a few cycles
-    #200;
+    #400;
 
     // Check specific registers
     // Adjust the hierarchical names based on your module instantiations
