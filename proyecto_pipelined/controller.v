@@ -17,7 +17,7 @@ module controller (
     output wire PCWrPendingF,
     input wire FlushE
 );
-  parameter ALUCONTROL_WIDTH = 4;
+  parameter ALUCONTROL_WIDTH = 5;
 
   reg [9:0] controlsD;
   wire CondExE;
@@ -57,16 +57,16 @@ module controller (
   always @(*) begin
     if (ALUOpD) begin
       case (InstrD[24:21])
-        4'b0100: ALUControlD = 4'b0000;
-        4'b0010: ALUControlD = 4'b0100;
-        4'b0000: ALUControlD = 4'b1000;
-        4'b1100: ALUControlD = 4'b1100;
-        default: ALUControlD = 4'bxx00;
+        4'b0100: ALUControlD = 5'b00000;
+        4'b0010: ALUControlD = 5'b01000;
+        4'b0000: ALUControlD = 5'b10000;
+        4'b1100: ALUControlD = 5'b11000;
+        default: ALUControlD = 5'bxxxxx;
       endcase
       FlagWriteD[1] = InstrD[20];
-      FlagWriteD[0] = InstrD[20] & ((ALUControlD == 4'b0000) | (ALUControlD == 4'b0100));
+      FlagWriteD[0] = InstrD[20] & ((ALUControlD == 5'b0000) | (ALUControlD == 5'b0100));
     end else begin
-      ALUControlD = 4'b0000;
+      ALUControlD = 5'b00000;
       FlagWriteD  = 4'b0000;
     end
   end

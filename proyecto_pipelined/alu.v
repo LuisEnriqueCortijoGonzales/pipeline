@@ -6,7 +6,7 @@ module alu (
     Flags  // Flags de estado resultantes de la operación
 );
 
-  parameter ALUCONTROL_WIDTH = 4;
+  parameter ALUCONTROL_WIDTH = 5;
 
   input wire [31:0] a;  // Entrada 'a' de 32 bits
   input wire [31:0] b;  // Entrada 'b' de 32 bits

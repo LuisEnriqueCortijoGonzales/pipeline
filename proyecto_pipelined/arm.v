@@ -8,7 +8,7 @@ module arm (
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM
 );
-  parameter ALUCONTROL_WIDTH = 4;
+  parameter ALUCONTROL_WIDTH = 5;
 
   wire [1:0] RegSrcD;
   wire [1:0] ImmSrcD;

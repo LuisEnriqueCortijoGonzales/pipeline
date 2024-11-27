@@ -30,7 +30,7 @@ module datapath (
     input wire StallD,  // Señal para detener la etapa D del pipeline
     input wire FlushD  // Señal para limpiar la etapa D del pipeline
 );
-  parameter ALUCONTROL_WIDTH = 4;
+  parameter ALUCONTROL_WIDTH = 5;
 
   //fin de las variables del manejo de hazards
 
