@@ -3,17 +3,22 @@
 module regfile (
     input wire clk,  // Señal de reloj
     input wire we3,  // Señal de habilitación de escritura de los flip-flops como vimos en arqui
+
     input wire [3:0] ra1,  // Dirección del primer registro a leer
     input wire [3:0] ra2,  // Dirección del segundo registro a leer
     input wire [3:0] ra3,  // Dirección del tercer registro a leer (used in long multiplication)
+
     input wire [3:0] wa3,  // Dirección del registro a escribir
     input wire [3:0] wa3_2,  // Dirección del segundo registro a escribir (used in long multiplication)
+
     input wire [31:0] wd3,  // Datos a escribir en el registro
     input wire [31:0] wd3_2,  // Datos a escribir en el segundo registro (used in long multiplication)
+
     input wire [31:0] r15,  // Valor especial para el registro 15 usado para el PC
+
     output wire [31:0] rd1,  // Datos leídos del primer registro
     output wire [31:0] rd2,  // Datos leídos del segundo registro
-    output wire [31:0] rd3  // Datos leídos del tercer registro (used in long multiplication)
+    output wire [31:0] rd3   // Datos leídos del tercer registro (used in long multiplication)
 );
 
   // Declaración de un banco de registros de 32 bits de ancho y 15 registros de profundidad
@@ -25,8 +30,11 @@ module regfile (
   //    write wd3_2 to wa3_2
   always @(negedge clk) begin
     if (we3) begin
-      Registros[wa3]   <= wd3;
-      Registros[wa3_2] <= wd3_2;
+      Registros[wa3] <= wd3;
+
+      if (wd3_2 != 0) begin
+        Registros[wa3_2] <= wd3_2;
+      end
     end
   end
 

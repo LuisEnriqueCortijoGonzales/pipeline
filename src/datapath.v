@@ -80,13 +80,9 @@ module datapath (
   wire [3:0] RA2E;
   wire [3:0] RA3E;
 
-  wire [3:0] WA3E;
-  wire [3:0] WA3M;
-  wire [3:0] WA3W;
-
-  wire [3:0] WA3_2E;
-  wire [3:0] WA3_2M;
-  wire [3:0] WA3_2W;
+  wire [7:0] WA3E;
+  wire [7:0] WA3M;
+  wire [7:0] WA3W;
 
   wire Match_1D_E;
   wire Match_2D_E;
@@ -225,7 +221,7 @@ module datapath (
   mux2 #(
       .WIDTH(4)
   ) WA3W_BL_MUX (
-      .d0(WA3W),
+      .d0(WA3W[3:0]),
       .d1(4'd14),
       .s (RegSrcW[0]),
       .y (WA3_IN)
@@ -239,7 +235,7 @@ module datapath (
       .ra2(RA2D),  // Dirección del segundo registro a leer
       .ra3(RA3D),  // Dirección del tercer registro (LMUL)
       .wa3(WA3_IN),  // Dirección del registro a escribir
-      .wa3_2(WA3_2W),  // Dirección del segundo registro a escribir (LMUL)
+      .wa3_2(WA3W[7:4]),  // Dirección del segundo registro a escribir (LMUL)
       .wd3(WD3_IN),  // Dato a escribir
       .wd3_2(ResultW[(DATA_WIDTH*2)-1:DATA_WIDTH]),  // Dato a escribir (LMUL)
       .r15(PCPlus8D),  // Valor del registro 15 (PC + 8)
@@ -322,12 +318,12 @@ module datapath (
   // Este registro almacena la dirección del registro de destino en la etapa de decodificación
   // y la transfiere a la etapa de ejecución para determinar dónde escribir el resultado.
   registro_flanco_positivo #(
-      .WIDTH(4)
+      .WIDTH(8)
   ) wa3e_reg (
-      .clk  (clk),            // Reloj del sistema
-      .reset(reset),          // Señal de reinicio
-      .d    (InstrD[15:12]),  // Dato de entrada
-      .q    (WA3E)            // Dato de salida
+      .clk  (clk),                            // Reloj del sistema
+      .reset(reset),                          // Señal de reinicio
+      .d    ({InstrD[11:8], InstrD[15:12]}),  // Dato de entrada
+      .q    (WA3E)                            // Dato de salida
   );
   // Este registro almacena la dirección del primer registro fuente en la etapa de decodificación
   // y la transfiere a la etapa de ejecución para el acceso a los datos.
@@ -449,7 +445,7 @@ module datapath (
   // Este registro almacena la dirección del registro de destino desde la etapa de ejecución
   // y la transfiere a la etapa de memoria para determinar dónde escribir el resultado.
   registro_flanco_positivo #(
-      .WIDTH(4)
+      .WIDTH(8)
   ) wa3m_reg (
       .clk(clk),
       .reset(reset),
@@ -479,7 +475,7 @@ module datapath (
   // Este registro almacena la dirección del registro de destino desde la etapa de memoria
   // y la transfiere a la etapa de escritura para determinar dónde escribir el resultado final.
   registro_flanco_positivo #(
-      .WIDTH(4)
+      .WIDTH(8)
   ) wa3w_reg (
       .clk(clk),
       .reset(reset),
@@ -498,10 +494,13 @@ module datapath (
       .y(ResultW)
   );
 
+
+  // ALUSRC 1
+
   // Este comparador verifica si el registro de destino en la etapa de memoria
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) m0 (
       .a(WA3M),
@@ -511,7 +510,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) m1 (
       .a(WA3_IN),
@@ -522,7 +521,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de ejecución
   // coincide con el primer registro fuente en la etapa de decodificación, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) m4a (
       .a(WA3E),
@@ -530,10 +529,12 @@ module datapath (
       .y(Match_1D_E)
   );
 
+  // ALUSRC 2
+
   // Este comparador verifica si el registro de destino en la etapa de memoria
   // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) m2 (
       .a(WA3M),
@@ -543,7 +544,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) m3 (
       .a(WA3_IN),
@@ -554,7 +555,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de ejecución
   // coincide con el segundo registro fuente en la etapa de decodificación, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) m4b (
       .a(WA3E),
@@ -562,13 +563,12 @@ module datapath (
       .y(Match_2D_E)
   );
 
-
   // ALUSRC 3
 
   // Este comparador verifica si el registro de destino en la etapa de memoria
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) src3_comparator_MEM (
       .a(WA3M),
@@ -578,7 +578,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) src3_comparator_WR (
       .a(WA3_IN),
@@ -589,13 +589,15 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de ejecución
   // coincide con el primer registro fuente en la etapa de decodificación, para detectar
   // riesgos de datos.
-  comparador_igualdad #(
+  comparador_igualdad_doble #(
       .WIDTH(4)
   ) src3_comparator_EX (
       .a(WA3E),
       .b(RA3D),
       .y(Match_3D_E)
   );
+
+
 
   // Esta asignación lógica combina las coincidencias de los registros fuente
   // en la etapa de decodificación con el registro de destino en la etapa de ejecución.

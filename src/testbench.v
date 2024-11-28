@@ -118,6 +118,10 @@ module testbench;
 
   assign WA3D = processor.arm.Data_path.InstrD[15:12];
 
+  assign WA3W = processor.arm.Data_path.WA3W;
+
+  assign WA3D = processor.arm.Data_path.InstrD[15:12];
+
   assign ALUOutM = processor.arm.Data_path.ALUOutM;
   assign ResultW = processor.arm.Data_path.ResultW;
 

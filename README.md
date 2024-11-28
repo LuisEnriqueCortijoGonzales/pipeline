@@ -48,6 +48,23 @@ The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
 | `SMULL`       | `10011`                          | Signed Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`).   |
 | `SMLAL`       | `10100`                          | Signed Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                            |
 
+##### MLA / MLS
+
+| Cond | OP  | I   | command | S   | Rn  | Rd  | Ra  | NULL | Rm  |
+| ---- | --- | --- | ------- | --- | --- | --- | --- | ---- | --- |
+| 4b   | 2b  | 1b  | 4b      | 1b  | 4b  | 4b  | 4b  | 4b   | 4b  |
+
+- **Ra (4b):** Optional accumulated initial value
+
+##### UMULL / UMLAL / SMULL / SMLAL
+
+| Cond | OP  | I   | command | S   | Rn  | RdHi | RdLo | NULL | Rm  |
+| ---- | --- | --- | ------- | --- | --- | ---- | ---- | ---- | --- |
+| 4b   | 2b  | 1b  | 4b      | 1b  | 4b  | 4b   | 4b   | 4b   | 4b  |
+
+- **RdLo (4b):** Address of the less significant 32bits of the 64B number, also used as an accumulate (UMLAL, SMLAL)
+- **RdHi (4b):** Address of the more significant 32bits of the 64B number.
+
 ---
 
 TODO: Fix the md syntax
