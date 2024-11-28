@@ -5,6 +5,8 @@ module hazardUnit (
     Match_1E_W, // Coincidencia entre el registro de destino en la etapa E y el registro fuente en la etapa W
     Match_2E_M, // Coincidencia entre el segundo registro de destino en la etapa E y el registro fuente en la etapa M
     Match_2E_W, // Coincidencia entre el segundo registro de destino en la etapa E y el registro fuente en la etapa W
+    Match_3E_M, // Coincidencia entre el tercer registro de destino en la etapa E y el registro fuente en la etapa M
+    Match_3E_W, // Coincidencia entre el tercer registro de destino en la etapa E y el registro fuente en la etapa W
     Match_12D_E, // Coincidencia entre los registros fuente en la etapa D y el registro de destino en la etapa E
     RegWriteM,  // Señal de escritura de registro en la etapa M
     RegWriteW,  // Señal de escritura de registro en la etapa W
@@ -14,6 +16,7 @@ module hazardUnit (
     PCSrcW,  // Indica la fuente del contador de programa en la etapa W
     ForwardAE,  // Señal de reenvío para el primer operando en la etapa E
     ForwardBE,  // Señal de reenvío para el segundo operando en la etapa E
+    ForwardCE,  // Señal de reenvío para el tercer operando en la etapa E (used in multiply operations)
     StallF,  // Señal para detener la etapa F
     StallD,  // Señal para detener la etapa D
     FlushD,  // Señal para limpiar la etapa D
@@ -27,6 +30,8 @@ module hazardUnit (
   input wire Match_1E_W;
   input wire Match_2E_M;
   input wire Match_2E_W;
+  input wire Match_3E_M;
+  input wire Match_3E_W;
   input wire Match_12D_E;
 
   input wire RegWriteM;
@@ -38,6 +43,7 @@ module hazardUnit (
 
   output reg [1:0] ForwardAE;
   output reg [1:0] ForwardBE;
+  output reg [1:0] ForwardCE;
 
   wire ldrStallD;  // Señal interna para detectar un stall debido a una carga
 
@@ -58,6 +64,7 @@ module hazardUnit (
 
   reg temp;  // Variable local para el control
   always @(*) begin
+
     // Reenvío para el primer operando en la etapa E
     if (Match_1E_M & RegWriteM) ForwardAE = 2'b10;  // Desde la etapa M
     else if (Match_1E_W & RegWriteW) ForwardAE = 2'b01;  // Desde la etapa W
@@ -67,6 +74,13 @@ module hazardUnit (
     if (Match_2E_M & RegWriteM) ForwardBE = 2'b10;  // Desde la etapa M
     else if (Match_2E_W & RegWriteW) ForwardBE = 2'b01;  // Desde la etapa W
     else ForwardBE = 2'b00;  // Desde el archivo de registros
+
+    // Reenvío para el tercer operando en la etapa E (usado en operaciones de multiplicación)
+    if (Match_3E_M & RegWriteM) ForwardCE = 2'b10;  // Desde la etapa M
+    else if (Match_3E_W & RegWriteW) ForwardCE = 2'b01;  // Desde la etapa W
+    else ForwardCE = 2'b00;  // Desde el archivo de registros
+
+
   end
 
   // Stall: Detiene el pipeline cuando el reenvío no es suficiente,

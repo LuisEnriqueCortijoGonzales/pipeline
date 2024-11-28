@@ -27,6 +27,7 @@ module arm (
   wire PCWrPendingF;
   wire [1:0] ForwardAE;
   wire [1:0] ForwardBE;
+  wire [1:0] ForwardCE;
   wire StallF;
   wire StallD;
   wire FlushD;
@@ -87,9 +88,12 @@ module arm (
       .Match_1E_W(Match_1E_W),
       .Match_2E_M(Match_2E_M),
       .Match_2E_W(Match_2E_W),
+      .Match_3E_M(Match_3E_M),
+      .Match_3E_W(Match_3E_W),
       .Match_12D_E(Match_12D_E),
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
+      .ForwardCE(ForwardCE),
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
@@ -107,6 +111,8 @@ module arm (
       .Match_1E_W(Match_1E_W),
       .Match_2E_M(Match_2E_M),
       .Match_2E_W(Match_2E_W),
+      .Match_3E_M(Match_3E_M),
+      .Match_3E_W(Match_3E_W),
       .Match_12D_E(Match_12D_E),
       .RegWriteM(RegWriteM),
       .RegWriteW(RegWriteW),
@@ -116,6 +122,7 @@ module arm (
       .PCSrcW(PCSrcW),
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
+      .ForwardCE(ForwardCE),
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
@@ -123,12 +130,12 @@ module arm (
   );
 
   branch_predictor bp (
-        .clk(clk),
-        .reset(reset),
-        .branch(branch),
-        .taken(taken),
-        .predict_taken(predict_taken)
-    );
-    assign PCSrcW = predict_taken;
+      .clk(clk),
+      .reset(reset),
+      .branch(branch),
+      .taken(taken),
+      .predict_taken(predict_taken)
+  );
+  assign PCSrcW = predict_taken;
 
 endmodule

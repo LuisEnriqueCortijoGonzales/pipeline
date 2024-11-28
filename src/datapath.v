@@ -24,9 +24,12 @@ module datapath (
     output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E
     output wire Match_2E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el segundo registro fuente en la etapa E
     output wire Match_2E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el segundo registro fuente en la etapa E
+    output wire Match_3E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el tercer registro fuente en la etapa E
+    output wire Match_3E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el tercer registro fuente en la etapa E
     output wire Match_12D_E, // Indica si hay coincidencia entre los registros de escritura en la etapa E y los registros fuente en la etapa D
     input wire [1:0] ForwardAE,  // Controla el bypassing para el primer operando de la ALU
     input wire [1:0] ForwardBE,  // Controla el bypassing para el segundo operando de la ALU
+    input wire [1:0] ForwardCE,  // Controla el bypassing para el tercer operando de la ALU
     input wire StallF,  // Señal para detener la etapa F del pipeline
     input wire StallD,  // Señal para detener la etapa D del pipeline
     input wire FlushD  // Señal para limpiar la etapa D del pipeline
@@ -56,7 +59,7 @@ module datapath (
 
   wire [31:0] SrcAE;
   wire [31:0] SrcBE;
-  wire [31:0] MulOriginE;
+  wire [31:0] SrcCE;
 
   wire [31:0] WriteDataE;
 
@@ -85,6 +88,7 @@ module datapath (
 
   wire Match_1D_E;
   wire Match_2D_E;
+  wire Match_3D_E;
 
   assign RA3D = InstrD[11:8];
 
@@ -284,6 +288,17 @@ module datapath (
       .y (WriteDataE)
   );
 
+  mux3 #(
+      .WIDTH(32)
+  ) by_pass3_mux (
+      .d0(rd3E),
+      .d1(ResultW[DATA_WIDTH-1:0]),
+      .d2(ALUOutM[DATA_WIDTH-1:0]),
+      .s (ForwardCE),
+      .y (SrcCE)
+  );
+
+
   //fin del forwarding/bypassing
   // Este multiplexor selecciona el segundo operando para la ALU en la etapa de ejecución,
   // permitiendo elegir entre los datos a escribir o un valor inmediato extendido.
@@ -308,7 +323,7 @@ module datapath (
   alu ALU (
       .a(SrcAE),
       .b(SrcBE),
-      .MulOrigin(MulOriginE),
+      .MulOrigin(SrcCE),
       .ALUControl(ALUControlE),
       .CarryIn(carryE),
       .Result(ALUResultE),
@@ -385,6 +400,7 @@ module datapath (
       .s(MemtoRegW),
       .y(ResultW)
   );
+
   // Este comparador verifica si el registro de destino en la etapa de memoria
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
@@ -405,6 +421,18 @@ module datapath (
       .b(RA1E),
       .y(Match_1E_W)
   );
+
+  // Este comparador verifica si el registro de destino en la etapa de ejecución
+  // coincide con el primer registro fuente en la etapa de decodificación, para detectar
+  // riesgos de datos.
+  comparador_igualdad #(
+      .WIDTH(4)
+  ) m4a (
+      .a(WA3E),
+      .b(RA1D),
+      .y(Match_1D_E)
+  );
+
   // Este comparador verifica si el registro de destino en la etapa de memoria
   // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
@@ -425,16 +453,7 @@ module datapath (
       .b(RA2E),
       .y(Match_2E_W)
   );
-  // Este comparador verifica si el registro de destino en la etapa de ejecución
-  // coincide con el primer registro fuente en la etapa de decodificación, para detectar
-  // riesgos de datos.
-  comparador_igualdad #(
-      .WIDTH(4)
-  ) m4a (
-      .a(WA3E),
-      .b(RA1D),
-      .y(Match_1D_E)
-  );
+
   // Este comparador verifica si el registro de destino en la etapa de ejecución
   // coincide con el segundo registro fuente en la etapa de decodificación, para detectar
   // riesgos de datos.
@@ -445,8 +464,44 @@ module datapath (
       .b(RA2D),
       .y(Match_2D_E)
   );
+
+
+  // ALUSRC 3
+
+  // Este comparador verifica si el registro de destino en la etapa de memoria
+  // coincide con el primer registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
+  comparador_igualdad #(
+      .WIDTH(4)
+  ) src3_comparator_MEM (
+      .a(WA3M),
+      .b(RA3E),
+      .y(Match_3E_M)
+  );
+  // Este comparador verifica si el registro de destino en la etapa de escritura
+  // coincide con el primer registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
+  comparador_igualdad #(
+      .WIDTH(4)
+  ) src3_comparator_WR (
+      .a(WA3W),
+      .b(RA3E),
+      .y(Match_3E_W)
+  );
+
+  // Este comparador verifica si el registro de destino en la etapa de ejecución
+  // coincide con el primer registro fuente en la etapa de decodificación, para detectar
+  // riesgos de datos.
+  comparador_igualdad #(
+      .WIDTH(4)
+  ) src3_comparator_EX (
+      .a(WA3E),
+      .b(RA3D),
+      .y(Match_3D_E)
+  );
+
   // Esta asignación lógica combina las coincidencias de los registros fuente
   // en la etapa de decodificación con el registro de destino en la etapa de ejecución.
-  assign Match_12D_E = Match_1D_E | Match_2D_E;
+  assign Match_12D_E = Match_1D_E | Match_2D_E | Match_3D_E;
 
 endmodule
