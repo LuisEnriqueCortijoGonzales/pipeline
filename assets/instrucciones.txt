@@ -14,9 +14,6 @@ MOV r12, #65
 MOV r1, #70
 ADD r0, r1, r2
 ADD r3, r3, #5
-MOV r4, #1
-ADC r5, r6, r7
-ADC r8, r8, #10
 QADD r9, r10, r11
 SUB r0, r1, r2
 SUB r3, r3, #5
@@ -38,14 +35,7 @@ ORR r8, r9, r10
 ORR r11, r11, #0xF
 EOR r3, r4, r5
 EOR r6, r6, #0x1
-CMN r7, r8
-TST r9, r10
-TEQ r11, r12
-CMP r1, r2
-MOV r3, r4
-MOV r5, #0xFF
 LSR r6, r7, #1
 ASR r8, r9, #2
 LSL r10, r11, #3
 ROR r12, r3, #1
-RRX r2, r1

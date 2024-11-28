@@ -80,3 +80,16 @@ for inst in instructions:
 # Mostramos los estados
 for i, state in enumerate(states):
     print(f"Estado {i + 1}: {state}")
+
+# Nueva sección para imprimir los valores de cada registro a lo largo del tiempo
+registro_historico = {f"r{i}": [] for i in range(13)}
+
+# Llenamos el historial de cada registro
+for state in states:
+    for reg, val in state.items():
+        registro_historico[reg].append(val)
+
+# Imprimimos el historial de cada registro con valores únicos
+for reg, valores in registro_historico.items():
+    valores_unicos = list(dict.fromkeys(valores))  # Elimina duplicados manteniendo el orden
+    print(f"{reg}: {', '.join(map(str, valores_unicos))}")
