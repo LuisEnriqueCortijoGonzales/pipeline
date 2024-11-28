@@ -36,6 +36,9 @@ module arm (
   wire Match_2E_M;
   wire Match_2E_W;
   wire Match_12D_E;
+  wire branch;
+  wire taken;
+  wire predict_taken;
 
   wire CarryE;
 
@@ -89,7 +92,8 @@ module arm (
       .ForwardBE(ForwardBE),
       .StallF(StallF),
       .StallD(StallD),
-      .FlushD(FlushD)
+      .FlushD(FlushD),
+      .predict_taken(predict_taken)
   );
 
 
@@ -117,4 +121,14 @@ module arm (
       .FlushD(FlushD),
       .FlushE(FlushE)
   );
+
+  branch_predictor bp (
+        .clk(clk),
+        .reset(reset),
+        .branch(branch),
+        .taken(taken),
+        .predict_taken(predict_taken)
+    );
+    assign PCSrcW = predict_taken;
+
 endmodule

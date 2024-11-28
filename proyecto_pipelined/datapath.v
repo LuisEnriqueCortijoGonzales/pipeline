@@ -17,7 +17,7 @@ module datapath (
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
-
+    input wire predict_taken 
     //variables del manejo de hazards
 
     output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
@@ -296,6 +296,14 @@ module datapath (
       .s (ALUSrcE),
       .y (SrcBE)
   );
+   mux2 #(
+        .WIDTH(32)
+    ) branch_mux (
+        .d0(PCnext1F),
+        .d1(ALUResultE[31:0]),
+        .s (predict_taken),
+        .y (PCnextF)
+    );
   // ALU: Unidad Aritmética y Lógica que realiza operaciones aritméticas y lógicas
   alu ALU (
       .a(SrcAE),
