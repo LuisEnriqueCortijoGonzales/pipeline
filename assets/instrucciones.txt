@@ -39,3 +39,7 @@ LSR r6, r7, #1
 ASR r8, r9, #2
 LSL r10, r11, #3
 ROR r12, r3, #1
+B 3
+BL 3
+CBZ r0, 3
+CBNZ r0, 3
