@@ -17,7 +17,7 @@ module datapath (
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
-    input wire predict_taken 
+    input wire predict_taken,
     //variables del manejo de hazards
 
     output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
@@ -133,7 +133,6 @@ module datapath (
       .s (BranchTakenE),
       .y (PCnextF)
   );
-
   // Stall: Controla el estancamiento de instrucciones en el pipeline para
   // resolver dependencias de datos o control, insertando burbujas cuando sea
   // necesario.
@@ -296,14 +295,15 @@ module datapath (
       .s (ALUSrcE),
       .y (SrcBE)
   );
-   mux2 #(
-        .WIDTH(32)
-    ) branch_mux (
-        .d0(PCnext1F),
-        .d1(ALUResultE[31:0]),
-        .s (predict_taken),
-        .y (PCnextF)
-    );
+
+  mux2 #(
+      .WIDTH(32)
+  ) mux_predictor (
+      .d0(PCnext1F),
+      .d1(ALUResultE[31:0]),
+      .s (predict_taken),
+      .y (PCnextF)
+  );
   // ALU: Unidad Aritmética y Lógica que realiza operaciones aritméticas y lógicas
   alu ALU (
       .a(SrcAE),
@@ -448,4 +448,5 @@ module datapath (
   // Esta asignación lógica combina las coincidencias de los registros fuente
   // en la etapa de decodificación con el registro de destino en la etapa de ejecución.
   assign Match_12D_E = Match_1D_E | Match_2D_E;
+
 endmodule

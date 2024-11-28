@@ -12,7 +12,7 @@ module branch_predictor (
   parameter WEAKLY_TAKEN = 2'b10;
   parameter STRONGLY_TAKEN = 2'b11;
 
-  reg [1:0] state, nextstate;
+  reg [1:0] state, next_state;
 
   // Lógica de transición de estados
   always @(*) begin
