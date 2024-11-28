@@ -49,31 +49,30 @@ module controller (
 
   wire is_data_op;
   wire sets_flags;
-  wire modifies_memory;
 
-  assign is_data_op      = InstrD[27];  // op[0]
-  assign is_branch       = InstrD[26];  // op[1]
+  assign is_data_op = InstrD[27];  // op[0]
+  assign is_branch = InstrD[26];  // op[1]
 
-  assign is_alu_src      = (InstrD[25]);
-  assign modifies_memory = (InstrD[20]);
+  assign is_immediate  /* or alusrc */ = (InstrD[25]);
+  assign sets_flags = (InstrD[20]);
 
 
   // Continuous assignments for combinational logic
-  assign RegSrcD         = is_data_op ? 2'b00 : is_branch ? 2'b01 : {~modifies_memory, 1'b0};
+  assign RegSrcD = is_data_op ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
 
-  assign ImmSrcD         = is_data_op ? 2'b00 : is_branch ? 2'b10 : 2'b01;
+  assign ImmSrcD = is_data_op ? 2'b00 : is_branch ? 2'b10 : 2'b01;
 
-  assign ALUSrcD         = is_data_op ? is_alu_src : is_branch ? 1'b0 : 1'b1;
+  assign ALUSrcD = is_data_op ? is_immediate : is_branch ? 1'b0 : 1'b1;
 
-  assign MemtoRegD       = is_data_op ? 1'b0 : is_branch ? 1'b0 : modifies_memory;
+  assign MemtoRegD = is_data_op ? 1'b0 : is_branch ? 1'b0 : sets_flags;
 
-  assign RegWriteD       = is_data_op ? 1'b1 : is_branch ? 1'b0 : ~modifies_memory;
+  assign RegWriteD = is_data_op ? 1'b1 : is_branch ? 1'b0 : ~sets_flags;
 
-  assign MemWriteD       = is_data_op ? 1'b0 : is_branch ? 1'b1 : modifies_memory ? 1'b0 : 1'b1;
+  assign MemWriteD = is_data_op ? 1'b0 : is_branch ? 1'b1 : sets_flags ? 1'b0 : 1'b1;
 
-  assign BranchD         = is_data_op ? 1'b0 : is_branch ? 1'b1 : 1'b0;
+  assign BranchD = is_data_op ? 1'b0 : is_branch ? 1'b1 : 1'b0;
 
-  assign ALUOpD          = is_data_op ? 1'b1 : is_branch ? 1'b0 : 1'b0;
+  assign ALUOpD = is_data_op ? 1'b1 : is_branch ? 1'b0 : 1'b0;
 
 
   always @(*) begin

@@ -4,12 +4,13 @@ module arm (
     output wire [31:0] PCF,
     input wire [31:0] InstrF,
     output wire MemWriteM,
-    output wire [31:0] ALUOutM,
+    output wire [(DATA_WIDTH*2)-1:0] ALUOutM,
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM
 );
   localparam ALUCONTROL_WIDTH = 5;
   localparam ALU_FLAGS_WIDTH = 5;
+  parameter DATA_WIDTH = 32;
 
   wire [1:0] RegSrcD;
   wire [1:0] ImmSrcD;
