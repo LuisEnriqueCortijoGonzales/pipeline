@@ -41,12 +41,12 @@ The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
 
 | **Operation** | **ALUControl Encoding (5 bits)** | **Description**                                                                                   |
 | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `MLA`         | `01111`                          | Multiply-Accumulate: `Result = Ra + (A * B)`.                                                     |
-| `MLS`         | `10000`                          | Multiply-Subtract: `Result = Ra - (A * B)`.                                                       |
-| `UMULL`       | `10001`                          | Unsigned Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`). |
-| `UMLAL`       | `10010`                          | Unsigned Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                          |
-| `SMULL`       | `10011`                          | Signed Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`).   |
-| `SMLAL`       | `10100`                          | Signed Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                            |
+| `MLA`         | `01000`                          | Multiply-Accumulate: `Result = Ra + (A * B)`.                                                     |
+| `MLS`         | `01001`                          | Multiply-Subtract: `Result = Ra - (A * B)`.                                                       |
+| `UMULL`       | `01010`                          | Unsigned Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`). |
+| `UMLAL`       | `01011`                          | Unsigned Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                          |
+| `SMULL`       | `01100`                          | Signed Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`).   |
+| `SMLAL`       | `01101`                          | Signed Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                            |
 
 ##### MLA / MLS
 
