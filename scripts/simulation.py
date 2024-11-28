@@ -51,6 +51,14 @@ def execute_instruction(inst):
         registers[inst[1]] = int(registers[inst[2]]) * int(registers[inst[3]]) + int(registers[inst[4]])
     elif op == "MLS":
         registers[inst[1]] = int(registers[inst[2]]) * int(registers[inst[3]]) - int(registers[inst[4]])
+    elif op == "UMULL":
+        registers[inst[1]] = int(registers[inst[2]] * registers[inst[3]]) 
+    elif op == "UMLAL":
+        registers[inst[1]] = int((registers[inst[2]] * registers[inst[3]]) + registers[inst[4]]) 
+    elif op == "SMULL":
+        registers[inst[1]] = int(registers[inst[2]] * registers[inst[3]])
+    elif op == "SMLAL":
+        registers[inst[1]] = int((registers[inst[2]] * registers[inst[3]]) + registers[inst[4]])
     elif op == "AND":
         registers[inst[1]] = int(registers[inst[2]]) & (inst[3] if isinstance(inst[3], int) else int(registers[inst[3]]))
     elif op == "BIC":
@@ -71,7 +79,11 @@ def execute_instruction(inst):
     elif op == "RRX":
         carry = 0  # Not implemented, assumed 0
         registers[inst[1]] = (int(registers[inst[2]]) >> 1) | (carry << 31)
-
+    elif op == "TST":
+        registers[inst[1]] = int(registers[inst[2]]) & (inst[3] if isinstance(inst[3], int) else int(registers[inst[3]]))
+    elif op == "TEQ":
+        registers[inst[1]] = int(registers[inst[2]]) ^ (inst[3] if isinstance(inst[3], int) else int(registers[inst[3]]))
+        
 # Ejecutamos las instrucciones
 for inst in instructions:
     execute_instruction(inst)
