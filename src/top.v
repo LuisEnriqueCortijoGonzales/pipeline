@@ -3,6 +3,7 @@ module top (
     input wire reset
 );
   parameter DATA_WIDTH = 32;
+  localparam MEMFILE = "memfile.mla.dat";
 
   wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;
@@ -35,7 +36,9 @@ module top (
 
   // 'PCF' es la dirección de la instrucción actual, y 'InstrF' es la instrucción leída.
 
-  InstructionMemory InstrMem (
+  InstructionMemory #(
+      .MEMFILE(MEMFILE)
+  ) InstrMem (
       .address(PCF),
       .instruction(InstrF)
   );
@@ -44,11 +47,16 @@ module top (
   // 'DataAdrM' es la dirección de memoria, 'WriteDataM' son los datos a escribir,
   // y 'ReadDataM' son los datos leídos de la memoria.
 
-  DataMemory DataMem (
+  DataMemory #(
+      .MEMFILE(MEMFILE)
+  ) DataMem (
       .clk(clk),
       .we(MemWriteM),
       .address(DataAdrM[DATA_WIDTH-1:0]),
       .write_data(WriteDataM),
       .read_data(ReadDataM)
   );
+
+
+
 endmodule

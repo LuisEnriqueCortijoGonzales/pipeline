@@ -1,4 +1,6 @@
-module DataMemory (
+module DataMemory #(
+    parameter MEMFILE = "memfile.dat"
+) (
     input wire clk,
     input wire we,
     input wire [31:0] address,
@@ -6,8 +8,7 @@ module DataMemory (
     output wire [31:0] read_data
 );
   reg [31:0] RAM[0:2097151];
-  initial $readmemh("memfile.dat", RAM);
-  //lectura de la memoria
+  initial $readmemh(MEMFILE, RAM);
   assign read_data = RAM[address[22:2]];
   always @(posedge clk) if (we) RAM[address[22:2]] <= write_data;
 endmodule

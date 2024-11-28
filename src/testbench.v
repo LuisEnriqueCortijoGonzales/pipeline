@@ -39,20 +39,29 @@ module testbench;
 
   // Declare wires to monitor internal signals
   wire ALUSrcE;
-  wire [31:0] SrcAE, SrcBE, SrcCE, ALUResultE;
+  wire [31:0] SrcAE, SrcBE, SrcCE, ALUResultE, ResultW, ALUOutM;
   wire [3:0] RA3D;
   wire [4:0] ALUControlE;
   wire [31:0] R[0:14];
+  wire [1:0] ForwardCE;
+  wire RegWriteM;
 
   // Assign wires to internal signals
   assign ALUSrcE = processor.arm.ALUSrcE;
   assign SrcAE = processor.arm.Data_path.SrcAE;
   assign SrcBE = processor.arm.Data_path.SrcBE;
-  assign SrcCE = processor.arm.Data_path.rd3E;
+  assign SrcCE = processor.arm.Data_path.SrcCE;
   assign RA3D = processor.arm.Data_path.RA3D;
   assign rd3D = processor.arm.Data_path.rd3D;
   assign ALUResultE = processor.arm.Data_path.ALUResultE;
   assign ALUControlE = processor.arm.ALUControlE;
+
+  assign ALUOutM = processor.arm.Data_path.ALUOutM;
+  assign ResultW = processor.arm.Data_path.ResultW;
+
+  assign ForwardCE = processor.arm.Hazard_unit.ForwardCE;
+  assign RegWriteM = processor.arm.RegWriteM;
+
 
   // Assign register values
   genvar i;
@@ -64,8 +73,8 @@ module testbench;
 
   initial begin
     $monitor(
-        "ALUSrc: %b | SrcA: %d | SrcB: %d | SrcC %d|  ALUResult: %d | ALUControl: %b | Registers: R0=%d R1=%d R2=%d R3=%d R4=%d R5=%d",
-        ALUSrcE, SrcAE, SrcBE, SrcCE, ALUResultE, ALUControlE, R[0], R[1], R[2], R[3], R[4], R[5]);
+        "RegWriteM %b| ResultW:%d | ALUOutM:%d | ForwardCE: %b | SrcA: %d | SrcB: %d | SrcC %d|  ALUResult: %d | ALUControl: %b",
+        RegWriteM, ResultW, ALUOutM, ForwardCE, SrcAE, SrcBE, SrcCE, ALUResultE, ALUControlE);
   end
 
   // Verify results after certain time
@@ -82,20 +91,12 @@ module testbench;
       $display("Error: R1 != 15");
       $stop;
     end
-    if (R[2] !== 32'd8) begin
-      $display("Error: R2 != 8");
+    if (R[2] !== 32'd2) begin
+      $display("Error: R2 != 2");
       $stop;
     end
     if (R[3] !== 32'd30) begin
       $display("Error: R3 != 30");
-      $stop;
-    end
-    if (R[4] !== 32'd1) begin
-      $display("Error: R4 != 1");
-      $stop;
-    end
-    if (R[5] !== 32'd8) begin
-      $display("Error: R5 != 8");
       $stop;
     end
 

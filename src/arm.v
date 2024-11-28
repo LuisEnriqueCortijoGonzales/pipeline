@@ -36,6 +36,8 @@ module arm (
   wire Match_1E_W;
   wire Match_2E_M;
   wire Match_2E_W;
+  wire Match_3E_M;
+  wire Match_3E_W;
   wire Match_12D_E;
   wire branch;
   wire taken;

@@ -67,7 +67,6 @@ module datapath (
 
   wire [31:0] ReadDataW;
   wire [(DATA_WIDTH*2)-1:0] ALUOutW;
-
   wire [(DATA_WIDTH*2)-1:0] ResultW;
 
   wire [3:0] RA1D;
@@ -263,6 +262,17 @@ module datapath (
       .reset(reset),  // Señal de reinicio
       .d    (RA2D),   // Dato de entrada
       .q    (RA2E)    // Dato de salida
+  );
+
+  // Este registro almacena la dirección del tercer registro fuente en la etapa de decodificación
+  // y la transfiere a la etapa de ejecución para el acceso a los datos.
+  registro_flanco_positivo #(
+      .WIDTH(4)
+  ) ra3_reg (
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (RA3D),   // Dato de entrada
+      .q    (RA3E)    // Dato de salida
   );
 
   // Forwarding/Bypassing: Utiliza multiplexores para redirigir los resultados
