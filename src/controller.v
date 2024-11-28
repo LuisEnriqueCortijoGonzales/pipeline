@@ -117,7 +117,7 @@ module controller (
       FlagWriteD[0] = InstrD[20] & ((ALUControlD == 5'b0000) | (ALUControlD == 5'b0100));
     end else begin
       if (is_branch) begin
-        case (InstrD[24:23])
+        case (InstrD[25:24])
           2'b00:   ALUControlD = 5'b00000;  // B
           2'b01:   ALUControlD = 5'b00001;  // BL
           2'b11:   ALUControlD = 5'b10010;  // CBZ Test & branch
