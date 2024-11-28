@@ -40,3 +40,4 @@ module branch_predictor (
             WEAKLY_TAKEN, STRONGLY_TAKEN:         predict_taken = 1'b1;
         endcase
     end
+endmodule
