@@ -4,7 +4,7 @@ module top (
 );
   parameter DATA_WIDTH = 32;
 
-  output wire [(DATA_WIDTH*2)-1:0] DataAdrM;
+  wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;
   wire MemWriteM;
 

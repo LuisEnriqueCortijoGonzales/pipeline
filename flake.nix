@@ -28,7 +28,8 @@
             xterm
 
             python3
-          ] ++ (with nix-xilinx.packages.x86_64-linux; [ vivado vitis ]);
+          ] ++ (with nix-xilinx.packages.x86_64-linux; [ vivado vitis ])
+          ++ (with python312Packages; [ keystone-engine ]);
         shellHook = nix-xilinx.shellHooksCommon;
 
       };
