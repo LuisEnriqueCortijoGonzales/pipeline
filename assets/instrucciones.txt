@@ -1,0 +1,51 @@
+MOV r0, #5
+MOV r1, #10
+MOV r2, #15
+MOV r3, #20
+MOV r4, #25
+MOV r5, #30
+MOV r6, #35
+MOV r7, #40
+MOV r8, #45
+MOV r9, #50
+MOV r10, #55
+MOV r11, #60
+MOV r12, #65
+MOV r1, #70
+ADD r0, r1, r2
+ADD r3, r3, #5
+MOV r4, #1
+ADC r5, r6, r7
+ADC r8, r8, #10
+QADD r9, r10, r11
+SUB r0, r1, r2
+SUB r3, r3, #5
+SBC r7, r8, r9
+SBC r10, r10, #10
+QSUB r11, r12, r1
+MUL r0, r1, r2
+MLA r3, r4, r5, r6
+MLS r7, r8, r9, r10
+UMULL r11, r12, r1, r2
+UMLAL r3, r4, r5, r6
+SMULL r7, r8, r9, r10
+SMLAL r11, r12, r1, r2
+AND r0, r1, r2
+AND r3, r3, #0
+BIC r4, r5, r6
+BIC r7, r7, #0xF
+ORR r8, r9, r10
+ORR r11, r11, #0xF
+EOR r3, r4, r5
+EOR r6, r6, #0x1
+CMN r7, r8
+TST r9, r10
+TEQ r11, r12
+CMP r1, r2
+MOV r3, r4
+MOV r5, #0xFF
+LSR r6, r7, #1
+ASR r8, r9, #2
+LSL r10, r11, #3
+ROR r12, r1, #4
+RRX r2, r3
