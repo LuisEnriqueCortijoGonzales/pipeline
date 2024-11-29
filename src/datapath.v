@@ -50,6 +50,9 @@ module datapath (
   wire [31:0] rd3D;
 
   wire [31:0] PCPlus8D;
+  wire [31:0] PCPlus8E;
+  wire [31:0] PCPlus8M;
+  wire [31:0] PCPlus8W;
 
   wire [31:0] rd1E;
   wire [31:0] rd2E;
@@ -136,6 +139,7 @@ module datapath (
       .s (BranchTakenE),
       .y (PCnextF)
   );
+
   // Stall: Controla el estancamiento de instrucciones en el pipeline para
   // resolver dependencias de datos o control, insertando burbujas cuando sea
   // necesario.
@@ -156,7 +160,9 @@ module datapath (
       .b(32'h00000004),
       .y(PCPlus4F)
   );
+
   assign PCPlus8D = PCPlus4F;
+
   // Flush: Limpia las instrucciones en el pipeline en respuesta a cambios de
   // control, como saltos o predicciones de ramas incorrectas, para mantener
   // la coherencia del flujo de instrucciones.
@@ -171,15 +177,34 @@ module datapath (
       .q    (InstrD)    // Dato de salida, la instrucción almacenada
   );
 
-  regfile Registros (  //el registro de registros para ver los registros
+
+  // BL Muxes
+
+  wire [31:0] WD3_IN;
+  mux2 WD3_BL_MUX (
+      .d0(ResultW[DATA_WIDTH-1:0]),
+      .d1(PCPlus8W - 32'd4),
+      .s (RegSrcD[0]),
+      .y (WD3_IN)
+  );
+  wire [3:0] WA3_IN;
+  mux2 WA3W_BL_MUX (
+      .d0(WA3W),
+      .d1(4'd14),
+      .s (RegSrcD[0]),
+      .y (WA3_IN)
+  );
+
+
+  regfile Registros (  //el registro de registros para ver los xregistros
       .clk(clk),  // Reloj del sistema
       .we3(RegWriteW),  // Señal de escritura
       .ra1(RA1D),  // Dirección del primer registro a leer
       .ra2(RA2D),  // Dirección del segundo registro a leer
       .ra3(RA3D),  // Dirección del tercer registro (LMUL)
-      .wa3(WA3W),  // Dirección del registro a escribir
+      .wa3(WA3_IN),  // Dirección del registro a escribir
       .wa3_2(WA3_2W),  // Dirección del segundo registro a escribir (LMUL)
-      .wd3(ResultW[DATA_WIDTH-1:0]),  // Dato a escribir
+      .wd3(WD3_IN),  // Dato a escribir
       .wd3_2(ResultW[(DATA_WIDTH*2)-1:DATA_WIDTH]),  // Dato a escribir (LMUL)
       .r15(PCPlus8D),  // Valor del registro 15 (PC + 8)
       .rd1(rd1D),  // Salida del primer registro leído
@@ -210,6 +235,31 @@ module datapath (
       .reset(reset),  // Señal de reinicio
       .d    (rd2D),   // Dato de entrada
       .q    (rd2E)    // Dato de salida
+  );
+
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) PC8_DE_reg (
+      .clk  (clk),       // Reloj del sistema
+      .reset(reset),     // Señal de reinicio
+      .d    (PCPlus8D),  // Dato de entrada
+      .q    (PCPlus8E)   // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) PC8_EM_reg (
+      .clk  (clk),       // Reloj del sistema
+      .reset(reset),     // Señal de reinicio
+      .d    (PCPlus8E),  // Dato de entrada
+      .q    (PCPlus8M)   // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) PC8_MW_reg (
+      .clk  (clk),       // Reloj del sistema
+      .reset(reset),     // Señal de reinicio
+      .d    (PCPlus8M),  // Dato de entrada
+      .q    (PCPlus8W)   // Dato de salida
   );
 
 
@@ -428,7 +478,7 @@ module datapath (
   comparador_igualdad #(
       .WIDTH(4)
   ) m1 (
-      .a(WA3W),
+      .a(WA3_IN),
       .b(RA1E),
       .y(Match_1E_W)
   );
@@ -460,7 +510,7 @@ module datapath (
   comparador_igualdad #(
       .WIDTH(4)
   ) m3 (
-      .a(WA3W),
+      .a(WA3_IN),
       .b(RA2E),
       .y(Match_2E_W)
   );
@@ -495,7 +545,7 @@ module datapath (
   comparador_igualdad #(
       .WIDTH(4)
   ) src3_comparator_WR (
-      .a(WA3W),
+      .a(WA3_IN),
       .b(RA3E),
       .y(Match_3E_W)
   );
