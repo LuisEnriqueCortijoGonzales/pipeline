@@ -65,6 +65,26 @@ The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
 - **RdLo (4b):** Address of the less significant 32bits of the 64B number, also used as an accumulate (UMLAL, SMLAL)
 - **RdHi (4b):** Address of the more significant 32bits of the 64B number.
 
+
+##### Memory operations
+| Cond | OP | I | P | U | B | W | L | Rn | Rd | Offset/Immediate |
+
+ Campo             | Bits | Descripción                                                                 |
+|--------------------|------|-----------------------------------------------------------------------------|
+| **Cond**          | 4    | Condición para ejecutar la instrucción (e.g., `EQ`, `NE`, `AL`, etc.).       |
+| **01**            | 2    | Especifica que es una instrucción de carga/almacenamiento.                  |
+| **I**             | 1    | Define si el desplazamiento es inmediato (`0`) o basado en un registro (`1`).|
+| **P**             | 1    | Preindexado (`1`) o postindexado (`0`).                                     |
+| **U**             | 1    | Incremento (`1`) o decremento (`0`) de la dirección base.                   |
+| **B**             | 1    | Transferencia de bytes (`1`) o palabras completas (`0`).                   |
+| **W**             | 1    | Escribe la dirección calculada en el registro base (`1`).                  |
+| **L**             | 1    | Cargar (`1`) o almacenar (`0`).                                             |
+| **Rn**            | 4    | Registro base que contiene la dirección.                                    |
+| **Rd**            | 4    | Registro destino (para carga) o fuente (para almacenamiento).               |
+| **Offset/Immediate** | 12 | Valor de desplazamiento inmediato o especificación de un registro.         |
+
+
+
 ---
 
 TODO: Fix the md syntax
