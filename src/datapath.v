@@ -212,14 +212,18 @@ module datapath (
   // BL Muxes
 
   wire [31:0] WD3_IN;
-  mux2 WD3_BL_MUX (
+  mux2 #(
+      .WIDTH(32)
+  ) WD3_BL_MUX (
       .d0(ResultW[DATA_WIDTH-1:0]),
       .d1(PCPlus8W - 32'd4),
       .s (RegSrcW[0]),
       .y (WD3_IN)
   );
   wire [3:0] WA3_IN;
-  mux2 WA3W_BL_MUX (
+  mux2 #(
+      .WIDTH(32)
+  ) WA3W_BL_MUX (
       .d0(WA3W),
       .d1(4'd14),
       .s (RegSrcW[0]),

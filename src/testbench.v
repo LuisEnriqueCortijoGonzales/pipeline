@@ -128,7 +128,7 @@ module testbench;
 
   initial begin
     $monitor(
-        "RegWriteD %b | RegWriteW %b | WA3W %d | WD3_IN %d | RegSrcD %b \nForwardAE %b | ResultW %d | ALUOutM:%d | \n  RAD: %d %d %d | RD: %d %d %d  \n SrcA: %d | SrcB: %d | SrcC %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n",
+        "RegWriteD %b | RegWriteW %b | WA3W %d | WD3_IN %d | RegSrcD %b \nForwardAE %b | ResultW %d | ALUOutM:%d | \n  RAD: %d %d %d | RD: %d %d %d  \n SrcA: %d | SrcB: %d | SrcC %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %b %d %d %d \n",
         RegWriteD, RegWriteW, WA3W, WD3_IN, RegSrcD, ForwardAE, ResultW, ALUOutM, RA1D, RA2D, RA3D,
         rd1D, rd2D, rd3D, SrcAE, SrcBE, SrcCE, ALUResultE[31:0], ALUControlD, ALUControlE, R[0],
         R[1], R[2], R[3]);

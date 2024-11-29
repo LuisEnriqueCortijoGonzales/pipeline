@@ -1,0 +1,37 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:36:09 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Fri Nov 29 00:14:29 2024
+# Process ID: 113003
+# Current directory: /home/hybridz/Projects/pipeline/src
+# Command line: vivado
+# Log file: /home/hybridz/Projects/pipeline/src/vivado.log
+# Journal file: /home/hybridz/Projects/pipeline/src/vivado.jou
+# Running On        :nixos
+# Platform          :NixOS
+# Operating System  :NixOS 24.05 (Uakari)
+# Processor Detail  :Intel(R) Core(TM) Ultra 9 185H
+# CPU Frequency     :2299.216 MHz
+# CPU Physical cores:16
+# CPU Logical cores :22
+# Host memory       :66915 MB
+# Swap memory       :75497 MB
+# Total Virtual     :142412 MB
+# Available Virtual :136459 MB
+#-----------------------------------------------------------
+start_gui
+create_project pipeline /home/hybridz/Documents/Arqui/pipeline -part xc7a35tcpg236-1
+set_property board_part digilentinc.com:basys3:part0:1.2 [current_project]
+add_files {/home/hybridz/Projects/pipeline/src/arm.v /home/hybridz/Projects/pipeline/src/testbench.v /home/hybridz/Projects/pipeline/src/regfile.v /home/hybridz/Projects/pipeline/src/conditional.v /home/hybridz/Projects/pipeline/src/DataMemory.v /home/hybridz/Projects/pipeline/src/extend.v /home/hybridz/Projects/pipeline/src/hazard.v /home/hybridz/Projects/pipeline/src/estructuras_varias.v /home/hybridz/Projects/pipeline/src/InstructionMemory.v /home/hybridz/Projects/pipeline/src/top.v /home/hybridz/Projects/pipeline/src/branch_predictor.v /home/hybridz/Projects/pipeline/src/alu.v /home/hybridz/Projects/pipeline/src/controller.v /home/hybridz/Projects/pipeline/src/datapath.v}
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {/home/hybridz/Projects/pipeline/src/memfile.mov.dat /home/hybridz/Projects/pipeline/src/memfile.dat /home/hybridz/Projects/pipeline/src/memfile.mla.dat}
+launch_simulation
+source testbench.tcl
+close_sim
+launch_simulation
+launch_simulation
+source testbench.tcl
