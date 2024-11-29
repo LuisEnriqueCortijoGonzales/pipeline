@@ -8,49 +8,59 @@ module alu (
     output wire [ALUCONTROL_WIDTH-1:0] ALUFlags
 );
 
-  parameter ALUCONTROL_WIDTH = 5;
+  parameter ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
   parameter DATA_WIDTH = 32;
 
   // ALUControl Encodings
-  localparam ADD = 5'b00000;
-  localparam ADC = 5'b00001;
-  localparam QADD = 5'b00010;
+  localparam ADD = 6'b100000;
+  localparam ADC = 6'b100001;
+  localparam QADD = 6'b100010;
 
-  localparam SUB = 5'b00011;
-  localparam SBC = 5'b00100;
-  localparam RSB = 5'b00101;
-  localparam QSUB = 5'b00110;
+  localparam SUB = 6'b100011;
+  localparam SBC = 6'b100100;
+  localparam RSB = 6'b100101;
+  localparam QSUB = 6'b100110;
 
-  localparam MUL = 5'b00111;
+  localparam MUL = 6'b100111;
   // More complex multiplications are implemented in the mac module
-  localparam MLA = 5'b01000;
-  localparam MLS = 5'b01001;
-  localparam UMULL = 5'b01010;
-  localparam UMLAL = 5'b01011;
-  localparam SMULL = 5'b01100;
-  localparam SMLAL = 5'b01101;
+  localparam MLA = 6'b101000;
+  localparam MLS = 6'b101001;
+  localparam UMULL = 6'b101010;
+  localparam UMLAL = 6'b101011;
+  localparam SMULL = 6'b101100;
+  localparam SMLAL = 6'b101101;
 
-  localparam UDIV = 5'b01110;
-  localparam SDIV = 5'b01111;
+  localparam UDIV = 6'b101110;
+  localparam SDIV = 6'b101111;
 
-  localparam AND_OP = 5'b10000;
-  localparam BIC = 5'b10001;
-  localparam ORR = 5'b10010;
-  localparam ORN = 5'b10011;
-  localparam EOR = 5'b10100;
+  localparam AND_OP = 6'b110000;
+  localparam BIC = 6'b110001;
+  localparam ORR = 6'b110010;
+  localparam ORN = 6'b110011;
+  localparam EOR = 6'b110100;
 
-  localparam CMN = 5'b10101;
-  localparam TST = 5'b10110;
-  localparam TEQ = 5'b10111;
-  localparam CMP = 5'b11000;
+  localparam CMN = 6'b110101;
+  localparam TST = 6'b110110;
+  localparam TEQ = 6'b110111;
+  localparam CMP = 6'b111000;
 
-  localparam MOV = 5'b11001;
-  localparam LSHIFT = 5'b11100;
-  localparam RSHIFT = 5'b11010;
-  localparam ASHIFT = 5'b11011;
-  localparam ROR = 5'b11101;
-  localparam RRX = 5'b11110;
+  localparam MOV = 6'b111001;
+  localparam LSHIFT = 6'b111100;
+  localparam RSHIFT = 6'b111010;
+  localparam ASHIFT = 6'b111011;
+  localparam ROR = 6'b111101;
+  localparam RRX = 6'b111110;
+  localparam EON = 6'b111111;
+
+  // branch
+  // cbz
+  // cbnz
+  localparam B = 6'b010000;
+  localparam CBZ = 6'b010010;
+  localparam CBNZ = 6'b010011;
+
+
 
 
   // Flag bits
@@ -126,6 +136,10 @@ module alu (
       RSHIFT: Result = a >> shift_amount;
       ROR: Result = (a >> shift_amount) | (a << (DATA_WIDTH - shift_amount));
       RRX: Result = {CarryIn, a[DATA_WIDTH-1:1]};
+
+      // Branching
+      B: Result = a + (b << 2);
+
       default: Result = 32'b0;
 
     endcase
