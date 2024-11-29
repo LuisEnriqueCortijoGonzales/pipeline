@@ -47,7 +47,7 @@ module arm (
   wire predict_taken;
 
 
-  wire [3:0] FlagsE;
+  wire [ALU_FLAGS_WIDTH-1:0] FlagsE;
 
   controller Control_unit (
       .clk(clk),
@@ -152,6 +152,6 @@ module arm (
   );
 
   // i fucking hate u
-  assign PCSrcW = predict_taken;
+  // assign PCSrcW = predict_taken;
 
 endmodule

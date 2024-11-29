@@ -43,10 +43,10 @@ module controller (
 
   wire [3:0] CondE;
 
+  wire [ALU_FLAGS_WIDTH-1:0] FlagsNextE;
 
   wire is_data_processing;
   wire sets_flags;
-  wire is_branch;
 
   wire is_branch;
   wire is_immediate;
@@ -77,7 +77,6 @@ module controller (
 
   always @(*) begin
     if (ALUOpD) begin
-      is_64b_return = 1'b0;
       case ({
         InstrD[26], InstrD[24:21]
       })
@@ -181,7 +180,7 @@ module controller (
       .q(CondE)
   );
   registro_flanco_positivo #(
-      .WIDTH(4)
+      .WIDTH(5)
   ) flagsreg (
       .clk(clk),
       .reset(reset),

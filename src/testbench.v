@@ -40,40 +40,28 @@ module testbench;
   // Declare wires to monitor internal signals
   wire [31:0] InstrD;
 
-  wire ALUSrcE;
   wire [31:0] SrcAE, SrcBE, SrcCE, SrcDE;
   wire [63:0] ALUResultE, ResultW, ALUOutM;
   wire [3:0] RA4D, RA3D, RA2D, RA1D;
   wire [3:0] WA3W;
-  wire [4:0] ALUControlE;
-  wire [4:0] ALUControlD;
+  wire [5:0] ALUControlE;
+  wire [5:0] ALUControlD;
   wire [31:0] R[0:14];
 
   wire [1:0] RegWriteM;
   wire [1:0] RegWriteW;
   wire [1:0] RegWriteD;
 
-  wire [3:0] WA3D;
 
   wire ALUSrcE;
   wire [31:0] ExtImm;
 
   wire PCSrcW;
 
-  wire [31:0] SrcAE, SrcBE, SrcCE, ALUResultE, ResultW, ALUOutM;
-  wire [3:0] RA3D, RA2D, RA1D;
-  wire [3:0] WA3W;
-  wire [5:0] ALUControlE;
-  wire [5:0] ALUControlD;
-  wire [31:0] R[0:14];
 
   wire [1:0] RegSrcD;
 
   wire [31:0] PCF;
-
-  wire [1:0] RegWriteM;
-  wire [1:0] RegWriteW;
-  wire [1:0] RegWriteD;
 
   wire [3:0] WA3D;
   wire [3:0] WD3_IN;
@@ -94,8 +82,6 @@ module testbench;
   wire [31:0] rd2D;
   wire [31:0] rd3D;
   wire [31:0] rd4D;
-
-  wire [31:0] InstrD;
 
   wire [1:0] ImmSrcD;
 
@@ -137,8 +123,6 @@ module testbench;
 
   assign RegSrcD = processor.arm.RegSrcD;
 
-
-  assign WA3D = processor.arm.Data_path.InstrD[15:12];
 
   assign WA3W = processor.arm.Data_path.WA3W;
 
