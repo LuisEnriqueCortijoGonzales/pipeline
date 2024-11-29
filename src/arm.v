@@ -19,10 +19,10 @@ module arm (
   wire BranchTakenE;
   wire MemtoRegW;
   wire PCSrcW;
-  wire RegWriteW;
+  wire [1:0] RegWriteW;
   wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE;
   wire [31:0] InstrD;
-  wire RegWriteM;
+  wire [1:0] RegWriteM;
   wire MemtoRegE;
   wire PCWrPendingF;
   wire [1:0] ForwardAE;

@@ -28,7 +28,8 @@ module comparador_igualdad_doble (
     output wire y
 );
   parameter WIDTH = 8;
-  assign y = (a[WIDTH-1:0] == b) | (a[(WIDTH*2)-1:WIDTH] == b);
+  // TODO: compare a[(WIDTH*2)-1:WIDTH] == b if they are used
+  assign y = a[WIDTH-1:0] == b;
 endmodule
 
 module registro_flanco_positivo_habilitacion_limpieza (

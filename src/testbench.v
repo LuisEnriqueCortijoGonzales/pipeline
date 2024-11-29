@@ -41,6 +41,20 @@ module testbench;
   wire [31:0] InstrD;
 
   wire ALUSrcE;
+  wire [31:0] SrcAE, SrcBE, SrcCE, ALUResultE, ResultW, ALUOutM;
+  wire [3:0] RA3D, RA2D, RA1D;
+  wire [3:0] WA3W;
+  wire [4:0] ALUControlE;
+  wire [4:0] ALUControlD;
+  wire [31:0] R[0:14];
+
+  wire [1:0] RegWriteM;
+  wire [1:0] RegWriteW;
+  wire [1:0] RegWriteD;
+
+  wire [3:0] WA3D;
+
+  wire ALUSrcE;
   wire [31:0] ExtImm;
 
   wire PCSrcW;

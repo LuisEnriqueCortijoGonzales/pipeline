@@ -1,7 +1,8 @@
 module alu (
     input wire [DATA_WIDTH-1:0] a,
     input wire [DATA_WIDTH-1:0] b,
-    input wire [DATA_WIDTH-1:0] MulOrigin,
+    input wire [DATA_WIDTH-1:0] RdLo,
+    input wire [DATA_WIDTH-1:0] RdHi_Ra,
     input wire [ALUCONTROL_WIDTH-1:0] ALUControl,
     input wire CarryIn,  // Carry used for ADC, SBC, etc.
     input wire [DATA_WIDTH-1:0] CBZRn,  // Extra conditional value for CBZ/CBNZ
@@ -110,12 +111,12 @@ module alu (
 
       MUL:   Result = a * b;
       // More complex multiplications are implemented in the mac module
-      MLA:   Result = MulOrigin + (a * b);
-      MLS:   Result = MulOrigin - (a * b);
+      MLA:   Result = RdHi_Ra + (a * b);
+      MLS:   Result = RdHi_Ra - (a * b);
       UMULL: Result = $unsigned(a * b);
-      UMLAL: Result = $unsigned(MulOrigin + (a * b));
+      UMLAL: Result = $unsigned({RdHi_Ra, RdLo} + (a * b));
       SMULL: Result = $signed(a * b);
-      SMLAL: Result = $signed(MulOrigin + (a * b));
+      SMLAL: Result = $signed({RdHi_Ra, RdLo} + (a * b));
 
       UDIV: Result = udiv_result;
       SDIV: Result = sdiv_result;

@@ -12,7 +12,7 @@ module conditional (
   wire zero;  // Flag de cero
   wire overflow;  // Flag de desbordamiento
   wire ge;  // Señal que indica si es mayor o igual
-  wire saturated;
+  wire saturated;  // Señal de saturación
 
   // Asignación de los flags a las señales individuales
   assign {saturated, neg, zero, carry, overflow} = Flags;
@@ -42,6 +42,6 @@ module conditional (
   end
 
   // Asignación de los flags que se escribirán en el siguiente ciclo
-  assign FlagsNext[3:2] = (FlagsWrite[1] & CondEx ? ALUFlags[3:2] : Flags[3:2]);
-  assign FlagsNext[1:0] = (FlagsWrite[0] & CondEx ? ALUFlags[1:0] : Flags[1:0]);
+  assign FlagsNext[3:2] = FlagsWrite[1] & CondEx ? ALUFlags[3:2] : Flags[3:2];
+  assign FlagsNext[1:0] = FlagsWrite[0] & CondEx ? ALUFlags[1:0] : Flags[1:0];
 endmodule

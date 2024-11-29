@@ -58,7 +58,7 @@ The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
 
 ##### UMULL / UMLAL / SMULL / SMLAL
 
-| Cond | OP  | I   | command | S   | Rn  | RdHi | RdLo | NULL | Rm  |
+| Cond | OP  | I   | command | S   | Rn  | RdLo | RdHi | NULL | Rm  |
 | ---- | --- | --- | ------- | --- | --- | ---- | ---- | ---- | --- |
 | 4b   | 2b  | 1b  | 4b      | 1b  | 4b  | 4b   | 4b   | 4b   | 4b  |
 

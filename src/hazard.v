@@ -34,8 +34,8 @@ module hazardUnit (
   input wire Match_3E_W;
   input wire Match_12D_E;
 
-  input wire RegWriteM;
-  input wire RegWriteW;
+  input wire [1:0] RegWriteM;
+  input wire [1:0] RegWriteW;
   input wire BranchTakenE;
   input wire MemtoRegE;
   input wire PCWrPendingF;
@@ -66,18 +66,18 @@ module hazardUnit (
   always @(*) begin
 
     // Reenvío para el primer operando en la etapa E
-    if (Match_1E_M & RegWriteM) ForwardAE = 2'b10;  // Desde la etapa M
-    else if (Match_1E_W & RegWriteW) ForwardAE = 2'b01;  // Desde la etapa W
+    if (Match_1E_M & RegWriteM[0]) ForwardAE = 2'b10;  // Desde la etapa M
+    else if (Match_1E_W & RegWriteW[0]) ForwardAE = 2'b01;  // Desde la etapa W
     else ForwardAE = 2'b00;  // Desde el archivo de registros
 
     // Reenvío para el segundo operando en la etapa E
-    if (Match_2E_M & RegWriteM) ForwardBE = 2'b10;  // Desde la etapa M
-    else if (Match_2E_W & RegWriteW) ForwardBE = 2'b01;  // Desde la etapa W
+    if (Match_2E_M & RegWriteM[0]) ForwardBE = 2'b10;  // Desde la etapa M
+    else if (Match_2E_W & RegWriteW[0]) ForwardBE = 2'b01;  // Desde la etapa W
     else ForwardBE = 2'b00;  // Desde el archivo de registros
 
     // Reenvío para el tercer operando en la etapa E (usado en operaciones de multiplicación)
-    if (Match_3E_M & RegWriteM) ForwardCE = 2'b10;  // Desde la etapa M
-    else if (Match_3E_W & RegWriteW) ForwardCE = 2'b01;  // Desde la etapa W
+    if (Match_3E_M & RegWriteM[0]) ForwardCE = 2'b10;  // Desde la etapa M
+    else if (Match_3E_W & RegWriteW[0]) ForwardCE = 2'b01;  // Desde la etapa W
     else ForwardCE = 2'b00;  // Desde el archivo de registros
 
 

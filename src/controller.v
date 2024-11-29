@@ -11,8 +11,8 @@ module controller (
     output wire MemWriteM,
     output wire MemtoRegW,
     output wire PCSrcW,
-    output wire RegWriteW,
-    output wire RegWriteM,
+    output wire [1:0] RegWriteW,
+    output wire [1:0] RegWriteM,
     output wire MemtoRegE,
     output wire PCWrPendingF,
     input wire FlushE,
@@ -27,9 +27,9 @@ module controller (
   wire ALUSrcD;
   wire MemtoRegD;
   wire MemtoRegM;
-  wire RegWriteD;
-  wire RegWriteE;
-  wire RegWriteGatedE;
+  wire [1:0] RegWriteD;
+  wire [1:0] RegWriteE;
+  wire [1:0] RegWriteGatedE;
   wire MemWriteD;
   wire MemWriteE;
   wire MemWriteGatedE;
@@ -77,6 +77,7 @@ module controller (
 
   always @(*) begin
     if (ALUOpD) begin
+      is_64b_return = 1'b0;
       case ({
         InstrD[26], InstrD[24:21]
       })
@@ -151,10 +152,10 @@ module controller (
       end
     end
   end
-  assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD) | BranchD;
+  assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD[0]) | BranchD;
 
   registro_flanco_positivo_habilitacion_limpieza #(
-      .WIDTH(7)
+      .WIDTH(8)
   ) flushedregsE (
       .clk(clk),
       .reset(reset),
@@ -195,16 +196,17 @@ module controller (
       .CondEx(CondExE),
       .FlagsNext(FlagsNextE)
   );
+
   // Branch Predictor: Determina si una rama debe tomarse basándose en la
   // condición evaluada en la etapa de ejecución, mejorando la precisión de
   // predicción y reduciendo el número de instrucciones incorrectas en el pipeline.
   assign BranchTakenE   = BranchE & CondExE;
-  assign RegWriteGatedE = RegWriteE & CondExE;
+  assign RegWriteGatedE = CondExE ? RegWriteE : 2'b00;
   assign MemWriteGatedE = MemWriteE & CondExE;
   wire PCSrcGatedE;
   assign PCSrcGatedE = PCSrcE & CondExE;
   registro_flanco_positivo #(
-      .WIDTH(4)
+      .WIDTH(5)
   ) regs_M (
       .clk(clk),
       .reset(reset),
@@ -212,7 +214,7 @@ module controller (
       .q({MemWriteM, MemtoRegM, RegWriteM, PCSrcM})
   );
   registro_flanco_positivo #(
-      .WIDTH(3)
+      .WIDTH(4)
   ) regs_W (
       .clk(clk),
       .reset(reset),

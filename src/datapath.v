@@ -8,7 +8,7 @@ module datapath (
     input wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
     input wire MemtoRegW,
     input wire PCSrcW,
-    input wire RegWriteW,
+    input wire [1:0] RegWriteW,
     output wire [31:0] PCF,
     input wire [31:0] InstrF,
     output wire [31:0] InstrD,
@@ -22,17 +22,26 @@ module datapath (
 
     output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
     output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E
+
     output wire Match_2E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el segundo registro fuente en la etapa E
     output wire Match_2E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el segundo registro fuente en la etapa E
+
     output wire Match_3E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el tercer registro fuente en la etapa E
     output wire Match_3E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el tercer registro fuente en la etapa E
+
+    output wire Match_4E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el tercer registro fuente en la etapa E
+    output wire Match_4E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el tercer registro fuente en la etapa E
+
     output wire Match_12D_E, // Indica si hay coincidencia entre los registros de escritura en la etapa E y los registros fuente en la etapa D
+
     input wire [1:0] ForwardAE,  // Controla el bypassing para el primer operando de la ALU
     input wire [1:0] ForwardBE,  // Controla el bypassing para el segundo operando de la ALU
     input wire [1:0] ForwardCE,  // Controla el bypassing para el tercer operando de la ALU
+    input wire [1:0] ForwardDE,  // Controla el bypassing para el cuarto operando de la ALU
+
     input wire StallF,  // Señal para detener la etapa F del pipeline
     input wire StallD,  // Señal para detener la etapa D del pipeline
-    input wire FlushD  // Señal para limpiar la etapa D del pipeline
+    input wire FlushD   // Señal para limpiar la etapa D del pipeline
 );
   localparam ALU_FLAGS_WIDTH = 5;
   parameter ALUCONTROL_WIDTH = 6;
@@ -48,6 +57,7 @@ module datapath (
   wire [31:0] rd1D;
   wire [31:0] rd2D;
   wire [31:0] rd3D;
+  wire [31:0] rd4D;
 
   wire [31:0] PCPlus8D;
   wire [31:0] PCPlus8E;
@@ -57,12 +67,14 @@ module datapath (
   wire [31:0] rd1E;
   wire [31:0] rd2E;
   wire [31:0] rd3E;
+  wire [31:0] rd4E;
 
   wire [31:0] ExtImmE;
 
   wire [31:0] SrcAE;
   wire [31:0] SrcBE;
   wire [31:0] SrcCE;
+  wire [31:0] SrcDE;
 
   wire [31:0] WriteDataE;
 
@@ -75,10 +87,12 @@ module datapath (
   wire [3:0] RA1D;
   wire [3:0] RA2D;
   wire [3:0] RA3D;
+  wire [3:0] RA4D;
 
   wire [3:0] RA1E;
   wire [3:0] RA2E;
   wire [3:0] RA3E;
+  wire [3:0] RA4E;
 
   wire [7:0] WA3E;
   wire [7:0] WA3M;
@@ -88,7 +102,8 @@ module datapath (
   wire Match_2D_E;
   wire Match_3D_E;
 
-  assign RA3D = InstrD[11:8];
+  assign RA3D = InstrD[15:12];  // Passed to alu as RdLo for multiplications
+  assign RA4D = InstrD[11:8];  // Passed to alu as RdHi/Ra for multiplications
 
   // Este multiplexor selecciona la dirección del primer registro fuente
   // para la etapa de decodificación, permitiendo elegir entre un valor
@@ -97,10 +112,11 @@ module datapath (
       .WIDTH(4)
   ) ra1_mux (
       .d0(InstrD[19:16]),  // Selección de bits de la instrucción
-      .d1(4'b1111),        // Valor alternativo (literal)
+      .d1(4'b1111),        // 15
       .s (RegSrcD[0]),     // Señal de selección
       .y (RA1D)            // Salida del mux
   );
+
   // Este multiplexor selecciona la dirección del segundo registro fuente
   // para la etapa de decodificación, permitiendo elegir entre dos
   // diferentes partes de la instrucción.
@@ -112,6 +128,7 @@ module datapath (
       .s (RegSrcD[1]),     // Señal de selección
       .y (RA2D)            // Salida del mux
   );
+
   // Este multiplexor selecciona la siguiente dirección del contador de programa (PC),
   // permitiendo elegir entre la dirección secuencial (PC + 4) o el resultado de una
   // operación previa, como un salto o una llamada a subrutina.
@@ -234,6 +251,8 @@ module datapath (
       .ra1(RA1D),  // Dirección del primer registro a leer
       .ra2(RA2D),  // Dirección del segundo registro a leer
       .ra3(RA3D),  // Dirección del tercer registro (LMUL)
+      .ra4(RA4D),  // Dirección del cuarto registro (LMUL)
+
       .wa3(WA3_IN),  // Dirección del registro a escribir
       .wa3_2(WA3W[7:4]),  // Dirección del segundo registro a escribir (LMUL)
       .wd3(WD3_IN),  // Dato a escribir
@@ -241,7 +260,8 @@ module datapath (
       .r15(PCPlus8D),  // Valor del registro 15 (PC + 8)
       .rd1(rd1D),  // Salida del primer registro leído
       .rd2(rd2D),  // Salida del segundo registro leído
-      .rd3(rd3D)  // Salida del 3er registro
+      .rd3(rd3D),  // Salida del 3er registro
+      .rd4(rd4D)  // Salida del 4to registro
   );
   extend extender (
       .Instr (InstrD[23:0]),  // Parte de la instrucción a extender
@@ -356,6 +376,16 @@ module datapath (
       .d    (RA3D),   // Dato de entrada
       .q    (RA3E)    // Dato de salida
   );
+  // Este registro almacena la dirección del tercer registro fuente en la etapa de decodificación
+  // y la transfiere a la etapa de ejecución para el acceso a los datos.
+  registro_flanco_positivo #(
+      .WIDTH(4)
+  ) ra4_reg (
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (RA4D),   // Dato de entrada
+      .q    (RA4E)    // Dato de salida
+  );
 
   // Forwarding/Bypassing: Utiliza multiplexores para redirigir los resultados
   // de la ALU y datos de escritura directamente a las instrucciones que los
@@ -411,17 +441,20 @@ module datapath (
       .s (predict_taken),
       .y (PCnextF)
   );
+
   // ALU: Unidad Aritmética y Lógica que realiza operaciones aritméticas y lógicas
   alu ALU (
       .a(SrcAE),
       .b(SrcBE),
-      .MulOrigin(SrcCE),
+      .RdLo(SrcCE),
+      .RdHi_Ra(SrcDE),
       .ALUControl(ALUControlE),
       .CarryIn(FlagsE[1]),
       .CBZRn(WriteDataE),
       .Result(ALUResultE),
       .ALUFlags(ALUFlagsE)
   );
+
   // Este registro almacena el resultado de la ALU en la etapa de ejecución
   // y lo transfiere a la etapa de memoria para operaciones posteriores.
   registro_flanco_positivo #(
@@ -597,10 +630,43 @@ module datapath (
       .y(Match_3D_E)
   );
 
+  // ALUSRC 4
+
+  // Este comparador verifica si el registro de destino en la etapa de memoria
+  // coincide con el primer registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
+  comparador_igualdad_doble #(
+      .WIDTH(4)
+  ) src4_comparator_MEM (
+      .a(WA3M),
+      .b(RA4E),
+      .y(Match_4E_M)
+  );
+  // Este comparador verifica si el registro de destino en la etapa de escritura
+  // coincide con el primer registro fuente en la etapa de ejecución, para detectar
+  // riesgos de datos.
+  comparador_igualdad_doble #(
+      .WIDTH(4)
+  ) src4_comparator_WR (
+      .a(WA3W),
+      .b(RA4E),
+      .y(Match_4E_W)
+  );
+
+  // Este comparador verifica si el registro de destino en la etapa de ejecución
+  // coincide con el primer registro fuente en la etapa de decodificación, para detectar
+  // riesgos de datos.
+  comparador_igualdad_doble #(
+      .WIDTH(4)
+  ) src4_comparator_EX (
+      .a(WA3E),
+      .b(RA4D),
+      .y(Match_4D_E)
+  );
 
 
   // Esta asignación lógica combina las coincidencias de los registros fuente
   // en la etapa de decodificación con el registro de destino en la etapa de ejecución.
-  assign Match_12D_E = Match_1D_E | Match_2D_E | Match_3D_E;
+  assign Match_12D_E = Match_1D_E | Match_2D_E | Match_3D_E | Match_4D_E;
 
 endmodule

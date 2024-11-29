@@ -2,11 +2,15 @@
 
 module regfile (
     input wire clk,  // Señal de reloj
-    input wire we3,  // Señal de habilitación de escritura de los flip-flops como vimos en arqui
+    input wire [1:0] we3,  // Señal de habilitación de escritura
+    // 00 -> No escribir
+    // 01 -> Escribir en 'wa3'
+    // 11 -> Escribir en 'wa3' y 'wa3_2'
 
     input wire [3:0] ra1,  // Dirección del primer registro a leer
     input wire [3:0] ra2,  // Dirección del segundo registro a leer
     input wire [3:0] ra3,  // Dirección del tercer registro a leer (used in long multiplication)
+    input wire [3:0] ra4,  // Dirección del cuarto registro a leer (used in long multiplication)
 
     input wire [3:0] wa3,  // Dirección del registro a escribir
     input wire [3:0] wa3_2,  // Dirección del segundo registro a escribir (used in long multiplication)
@@ -18,7 +22,8 @@ module regfile (
 
     output wire [31:0] rd1,  // Datos leídos del primer registro
     output wire [31:0] rd2,  // Datos leídos del segundo registro
-    output wire [31:0] rd3   // Datos leídos del tercer registro (used in long multiplication)
+    output wire [31:0] rd3,  // Datos leídos del tercer registro (used in long multiplication)
+    output wire [31:0] rd4   // Datos leídos del cuarto registro (used in long multiplication)
 );
 
   // Declaración de un banco de registros de 32 bits de ancho y 15 registros de profundidad
@@ -29,13 +34,19 @@ module regfile (
   //    write wd3 to wa3 &
   //    write wd3_2 to wa3_2
   always @(negedge clk) begin
-    if (we3) begin
-      Registros[wa3] <= wd3;
 
-      if (wd3_2 != 0) begin
+    case (we3)
+      2'b01: Registros[wa3] <= wd3;
+      2'b11: begin
+        Registros[wa3]   <= wd3;
         Registros[wa3_2] <= wd3_2;
       end
-    end
+      default: begin
+      end
+
+
+    endcase
+
   end
 
 
@@ -46,7 +57,6 @@ module regfile (
   // Asignación de salida para 'rd2'
   // Si 'ra2' es 15 (4'b1111), se devuelve 'r15', de lo contrario, se lee del registro 'ra2'
   assign rd2 = (ra2 == 4'b1111 ? r15 : Registros[ra2]);
-
   assign rd3 = Registros[ra3];
 
   // Close
