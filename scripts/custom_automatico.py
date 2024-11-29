@@ -49,8 +49,9 @@ def arm_to_bin_hex(instruction):
 
     # Modificaciones para instrucciones de salto
     if op in ["B", "BL", "CBZ", "CBNZ"]:
+        op_code = "01"
         imm24 = format(int(parts[1]), '024b')  # Convertir IMM24 a binario de 24 bits
-        binary = f"{condition}{op_code}1{encoding[2:]}{imm24}"
+        binary = f"{condition}{op_code}{encoding}{imm24}"
     else:
         # Resto del código para otras instrucciones
         rd = parts[1].strip(',')

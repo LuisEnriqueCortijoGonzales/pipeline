@@ -32,10 +32,16 @@ def arm_to_bin_hex(instruction):
         "LSL": "111100",
         "ROR": "111101",
         "RRX": "111110",
-        "B": "010000",
-        "BL": "010001",
-        "CBZ": "010010",
-        "CBNZ": "010011"
+        "B": "00",
+        "BL": "01",
+        "CBZ": "10",
+        "CBNZ": "11",
+        "LDR": "00",
+        "STR": "00",
+        "STMIA": "00",
+        "LDMDB": "00",
+        "STMDB": "00",
+        "LDMIA": "00"
     }
 
     # Separar la instrucción en partes
@@ -47,10 +53,58 @@ def arm_to_bin_hex(instruction):
     op_code = encoding_dict[op][:2]
     encoding = encoding_dict[op]
 
+    if op in ["LDR", "STR"]:
+        rd = parts[1].strip(',')
+        rn = parts[2].strip('[],')
+        offset = parts[3] if len(parts) > 3 else "0"
+        
+        I = "0"  # Suponiendo desplazamiento inmediato
+        P = "1"  # Preindexado
+        U = "1"  # Incremento
+        B = "0"  # Palabras completas
+        W = "0"  # No escribir en el registro base
+        L = "1" if op == "LDR" else "0"  # Cargar o almacenar
+
+        if '!' in parts[2]:
+            P = "0"  # Postindexado
+            W = "1"  # Escribir en el registro base
+
+        if len(parts) > 3 and parts[3].startswith('#'):
+            offset_value = int(parts[3].strip('#'))
+            U = "1" if offset_value >= 0 else "0"
+            offset_bin = format(abs(offset_value), '012b')
+        elif len(parts) > 3 and parts[3].startswith('R'):
+            I = "1"
+            shift = parts[4].split('#')[1]
+            offset_bin = f"{format(int(parts[3][1:]), '04b')}0000{format(int(shift), '02b')}"
+
+        rn_bin = format(int(rn[1:]), '04b')
+        rd_bin = format(int(rd[1:]), '04b')
+
+        binary = f"{condition}{op_code}{I}{P}{U}{B}{W}{L}{rn_bin}{rd_bin}{offset_bin}"
+    
+    elif op in ["STMIA", "LDMDB", "STMDB", "LDMIA"]:
+        rn = parts[1].strip('!,')
+        registers = parts[2].strip('{}').split('-')
+        start_reg = int(registers[0][1:])
+        end_reg = int(registers[1][1:])
+        reg_list = sum([1 << i for i in range(start_reg, end_reg + 1)])
+        reg_list_bin = format(reg_list, '016b')
+
+        P = "1" if op in ["STMIA", "LDMIA"] else "0"
+        U = "1" if op in ["STMIA", "LDMIA"] else "0"
+        W = "1"
+        L = "1" if op in ["LDMDB", "LDMIA"] else "0"
+
+        rn_bin = format(int(rn[1:]), '04b')
+
+        binary = f"{condition}{op_code}100{P}{U}0{W}{L}{rn_bin}0000{reg_list_bin}"
+
     # Modificaciones para instrucciones de salto
-    if op in ["B", "BL", "CBZ", "CBNZ"]:
+    elif op in ["B", "BL", "CBZ", "CBNZ"]:
+        op_code = "01"
         imm24 = format(int(parts[1]), '024b')  # Convertir IMM24 a binario de 24 bits
-        binary = f"{condition}{op_code}1{encoding[2:]}{imm24}"
+        binary = f"{condition}{op_code}{encoding}{imm24}"
     else:
         # Resto del código para otras instrucciones
         rd = parts[1].strip(',')
@@ -94,7 +148,7 @@ def arm_to_bin_hex(instruction):
     return binary, hex_output
 
 # Ejemplo de uso
-instruction = "BL 3"
+instruction = "LDR R0, [R9]"
 binary, hex_output = arm_to_bin_hex(instruction)
 print("// " + instruction)
 print("// " + binary)

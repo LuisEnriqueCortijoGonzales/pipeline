@@ -49,6 +49,7 @@ module controller (
 
   wire is_data_op;
   wire sets_flags;
+  wire is_branch;
 
   assign is_data_op = InstrD[27];  // op[0]
   assign is_branch = InstrD[26];  // op[1]
