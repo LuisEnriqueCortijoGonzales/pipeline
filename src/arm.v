@@ -43,7 +43,8 @@ module arm (
   wire taken;
   wire predict_taken;
 
-  wire CarryE;
+
+  wire [3:0] FlagsE;
 
   controller Control_unit (
       .clk(clk),
@@ -55,7 +56,6 @@ module arm (
       .ALUSrcE(ALUSrcE),
       .BranchTakenE(BranchTakenE),
       .ALUControlE(ALUControlE),
-      .CarryE(CarryE),
       .MemWriteM(MemWriteM),
       .MemtoRegW(MemtoRegW),
       .PCSrcW(PCSrcW),
@@ -63,7 +63,10 @@ module arm (
       .RegWriteM(RegWriteM),
       .MemtoRegE(MemtoRegE),
       .PCWrPendingF(PCWrPendingF),
-      .FlushE(FlushE)
+      .FlushE(FlushE),
+      .FlagsE(FlagsE)
+
+
   );
 
 
@@ -75,7 +78,6 @@ module arm (
       .ALUSrcE(ALUSrcE),
       .BranchTakenE(BranchTakenE),
       .ALUControlE(ALUControlE),
-      .CarryE(CarryE),
       .MemtoRegW(MemtoRegW),
       .PCSrcW(PCSrcW),
       .RegWriteW(RegWriteW),
@@ -86,6 +88,7 @@ module arm (
       .WriteDataM(WriteDataM),
       .ReadDataM(ReadDataM),
       .ALUFlagsE(ALUFlagsE),
+      .FlagsE(FlagsE),
       .Match_1E_M(Match_1E_M),
       .Match_1E_W(Match_1E_W),
       .Match_2E_M(Match_2E_M),
@@ -138,6 +141,8 @@ module arm (
       .taken(taken),
       .predict_taken(predict_taken)
   );
+
+  // i fucking hate u
   assign PCSrcW = predict_taken;
 
 endmodule

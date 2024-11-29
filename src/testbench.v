@@ -38,7 +38,13 @@ module testbench;
   end
 
   // Declare wires to monitor internal signals
+  wire [31:0] InstrD;
+
   wire ALUSrcE;
+  wire [31:0] ExtImm;
+
+  wire PCSrcW;
+
   wire [31:0] SrcAE, SrcBE, SrcCE, ALUResultE, ResultW, ALUOutM;
   wire [3:0] RA3D, RA2D, RA1D;
   wire [3:0] WA3W;
@@ -47,6 +53,8 @@ module testbench;
   wire [31:0] R[0:14];
 
   wire [1:0] RegSrcD;
+
+  wire [31:0] PCF;
 
   wire [1:0] RegWriteM;
   wire [1:0] RegWriteW;
@@ -70,7 +78,28 @@ module testbench;
   wire [31:0] rd2D;
   wire [31:0] rd3D;
 
+  wire [1:0] ImmSrcD;
+
+  wire PCSrcD;
+  wire PCSrcE;
+  wire PCSrcM;
+
   // Assign wires to internal signals
+
+  assign InstrD = processor.arm.InstrD;
+  assign PCF = processor.PCF;
+
+
+  assign PCSrcW = processor.arm.PCSrcW;
+  assign PCSrcD = processor.arm.Control_unit.PCSrcD;
+  assign PCSrcE = processor.arm.Control_unit.PCSrcE;
+  assign PCSrcM = processor.arm.Control_unit.PCSrcM;
+
+  assign ImmSrcD = processor.arm.ImmSrcD;
+
+  assign ExtImmE = processor.arm.Data_path.ExtImmD;
+  assign ExtImmD = processor.arm.Data_path.ExtImmE;
+
   assign ALUSrcE = processor.arm.ALUSrcE;
   assign SrcAE = processor.arm.Data_path.SrcAE;
   assign SrcBE = processor.arm.Data_path.SrcBE;
@@ -128,10 +157,11 @@ module testbench;
 
   initial begin
     $monitor(
-        "RegWriteD %b | RegWriteW %b | WA3W %d | WD3_IN %d | RegSrcD %b \nForwardAE %b | ResultW %d | ALUOutM:%d | \n  RAD: %d %d %d | RD: %d %d %d  \n SrcA: %d | SrcB: %d | SrcC %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %b %d %d %d \n",
-        RegWriteD, RegWriteW, WA3W, WD3_IN, RegSrcD, ForwardAE, ResultW, ALUOutM, RA1D, RA2D, RA3D,
-        rd1D, rd2D, rd3D, SrcAE, SrcBE, SrcCE, ALUResultE[31:0], ALUControlD, ALUControlE, R[0],
-        R[1], R[2], R[3]);
+        "PCSrcD %b | PCSrcE %b | PCSrcM %b | PCSrcW %b \n PCF = %d | InstrD %b\n AluSrcE %b | ImmSrcD %b | ExtImmD %d | ExtImmE %d \n RegWriteD %b | RegWriteW %b | WA3W %d | WD3_IN %d | RegSrcD %b \nForwardAE %b | ResultW %d | ALUOutM:%d | \n  RAD: %d %d %d | RD: %d %d %d  \n SrcA: %d | SrcB: %d | SrcC %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n",
+        PCSrcD, PCSrcE, PCSrcM, PCSrcW, PCF, InstrD, ALUSrcE, ImmSrcD, ExtImmD, ExtImmE, RegWriteD,
+        RegWriteW, WA3W, WD3_IN, RegSrcD, ForwardAE, ResultW, ALUOutM, RA1D, RA2D, RA3D, rd1D,
+        rd2D, rd3D, SrcAE, SrcBE, SrcCE, ALUResultE[31:0], ALUControlD, ALUControlE, R[0], R[1],
+        R[2], R[3]);
   end
 
   // Verify results after certain time
@@ -139,7 +169,7 @@ module testbench;
     // Wait until after reset and a few cycles
     #10000;
 
-    if (R[0] !== 32'd10) begin
+    if (R[0] != 32'd10) begin
       $display("Error: R0 != 10");
     end
   end

@@ -6,7 +6,6 @@ module datapath (
     input wire ALUSrcE,
     input wire BranchTakenE,
     input wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
-    input wire CarryE,
     input wire MemtoRegW,
     input wire PCSrcW,
     input wire RegWriteW,
@@ -17,6 +16,7 @@ module datapath (
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
+    input wire [ALU_FLAGS_WIDTH-1:0] FlagsE,
     input wire predict_taken,
     //variables del manejo de hazards
 
@@ -183,7 +183,7 @@ module datapath (
 
   // Pass RegSrc to WriteBack stage
   registro_flanco_positivo #(
-      .WIDTH(32)
+      .WIDTH(2)
   ) RegSrcMux_DE (
       .clk  (clk),      // Reloj del sistema
       .reset(reset),    // Señal de reinicio
@@ -191,7 +191,7 @@ module datapath (
       .q    (RegSrcE)   // Dato de salida
   );
   registro_flanco_positivo #(
-      .WIDTH(32)
+      .WIDTH(2)
   ) RegSrcMux_EM (
       .clk  (clk),      // Reloj del sistema
       .reset(reset),    // Señal de reinicio
@@ -199,7 +199,7 @@ module datapath (
       .q    (RegSrcM)   // Dato de salida
   );
   registro_flanco_positivo #(
-      .WIDTH(32)
+      .WIDTH(2)
   ) RegSrcMux_MW (
       .clk  (clk),      // Reloj del sistema
       .reset(reset),    // Señal de reinicio
@@ -216,13 +216,14 @@ module datapath (
       .WIDTH(32)
   ) WD3_BL_MUX (
       .d0(ResultW[DATA_WIDTH-1:0]),
-      .d1(PCPlus8W - 32'd4),
+      .d1(PCPlus8W),
       .s (RegSrcW[0]),
       .y (WD3_IN)
   );
+
   wire [3:0] WA3_IN;
   mux2 #(
-      .WIDTH(32)
+      .WIDTH(4)
   ) WA3W_BL_MUX (
       .d0(WA3W),
       .d1(4'd14),
@@ -420,7 +421,7 @@ module datapath (
       .b(SrcBE),
       .MulOrigin(SrcCE),
       .ALUControl(ALUControlE),
-      .CarryIn(carryE),
+      .CarryIn(FlagsE[1]),
       .CBZRn(WriteDataE),
       .Result(ALUResultE),
       .ALUFlags(ALUFlagsE)

@@ -1,11 +1,10 @@
 module conditional (
-    input  wire [3:0] Cond,        // Código de condición de 4 bits
-    input  wire [3:0] Flags,       // Flags actuales de 4 bits (N, Z, C, V)
+    input  wire [                3:0] Cond,        // Código de condición de 4 bits
+    input  wire [                3:0] Flags,       // Flags actuales de 4 bits (N, Z, C, V)
     input  wire [ALU_FLAGS_WIDTH-1:0] ALUFlags,    // Flags generados por la ALU
-    input  wire [1:0] FlagsWrite,  // Control de escritura de flags
-    output reg CondEx,      // Salida que indica si la condición se cumple
-    output wire [3:0] FlagsNext,   // Flags que se escribirán en el siguiente ciclo
-    output wire carry
+    input  wire [                1:0] FlagsWrite,  // Control de escritura de flags
+    output reg                        CondEx,      // Salida que indica si la condición se cumple
+    output wire [                3:0] FlagsNext    // Flags que se escribirán en el siguiente ciclo
 );
   localparam ALU_FLAGS_WIDTH = 5;
   // Descomposición de los flags en señales individuales

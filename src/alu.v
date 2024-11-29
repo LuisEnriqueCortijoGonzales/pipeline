@@ -4,9 +4,9 @@ module alu (
     input wire [DATA_WIDTH-1:0] MulOrigin,
     input wire [ALUCONTROL_WIDTH-1:0] ALUControl,
     input wire CarryIn,  // Carry used for ADC, SBC, etc.
-    input wire CBZRn,  // Extra conditional value for CBZ/CBNZ
+    input wire [DATA_WIDTH-1:0] CBZRn,  // Extra conditional value for CBZ/CBNZ
     output reg [(DATA_WIDTH * 2)-1:0] Result,
-    output wire [ALUCONTROL_WIDTH-1:0] ALUFlags
+    output wire [ALU_FLAGS_WIDTH-1:0] ALUFlags
 );
 
   parameter ALUCONTROL_WIDTH = 6;
@@ -139,9 +139,9 @@ module alu (
       RRX: Result = {CarryIn, a[DATA_WIDTH-1:1]};
 
       // Branching
-      B: Result = a + (b << 2);
-      CBZ: Result = CBZRn == 0 ? a + (b << 2) : a;
-      CBNZ: Result = CBZRn != 0 ? a + (b << 2) : a;
+      B: Result = a + (b);
+      CBZ: Result = CBZRn == 32'd0 ? a + (b) : a;
+      CBNZ: Result = CBZRn != 32'd0 ? a + (b) : a;
 
       default: Result = 32'b0;
 
@@ -192,5 +192,5 @@ module alu (
 
 
   // Combinación de los flags en un solo bus de salida
-  assign ALUFlags = {saturated, neg, zero, CarryIn, overflow};
+  assign ALUFlags = {saturated, neg, zero, carry, overflow};
 endmodule

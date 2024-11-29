@@ -8,7 +8,6 @@ module controller (
     output wire ALUSrcE,
     output wire BranchTakenE,
     output wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
-    output wire CarryE,
     output wire MemWriteM,
     output wire MemtoRegW,
     output wire PCSrcW,
@@ -16,7 +15,8 @@ module controller (
     output wire RegWriteM,
     output wire MemtoRegE,
     output wire PCWrPendingF,
-    input wire FlushE
+    input wire FlushE,
+    output wire [ALU_FLAGS_WIDTH-1:0] FlagsE
 );
   localparam ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
@@ -40,39 +40,39 @@ module controller (
   wire PCSrcD;
   wire PCSrcE;
   wire PCSrcM;
-  wire [3:0] FlagsE;
-  wire [3:0] FlagsNextE;
+
   wire [3:0] CondE;
 
-  wire CarryD;
 
-
-  wire is_data_op;
+  wire is_data_processing;
   wire sets_flags;
   wire is_branch;
 
-  assign is_data_op = InstrD[27];  // op[0]
+  wire is_branch;
+  wire is_immediate;
+
+  assign is_data_processing = InstrD[27];  // op[0]
   assign is_branch = InstrD[26];  // op[1]
 
-  assign is_immediate  /* or alusrc */ = (InstrD[25]);
+  assign is_immediate  /* or alusrc */ = InstrD[25];
   assign sets_flags = (InstrD[20]);
 
 
-  assign RegSrcD = is_data_op ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
+  assign RegSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
 
-  assign ImmSrcD = is_data_op ? 2'b00 : is_branch ? 2'b10 : 2'b01;
+  assign ImmSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b10 : 2'b01;
 
-  assign ALUSrcD = is_data_op ? is_immediate : is_branch ? 1'b0 : 1'b1;
+  assign ALUSrcD = is_data_processing ? is_immediate : 1'b1;
 
-  assign MemtoRegD = is_data_op ? 1'b0 : is_branch ? 1'b0 : sets_flags;
+  assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : sets_flags;
 
-  assign RegWriteD = is_data_op ? 1'b1 : is_branch ? 1'b0 : ~sets_flags;
+  assign RegWriteD = is_data_processing ? 1'b1 : is_branch ? 1'b0 : ~sets_flags;
 
-  assign MemWriteD = is_data_op ? 1'b0 : is_branch ? 1'b1 : sets_flags ? 1'b0 : 1'b1;
+  assign MemWriteD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : sets_flags ? 1'b0 : 1'b1;
 
-  assign BranchD = is_data_op ? 1'b0 : is_branch ? 1'b1 : 1'b0;
+  assign BranchD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : 1'b0;
 
-  assign ALUOpD = is_data_op ? 1'b1 : is_branch ? 1'b0 : 1'b0;
+  assign ALUOpD = is_data_processing;
 
 
   always @(*) begin
@@ -114,7 +114,6 @@ module controller (
         default:  ALUControlD = 6'bxxxxxx;
       endcase
       FlagWriteD[1] = sets_flags;
-      // TODO: Check: Assigning incorrect N of bits to ALUControlD
       FlagWriteD[0] = sets_flags & ((ALUControlD == 6'b100000) | (ALUControlD == 6'b100001) | (ALUControlD == 6'b100010) | (ALUControlD == 6'b100011) |
       (ALUControlD == 6'b100100) | (ALUControlD == 6'b100101) | (ALUControlD == 6'b100110) | (ALUControlD == 6'b110000) | (ALUControlD == 6'b110001) |
       (ALUControlD == 6'b110010) | (ALUControlD == 6'b110011) | (ALUControlD == 6'b110100) | (ALUControlD == 6'b110101) | (ALUControlD == 6'b110110) |
@@ -123,13 +122,13 @@ module controller (
     end else begin
       if (is_branch) begin
         case (InstrD[25:24])
-          2'b00:   ALUControlD = 6'b000000;  // B
-          2'b01:   ALUControlD = 6'b000001;  // BL
+          2'b00:   ALUControlD = 6'b010000;  // B
+          2'b01:   ALUControlD = 6'b010001;  // BL
           2'b11:   ALUControlD = 6'b010010;  // CBZ Test & branch
           2'b10:   ALUControlD = 6'b010011;  // CBNZ Test & branch
           default: ALUControlD = 6'bxxxxxx;
         endcase
-        FlagWriteD = 4'b0000;
+        FlagWriteD = 2'b00;
       end else begin
         case (InstrD[24:21])
           4'b0000: ALUControlD = 6'b000010;  // LDR Offset
@@ -146,11 +145,9 @@ module controller (
           4'b1011: ALUControlD = 6'b001101;  // LDMDB Positive stack
           4'b1100: ALUControlD = 6'b001110;  // STMDB Negative stack
           4'b1101: ALUControlD = 6'b001111;  // LDMIA Negative stack
-          4'b0100: ALUControlD = 6'b010000;  // B Branch on flags
-          4'b0101: ALUControlD = 6'b010001;  // BL Branch on flags
           default: ALUControlD = 6'bxxxxxx;
         endcase
-        FlagWriteD = 4'b0000;
+        FlagWriteD = 2'b00;
       end
     end
   end
@@ -196,8 +193,7 @@ module controller (
       .ALUFlags(ALUFlagsE),
       .FlagsWrite(FlagWriteE),
       .CondEx(CondExE),
-      .FlagsNext(FlagsNextE),
-      .carry(CarryE)
+      .FlagsNext(FlagsNextE)
   );
   // Branch Predictor: Determina si una rama debe tomarse basándose en la
   // condición evaluada en la etapa de ejecución, mejorando la precisión de
