@@ -72,7 +72,7 @@ The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
  Campo             | Bits | Descripción                                                                 |
 |--------------------|------|-----------------------------------------------------------------------------|
 | **Cond**          | 4    | Condición para ejecutar la instrucción (e.g., `EQ`, `NE`, `AL`, etc.).       |
-| **01**            | 2    | Especifica que es una instrucción de carga/almacenamiento.                  |
+| **00**            | 2    | Especifica que es una instrucción de carga/almacenamiento.                  |
 | **I**             | 1    | Define si el desplazamiento es inmediato (`0`) o basado en un registro (`1`).|
 | **P**             | 1    | Preindexado (`1`) o postindexado (`0`).                                     |
 | **U**             | 1    | Incremento (`1`) o decremento (`0`) de la dirección base.                   |
