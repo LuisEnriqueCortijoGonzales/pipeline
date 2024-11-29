@@ -18,7 +18,7 @@ module controller (
     output wire PCWrPendingF,
     input wire FlushE
 );
-  localparam ALUCONTROL_WIDTH = 5;
+  localparam ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
 
   wire CondExE;
@@ -111,9 +111,10 @@ module controller (
         5'b11100: ALUControlD = 5'b11100;  // LSL
         5'b11101: ALUControlD = 5'b11101;  // ROR
         5'b11110: ALUControlD = 5'b11110;  // RRX
-        default:  ALUControlD = 5'bxxxx;
+        default:  ALUControlD = 5'bxxxxx;
       endcase
       FlagWriteD[1] = InstrD[20];
+      // TODO: Check: Assigning incorrect N of bits to ALUControlD
       FlagWriteD[0] = InstrD[20] & ((ALUControlD == 5'b0000) | (ALUControlD == 5'b0100));
     end else begin
       if (is_branch) begin

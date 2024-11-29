@@ -35,7 +35,7 @@ module datapath (
     input wire FlushD  // Señal para limpiar la etapa D del pipeline
 );
   localparam ALU_FLAGS_WIDTH = 5;
-  parameter ALUCONTROL_WIDTH = 5;
+  parameter ALUCONTROL_WIDTH = 6;
   parameter DATA_WIDTH = 32;
 
   //fin de las variables del manejo de hazards
@@ -336,6 +336,7 @@ module datapath (
       .MulOrigin(SrcCE),
       .ALUControl(ALUControlE),
       .CarryIn(carryE),
+      .CBZRn(WriteDataE),
       .Result(ALUResultE),
       .ALUFlags(ALUFlagsE)
   );

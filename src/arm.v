@@ -8,7 +8,7 @@ module arm (
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM
 );
-  localparam ALUCONTROL_WIDTH = 5;
+  localparam ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
   parameter DATA_WIDTH = 32;
 
