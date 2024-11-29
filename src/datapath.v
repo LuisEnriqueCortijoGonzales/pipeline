@@ -230,7 +230,7 @@ module datapath (
       .WIDTH(32)
   ) WD3_BL_MUX (
       .d0(ResultW[DATA_WIDTH-1:0]),
-      .d1(PCPlus8W),
+      .d1(PCPlus8W - 32'd4),
       .s (RegSrcW[0]),
       .y (WD3_IN)
   );
@@ -240,9 +240,9 @@ module datapath (
       .WIDTH(4)
   ) WA3W_BL_MUX (
       .d0(WA3W[3:0]),
-      .d1(4'd14),
-      .s (RegSrcW[0]),
-      .y (WA3_IN)
+      .d1(4'b1110),  // PC14
+      .s(RegSrcW[0]),
+      .y(WA3_IN)
   );
 
 
@@ -562,7 +562,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad_doble #(
+  comparador_igualdad #(
       .WIDTH(4)
   ) m1 (
       .a(WA3_IN),
@@ -596,7 +596,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el segundo registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad_doble #(
+  comparador_igualdad #(
       .WIDTH(4)
   ) m3 (
       .a(WA3_IN),
@@ -630,7 +630,7 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad_doble #(
+  comparador_igualdad #(
       .WIDTH(4)
   ) src3_comparator_WR (
       .a(WA3_IN),
@@ -664,10 +664,10 @@ module datapath (
   // Este comparador verifica si el registro de destino en la etapa de escritura
   // coincide con el primer registro fuente en la etapa de ejecución, para detectar
   // riesgos de datos.
-  comparador_igualdad_doble #(
+  comparador_igualdad #(
       .WIDTH(4)
   ) src4_comparator_WR (
-      .a(WA3W),
+      .a(WA3_IN),
       .b(RA4E),
       .y(Match_4E_W)
   );

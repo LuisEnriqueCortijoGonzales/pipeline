@@ -60,11 +60,12 @@ module testbench;
 
 
   wire [1:0] RegSrcD;
+  wire [1:0] RegSrcW;
 
   wire [31:0] PCF;
+  wire [31:0] PCPlus8W;
 
   wire [3:0] WA3D;
-  wire [3:0] WD3_IN;
   // regfile
   wire [3:0] wa3;  // Dirección del registro a escribir
   wire [3:0] wa3_2;  // Dirección del segundo registro a escribir (used in long multiplication)
@@ -89,11 +90,18 @@ module testbench;
   wire PCSrcE;
   wire PCSrcM;
 
+
+  wire [3:0] WA3_IN;
+  wire [31:0] WD3_IN;
+
   // Assign wires to internal signals
 
   assign InstrD = processor.arm.InstrD;
   assign PCF = processor.PCF;
+  assign PCPlus8W = processor.arm.Data_path.PCPlus8W;
 
+  assign Wa3_IN = processor.arm.Data_path.WA3_IN;
+  assign WD3_IN = processor.arm.Data_path.WD3_IN;
 
   assign PCSrcW = processor.arm.PCSrcW;
   assign PCSrcD = processor.arm.Control_unit.PCSrcD;
@@ -119,9 +127,9 @@ module testbench;
   assign InstrD = processor.arm.Data_path.InstrD;
 
   assign WA3W = processor.arm.Data_path.WA3W;
-  assign WD3_IN = processor.arm.Data_path.WD3_IN;
 
   assign RegSrcD = processor.arm.RegSrcD;
+  assign RegSrcW = processor.arm.Data_path.RegSrcW;
 
 
   assign WA3W = processor.arm.Data_path.WA3W;
@@ -170,10 +178,11 @@ module testbench;
 
   initial begin
     $monitor(
-        "InstrD %b \n RegWriteD %b | RegWriteW %b | WA3W %d \n Forwards: %b %b %b %b \n ResultW %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n",
-        InstrD, RegWriteD, RegWriteW, WA3W, ForwardAE, ForwardBE, ForwardCE, ForwardDE, ResultW,
-        ALUOutM, RA1D, RA2D, RA3D, RA4D, rd1D, rd2D, rd3D, rd4D, SrcAE, SrcBE, SrcCE, SrcDE,
-        ALUResultE, ALUControlD, ALUControlE, R[0], R[1], R[2], R[3]);
+        "InstrD %b \n PCPlus8W %d | RegSrcW %b  | RegWriteD %b | RegWriteW %b | WA3W %d \n WA3IN: %d | WD3_IN: %d \n Forwards: %b %b %b %b \n ResultW %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n R14: %d R15: %d\n",
+        InstrD, PCPlus8W, RegSrcW, RegWriteD, RegWriteW, WA3W, WA3_IN, WD3_IN, ForwardAE,
+        ForwardBE, ForwardCE, ForwardDE, ResultW, ALUOutM, RA1D, RA2D, RA3D, RA4D, rd1D, rd2D,
+        rd3D, rd4D, SrcAE, SrcBE, SrcCE, SrcDE, ALUResultE, ALUControlD, ALUControlE, R[0], R[1],
+        R[2], R[3], R[13], R[14]);
   end
 
   // Verify results after certain time

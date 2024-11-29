@@ -57,6 +57,7 @@ module controller (
   assign is_immediate  /* or alusrc */ = InstrD[25];
   assign sets_flags = (InstrD[20]);
 
+  reg is_64b_return;
 
   assign RegSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
 
@@ -66,7 +67,9 @@ module controller (
 
   assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : sets_flags;
 
-  assign RegWriteD = is_data_processing ? 1'b1 : is_branch ? 1'b0 : ~sets_flags;
+  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? 1'b1 : ~sets_flags;
+
+  assign RegWriteD = {writes_reg & is_64b_return, writes_reg};
 
   assign MemWriteD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : sets_flags ? 1'b0 : 1'b1;
 
@@ -76,6 +79,7 @@ module controller (
 
 
   always @(*) begin
+    is_64b_return = 1'b0;
     if (ALUOpD) begin
       case ({
         InstrD[26], InstrD[24:21]
@@ -90,10 +94,23 @@ module controller (
         5'b00111: ALUControlD = 6'b100111;  // MUL
         5'b01000: ALUControlD = 6'b101000;  // MLA
         5'b01001: ALUControlD = 6'b101001;  // MLS
-        5'b01010: ALUControlD = 6'b101010;  // UMULL
-        5'b01011: ALUControlD = 6'b101011;  // UMLAL
-        5'b01100: ALUControlD = 6'b101100;  // SMULL
-        5'b01101: ALUControlD = 6'b101101;  // SMLAL
+
+        5'b01010: begin
+          ALUControlD   = 6'b101010;
+          is_64b_return = 1'b1;
+        end  // UMULL
+        5'b01011: begin
+          ALUControlD   = 6'b101011;
+          is_64b_return = 1'b1;
+        end  // UMLAL
+        5'b01100: begin
+          ALUControlD   = 6'b101100;
+          is_64b_return = 1'b1;
+        end  // SMULL
+        5'b01101: begin
+          ALUControlD   = 6'b101101;
+          is_64b_return = 1'b1;
+        end  // SMLAL
         5'b01110: ALUControlD = 6'b101110;  // UDIV
         5'b01111: ALUControlD = 6'b101111;  // SDIV
         5'b10000: ALUControlD = 6'b110000;  // AND
@@ -123,7 +140,7 @@ module controller (
       if (is_branch) begin
         case (InstrD[25:24])
           2'b00:   ALUControlD = 6'b010000;  // B
-          2'b01:   ALUControlD = 6'b010001;  // BL
+          2'b01:   ALUControlD = 6'b010000;  // BL
           2'b11:   ALUControlD = 6'b010010;  // CBZ Test & branch
           2'b10:   ALUControlD = 6'b010011;  // CBNZ Test & branch
           default: ALUControlD = 6'bxxxxxx;
