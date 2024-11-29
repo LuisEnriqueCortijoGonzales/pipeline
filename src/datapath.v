@@ -177,6 +177,37 @@ module datapath (
       .q    (InstrD)    // Dato de salida, la instrucción almacenada
   );
 
+  wire [1:0] RegSrcE;
+  wire [1:0] RegSrcM;
+  wire [1:0] RegSrcW;
+
+  // Pass RegSrc to WriteBack stage
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) RegSrcMux_DE (
+      .clk  (clk),      // Reloj del sistema
+      .reset(reset),    // Señal de reinicio
+      .d    (RegSrcD),  // Dato de entrada
+      .q    (RegSrcE)   // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) RegSrcMux_EM (
+      .clk  (clk),      // Reloj del sistema
+      .reset(reset),    // Señal de reinicio
+      .d    (RegSrcE),  // Dato de entrada
+      .q    (RegSrcM)   // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) RegSrcMux_MW (
+      .clk  (clk),      // Reloj del sistema
+      .reset(reset),    // Señal de reinicio
+      .d    (RegSrcM),  // Dato de entrada
+      .q    (RegSrcW)   // Dato de salida
+  );
+
+
 
   // BL Muxes
 
@@ -184,14 +215,14 @@ module datapath (
   mux2 WD3_BL_MUX (
       .d0(ResultW[DATA_WIDTH-1:0]),
       .d1(PCPlus8W - 32'd4),
-      .s (RegSrcD[0]),
+      .s (RegSrcW[0]),
       .y (WD3_IN)
   );
   wire [3:0] WA3_IN;
   mux2 WA3W_BL_MUX (
       .d0(WA3W),
       .d1(4'd14),
-      .s (RegSrcD[0]),
+      .s (RegSrcW[0]),
       .y (WA3_IN)
   );
 

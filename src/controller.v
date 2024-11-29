@@ -57,7 +57,6 @@ module controller (
   assign sets_flags = (InstrD[20]);
 
 
-  // Continuous assignments for combinational logic
   assign RegSrcD = is_data_op ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
 
   assign ImmSrcD = is_data_op ? 2'b00 : is_branch ? 2'b10 : 2'b01;
