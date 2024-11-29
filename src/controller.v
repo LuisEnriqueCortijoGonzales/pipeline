@@ -80,71 +80,75 @@ module controller (
       case ({
         InstrD[26], InstrD[24:21]
       })
-        5'b00000: ALUControlD = 5'b00000;  // ADD
-        5'b00001: ALUControlD = 5'b00001;  // ADC
-        5'b00010: ALUControlD = 5'b00010;  // QADD
-        5'b00011: ALUControlD = 5'b00011;  // SUB
-        5'b00100: ALUControlD = 5'b00100;  // SBS
-        5'b00101: ALUControlD = 5'b00101;  // SBC
-        5'b00110: ALUControlD = 5'b00110;  // QSUB
-        5'b00111: ALUControlD = 5'b00111;  // MUL
-        5'b01000: ALUControlD = 5'b01000;  // MLA
-        5'b01001: ALUControlD = 5'b01001;  // MLS
-        5'b01010: ALUControlD = 5'b01010;  // UMULL
-        5'b01011: ALUControlD = 5'b01011;  // UMLAL
-        5'b01100: ALUControlD = 5'b01100;  // SMULL
-        5'b01101: ALUControlD = 5'b01101;  // SMLAL
-        5'b01110: ALUControlD = 5'b01110;  // UDIV
-        5'b01111: ALUControlD = 5'b01111;  // SDIV
-        5'b10000: ALUControlD = 5'b10000;  // AND
-        5'b10001: ALUControlD = 5'b10001;  // BIC
-        5'b10010: ALUControlD = 5'b10010;  // ORR
-        5'b10011: ALUControlD = 5'b10011;  // ORN
-        5'b10100: ALUControlD = 5'b10100;  // EOR
-        5'b10101: ALUControlD = 5'b10101;  // CMN
-        5'b10110: ALUControlD = 5'b10110;  // TST
-        5'b10111: ALUControlD = 5'b10111;  // TEQ
-        5'b11000: ALUControlD = 5'b11000;  // CMP
-        5'b11001: ALUControlD = 5'b11001;  // MOV
-        5'b11010: ALUControlD = 5'b11010;  // LSR
-        5'b11011: ALUControlD = 5'b11011;  // ASR
-        5'b11100: ALUControlD = 5'b11100;  // LSL
-        5'b11101: ALUControlD = 5'b11101;  // ROR
-        5'b11110: ALUControlD = 5'b11110;  // RRX
-        default:  ALUControlD = 5'bxxxxx;
+        5'b00000: ALUControlD = 6'b100000;  // ADD
+        5'b00001: ALUControlD = 6'b100001;  // ADC
+        5'b00010: ALUControlD = 6'b100010;  // QADD
+        5'b00011: ALUControlD = 6'b100011;  // SUB
+        5'b00100: ALUControlD = 6'b100100;  // SBS
+        5'b00101: ALUControlD = 6'b100101;  // SBC
+        5'b00110: ALUControlD = 6'b100110;  // QSUB
+        5'b00111: ALUControlD = 6'b100111;  // MUL
+        5'b01000: ALUControlD = 6'b101000;  // MLA
+        5'b01001: ALUControlD = 6'b101001;  // MLS
+        5'b01010: ALUControlD = 6'b101010;  // UMULL
+        5'b01011: ALUControlD = 6'b101011;  // UMLAL
+        5'b01100: ALUControlD = 6'b101100;  // SMULL
+        5'b01101: ALUControlD = 6'b101101;  // SMLAL
+        5'b01110: ALUControlD = 6'b101110;  // UDIV
+        5'b01111: ALUControlD = 6'b101111;  // SDIV
+        5'b10000: ALUControlD = 6'b110000;  // AND
+        5'b10001: ALUControlD = 6'b110001;  // BIC
+        5'b10010: ALUControlD = 6'b110010;  // ORR
+        5'b10011: ALUControlD = 6'b110011;  // ORN
+        5'b10100: ALUControlD = 6'b110100;  // EOR
+        5'b10101: ALUControlD = 6'b110101;  // CMN
+        5'b10110: ALUControlD = 6'b110110;  // TST
+        5'b10111: ALUControlD = 6'b110111;  // TEQ
+        5'b11000: ALUControlD = 6'b111000;  // CMP
+        5'b11001: ALUControlD = 6'b111001;  // MOV
+        5'b11010: ALUControlD = 6'b111010;  // LSR
+        5'b11011: ALUControlD = 6'b111011;  // ASR
+        5'b11100: ALUControlD = 6'b111100;  // LSL
+        5'b11101: ALUControlD = 6'b111101;  // ROR
+        5'b11110: ALUControlD = 6'b111110;  // RRX
+        default:  ALUControlD = 6'bxxxxxx;
       endcase
-      FlagWriteD[1] = InstrD[20];
+      FlagWriteD[1] = sets_flags;
       // TODO: Check: Assigning incorrect N of bits to ALUControlD
-      FlagWriteD[0] = InstrD[20] & ((ALUControlD == 5'b0000) | (ALUControlD == 5'b0100));
+      FlagWriteD[0] = sets_flags & ((ALUControlD == 6'b100000) | (ALUControlD == 6'b100001) | (ALUControlD == 6'b100010) | (ALUControlD == 6'b100011) |
+      (ALUControlD == 6'b100100) | (ALUControlD == 6'b100101) | (ALUControlD == 6'b100110) | (ALUControlD == 6'b110000) | (ALUControlD == 6'b110001) |
+      (ALUControlD == 6'b110010) | (ALUControlD == 6'b110011) | (ALUControlD == 6'b110100) | (ALUControlD == 6'b110101) | (ALUControlD == 6'b110110) |
+      (ALUControlD == 6'b110111) | (ALUControlD == 6'b111000) | (ALUControlD == 6'b111010) | (ALUControlD == 6'b111011) | (ALUControlD == 6'b111100) |
+      (ALUControlD == 6'b111101) | (ALUControlD == 6'b111110));
     end else begin
       if (is_branch) begin
         case (InstrD[25:24])
-          2'b00:   ALUControlD = 5'b00000;  // B
-          2'b01:   ALUControlD = 5'b00001;  // BL
-          2'b11:   ALUControlD = 5'b10010;  // CBZ Test & branch
-          2'b10:   ALUControlD = 5'b10011;  // CBNZ Test & branch
-          default: ALUControlD = 5'bxxxxx;
+          2'b00:   ALUControlD = 6'b000000;  // B
+          2'b01:   ALUControlD = 6'b000001;  // BL
+          2'b11:   ALUControlD = 6'b010010;  // CBZ Test & branch
+          2'b10:   ALUControlD = 6'b010011;  // CBNZ Test & branch
+          default: ALUControlD = 6'bxxxxxx;
         endcase
         FlagWriteD = 4'b0000;
       end else begin
         case (InstrD[24:21])
-          4'b0000: ALUControlD = 5'b00010;  // LDR Offset
-          4'b0001: ALUControlD = 5'b00011;  // STR Offset
-          4'b0010: ALUControlD = 5'b00100;  // LDR Pre-offset
-          4'b0011: ALUControlD = 5'b00101;  // STR Pre-offset
-          4'b0100: ALUControlD = 5'b00110;  // LDR Post-offset
-          4'b0101: ALUControlD = 5'b00111;  // STR Post-offset
-          4'b0110: ALUControlD = 5'b01000;  // LDR Indexed
-          4'b0111: ALUControlD = 5'b01001;  // STR Indexed
-          4'b1000: ALUControlD = 5'b01010;  // LDR Literal
-          4'b1001: ALUControlD = 5'b01011;  // STR Literal
-          4'b1010: ALUControlD = 5'b01100;  // STMIA Positive stack
-          4'b1011: ALUControlD = 5'b01101;  // LDMDB Positive stack
-          4'b1100: ALUControlD = 5'b01110;  // STMDB Negative stack
-          4'b1101: ALUControlD = 5'b01111;  // LDMIA Negative stack
-          4'b0100: ALUControlD = 5'b10000;  // B Branch on flags
-          4'b0101: ALUControlD = 5'b10001;  // BL Branch on flags
-          default: ALUControlD = 5'bxxxxx;
+          4'b0000: ALUControlD = 6'b000010;  // LDR Offset
+          4'b0001: ALUControlD = 6'b000011;  // STR Offset
+          4'b0010: ALUControlD = 6'b000100;  // LDR Pre-offset
+          4'b0011: ALUControlD = 6'b000101;  // STR Pre-offset
+          4'b0100: ALUControlD = 6'b000110;  // LDR Post-offset
+          4'b0101: ALUControlD = 6'b000111;  // STR Post-offset
+          4'b0110: ALUControlD = 6'b001000;  // LDR Indexed
+          4'b0111: ALUControlD = 6'b001001;  // STR Indexed
+          4'b1000: ALUControlD = 6'b001010;  // LDR Literal
+          4'b1001: ALUControlD = 6'b001011;  // STR Literal
+          4'b1010: ALUControlD = 6'b001100;  // STMIA Positive stack
+          4'b1011: ALUControlD = 6'b001101;  // LDMDB Positive stack
+          4'b1100: ALUControlD = 6'b001110;  // STMDB Negative stack
+          4'b1101: ALUControlD = 6'b001111;  // LDMIA Negative stack
+          4'b0100: ALUControlD = 6'b010000;  // B Branch on flags
+          4'b0101: ALUControlD = 6'b010001;  // BL Branch on flags
+          default: ALUControlD = 6'bxxxxxx;
         endcase
         FlagWriteD = 4'b0000;
       end

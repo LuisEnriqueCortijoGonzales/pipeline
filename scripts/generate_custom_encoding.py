@@ -77,7 +77,7 @@ def arm_to_bin_hex(instruction):
             rd_lo_bin = format(int(rd_lo[1:]), '04b')
             rn_bin = format(int(rn[1:]), '04b')
             rm_bin = format(int(rm[1:]), '04b')
-            binary = f"{condition}{op_code}{function}{bit_20}{rn_bin}{rd_hi_bin}{rd_lo_bin}0000{rm_bin}"
+            binary = f"{condition}{op_code}{function}{bit_20}{rn_bin}{rd_lo_bin}{rd_hi_bin}0000{rm_bin}"
         else:
             rn_bin = format(int(rn[1:]), '04b')
             rd_bin = format(int(rd[1:]), '04b')
