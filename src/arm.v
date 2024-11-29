@@ -28,6 +28,7 @@ module arm (
   wire [1:0] ForwardAE;
   wire [1:0] ForwardBE;
   wire [1:0] ForwardCE;
+  wire [1:0] ForwardDE;
   wire StallF;
   wire StallD;
   wire FlushD;
@@ -38,6 +39,8 @@ module arm (
   wire Match_2E_W;
   wire Match_3E_M;
   wire Match_3E_W;
+  wire Match_4E_M;
+  wire Match_4E_W;
   wire Match_12D_E;
   wire branch;
   wire taken;
@@ -95,10 +98,13 @@ module arm (
       .Match_2E_W(Match_2E_W),
       .Match_3E_M(Match_3E_M),
       .Match_3E_W(Match_3E_W),
+      .Match_4E_M(Match_4E_M),
+      .Match_4E_W(Match_4E_W),
       .Match_12D_E(Match_12D_E),
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
       .ForwardCE(ForwardCE),
+      .ForwardDE(ForwardDE),
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
@@ -118,6 +124,8 @@ module arm (
       .Match_2E_W(Match_2E_W),
       .Match_3E_M(Match_3E_M),
       .Match_3E_W(Match_3E_W),
+      .Match_4E_M(Match_4E_M),
+      .Match_4E_W(Match_4E_W),
       .Match_12D_E(Match_12D_E),
       .RegWriteM(RegWriteM),
       .RegWriteW(RegWriteW),
@@ -128,6 +136,7 @@ module arm (
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
       .ForwardCE(ForwardCE),
+      .ForwardDE(ForwardDE),
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),

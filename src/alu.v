@@ -104,7 +104,7 @@ module alu (
       Result = extended_add > SATURATED_MAX ? SATURATED_MAX : (extended_add < SATURATED_MIN ? SATURATED_MIN : extended_add[DATA_WIDTH-1: 0]);
 
       SUB: Result = a - b;
-      SBC: Result = a - b - ~CarryIn;
+      SBC: Result = {32'b0, a} - {32'b0, b} - ~CarryIn;
       RSB: Result = b - a;
       QSUB:
       Result = extended_sub > SATURATED_MAX ? SATURATED_MAX : (extended_sub < SATURATED_MIN ? SATURATED_MIN : extended_sub[DATA_WIDTH-1: 0]);

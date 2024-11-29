@@ -41,8 +41,9 @@ module testbench;
   wire [31:0] InstrD;
 
   wire ALUSrcE;
-  wire [31:0] SrcAE, SrcBE, SrcCE, ALUResultE, ResultW, ALUOutM;
-  wire [3:0] RA3D, RA2D, RA1D;
+  wire [31:0] SrcAE, SrcBE, SrcCE, SrcDE;
+  wire [63:0] ALUResultE, ResultW, ALUOutM;
+  wire [3:0] RA4D, RA3D, RA2D, RA1D;
   wire [3:0] WA3W;
   wire [4:0] ALUControlE;
   wire [4:0] ALUControlD;
@@ -87,10 +88,14 @@ module testbench;
   wire [1:0] ForwardAE;
   wire [1:0] ForwardBE;
   wire [1:0] ForwardCE;
+  wire [1:0] ForwardDE;
 
   wire [31:0] rd1D;
   wire [31:0] rd2D;
   wire [31:0] rd3D;
+  wire [31:0] rd4D;
+
+  wire [31:0] InstrD;
 
   wire [1:0] ImmSrcD;
 
@@ -118,11 +123,14 @@ module testbench;
   assign SrcAE = processor.arm.Data_path.SrcAE;
   assign SrcBE = processor.arm.Data_path.SrcBE;
   assign SrcCE = processor.arm.Data_path.SrcCE;
+  assign SrcDE = processor.arm.Data_path.SrcDE;
   assign RA3D = processor.arm.Data_path.RA3D;
   assign rd3D = processor.arm.Data_path.rd3D;
   assign ALUResultE = processor.arm.Data_path.ALUResultE;
   assign ALUControlE = processor.arm.ALUControlE;
   assign ALUControlD = processor.arm.Control_unit.ALUControlD;
+
+  assign InstrD = processor.arm.Data_path.InstrD;
 
   assign WA3W = processor.arm.Data_path.WA3W;
   assign WD3_IN = processor.arm.Data_path.WD3_IN;
@@ -142,15 +150,18 @@ module testbench;
   assign rd1D = processor.arm.Data_path.rd1D;
   assign rd2D = processor.arm.Data_path.rd2D;
   assign rd3D = processor.arm.Data_path.rd3D;
+  assign rd4D = processor.arm.Data_path.rd4D;
 
   assign RA1D = processor.arm.Data_path.RA1D;
   assign RA2D = processor.arm.Data_path.RA2D;
   assign RA3D = processor.arm.Data_path.RA3D;
+  assign RA4D = processor.arm.Data_path.RA4D;
 
 
   assign ForwardAE = processor.arm.Hazard_unit.ForwardAE;
   assign ForwardBE = processor.arm.Hazard_unit.ForwardBE;
   assign ForwardCE = processor.arm.Hazard_unit.ForwardCE;
+  assign ForwardDE = processor.arm.Hazard_unit.ForwardDE;
 
 
 
@@ -175,11 +186,10 @@ module testbench;
 
   initial begin
     $monitor(
-        "PCSrcD %b | PCSrcE %b | PCSrcM %b | PCSrcW %b \n PCF = %d | InstrD %b\n AluSrcE %b | ImmSrcD %b | ExtImmD %d | ExtImmE %d \n RegWriteD %b | RegWriteW %b | WA3W %d | WD3_IN %d | RegSrcD %b \nForwardAE %b | ResultW %d | ALUOutM:%d | \n  RAD: %d %d %d | RD: %d %d %d  \n SrcA: %d | SrcB: %d | SrcC %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n",
-        PCSrcD, PCSrcE, PCSrcM, PCSrcW, PCF, InstrD, ALUSrcE, ImmSrcD, ExtImmD, ExtImmE, RegWriteD,
-        RegWriteW, WA3W, WD3_IN, RegSrcD, ForwardAE, ResultW, ALUOutM, RA1D, RA2D, RA3D, rd1D,
-        rd2D, rd3D, SrcAE, SrcBE, SrcCE, ALUResultE[31:0], ALUControlD, ALUControlE, R[0], R[1],
-        R[2], R[3]);
+        "InstrD %b \n RegWriteD %b | RegWriteW %b | WA3W %d \n Forwards: %b %b %b %b \n ResultW %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n",
+        InstrD, RegWriteD, RegWriteW, WA3W, ForwardAE, ForwardBE, ForwardCE, ForwardDE, ResultW,
+        ALUOutM, RA1D, RA2D, RA3D, RA4D, rd1D, rd2D, rd3D, rd4D, SrcAE, SrcBE, SrcCE, SrcDE,
+        ALUResultE, ALUControlD, ALUControlE, R[0], R[1], R[2], R[3]);
   end
 
   // Verify results after certain time

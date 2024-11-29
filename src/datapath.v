@@ -101,6 +101,7 @@ module datapath (
   wire Match_1D_E;
   wire Match_2D_E;
   wire Match_3D_E;
+  wire Match_4D_E;
 
   assign RA3D = InstrD[15:12];  // Passed to alu as RdLo for multiplications
   assign RA4D = InstrD[11:8];  // Passed to alu as RdHi/Ra for multiplications
@@ -323,6 +324,14 @@ module datapath (
       .d    (rd3D),   // Dato de entrada
       .q    (rd3E)    // Dato de salida
   );
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) rd4_reg (
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (rd4D),   // Dato de entrada
+      .q    (rd4E)    // Dato de salida
+  );
 
 
   // Este registro almacena el valor inmediato extendido en la etapa de decodificación
@@ -418,6 +427,16 @@ module datapath (
       .d2(ALUOutM[DATA_WIDTH-1:0]),
       .s (ForwardCE),
       .y (SrcCE)
+  );
+
+  mux3 #(
+      .WIDTH(32)
+  ) by_pass4_mux (
+      .d0(rd4E),
+      .d1(ResultW[DATA_WIDTH-1:0]),
+      .d2(ALUOutM[DATA_WIDTH-1:0]),
+      .s (ForwardDE),
+      .y (SrcDE)
   );
 
 
