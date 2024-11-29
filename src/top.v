@@ -3,7 +3,8 @@ module top (
     input wire reset
 );
   parameter DATA_WIDTH = 32;
-  localparam MEMFILE = "memfile.B.dat";
+  // localparam MEMFILE = "memfile.B.dat";
+  localparam MEMFILE = "memfile.longmul.dat";
 
   wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;

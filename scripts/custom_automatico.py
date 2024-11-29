@@ -35,7 +35,7 @@ def arm_to_bin_hex(instruction):
         "B": "010000",
         "BL": "010001",
         "CBZ": "010010",
-        "CBNZ": "010011"
+        "CBNZ": "010011",
     }
 
     # Separar la instrucción en partes
@@ -50,43 +50,47 @@ def arm_to_bin_hex(instruction):
     # Modificaciones para instrucciones de salto
     if op in ["B", "BL", "CBZ", "CBNZ"]:
         op_code = "01"
-        imm24 = format(int(parts[1]), '024b')  # Convertir IMM24 a binario de 24 bits
+        imm24 = format(int(parts[1]), "024b")  # Convertir IMM24 a binario de 24 bits
         binary = f"{condition}{op_code}{encoding}{imm24}"
     else:
         # Resto del código para otras instrucciones
-        rd = parts[1].strip(',')
-        rn = parts[2].strip(',') if len(parts) > 3 else "R0"
+        rd = parts[1].strip(",")
+        rn = parts[2].strip(",") if len(parts) > 3 else "R0"
         operand2 = parts[3] if len(parts) > 3 else parts[2]
-        bit_25 = "1" if operand2.startswith('#') else "0"
+        bit_25 = "1" if operand2.startswith("#") else "0"
         function = f"{bit_25}{encoding[2:]}"
         bit_20 = "1" if op in ["MOV", "CMP", "TST", "TEQ"] else "0"
 
         if op in ["MLA", "MLS"]:
-            ra = parts[3].strip(',')
+            ra = parts[3].strip(",")
             rm = parts[4]
-            ra_bin = format(int(ra[1:]), '04b')
-            rm_bin = format(int(rm[1:]), '04b')
-            rn_bin = format(int(rn[1:]), '04b')
-            rd_bin = format(int(rd[1:]), '04b')
+            ra_bin = format(int(ra[1:]), "04b")
+            rm_bin = format(int(rm[1:]), "04b")
+            rn_bin = format(int(rn[1:]), "04b")
+            rd_bin = format(int(rd[1:]), "04b")
             binary = f"{condition}{op_code}{function}{bit_20}{rn_bin}{rd_bin}{ra_bin}0000{rm_bin}"
         elif op in ["UMULL", "UMLAL", "SMULL", "SMLAL"]:
-            rd_hi = parts[1].strip(',')
-            rd_lo = parts[2].strip(',')
-            rn = parts[3].strip(',')
+            rd_hi = parts[1].strip(",")
+            rd_lo = parts[2].strip(",")
+            rn = parts[3].strip(",")
             rm = parts[4]
-            rd_hi_bin = format(int(rd_hi[1:]), '04b')
-            rd_lo_bin = format(int(rd_lo[1:]), '04b')
-            rn_bin = format(int(rn[1:]), '04b')
-            rm_bin = format(int(rm[1:]), '04b')
+            rd_hi_bin = format(int(rd_hi[1:]), "04b")
+            rd_lo_bin = format(int(rd_lo[1:]), "04b")
+            rn_bin = format(int(rn[1:]), "04b")
+            rm_bin = format(int(rm[1:]), "04b")
             binary = f"{condition}{op_code}{function}{bit_20}{rn_bin}{rd_lo_bin}{rd_hi_bin}0000{rm_bin}"
         else:
-            rn_bin = format(int(rn[1:]), '04b')
-            rd_bin = format(int(rd[1:]), '04b')
+            rn_bin = format(int(rn[1:]), "04b")
+            rd_bin = format(int(rd[1:]), "04b")
             if bit_25 == "1":
-                imm_value = int(operand2.strip('#'), 16) if operand2.startswith('#0x') else int(operand2.strip('#'))
-                imm_bin = format(imm_value, '012b')
+                imm_value = (
+                    int(operand2.strip("#"), 16)
+                    if operand2.startswith("#0x")
+                    else int(operand2.strip("#"))
+                )
+                imm_bin = format(imm_value, "012b")
             else:
-                imm_bin = format(int(operand2[1:].strip(',')), '012b')
+                imm_bin = format(int(operand2[1:].strip(",")), "012b")
             binary = f"{condition}{op_code}{function}{bit_20}{rn_bin}{rd_bin}{imm_bin}"
 
     # Convertir a hexadecimal
@@ -94,8 +98,9 @@ def arm_to_bin_hex(instruction):
 
     return binary, hex_output
 
+
 def process_instructions(input_file, output_file):
-    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+    with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         for line in infile:
             instruction = line.strip()
             if instruction:  # Asegurarse de que la línea no esté vacía
@@ -104,7 +109,8 @@ def process_instructions(input_file, output_file):
                 outfile.write(f"// {binary}\n")
                 outfile.write(f"{hex_output}\n\n")
 
+
 # Ejemplo de uso
-input_file = 'assets/instrucciones.txt'
-output_file = 'assets/mem.dat'
+input_file = "assets/longmul.s"
+output_file = "assets/longmul.dat"
 process_instructions(input_file, output_file)

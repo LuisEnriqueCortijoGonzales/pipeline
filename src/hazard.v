@@ -1,56 +1,59 @@
 module hazardUnit (
-    clk,  // Señal de reloj
-    reset,  // Señal de reinicio
-    Match_1E_M, // Coincidencia entre el registro de destino en la etapa E y el registro fuente en la etapa M
-    Match_1E_W, // Coincidencia entre el registro de destino en la etapa E y el registro fuente en la etapa W
-    Match_2E_M, // Coincidencia entre el segundo registro de destino en la etapa E y el registro fuente en la etapa M
-    Match_2E_W, // Coincidencia entre el segundo registro de destino en la etapa E y el registro fuente en la etapa W
-    Match_3E_M, // Coincidencia entre el tercer registro de destino en la etapa E y el registro fuente en la etapa M
-    Match_3E_W, // Coincidencia entre el tercer registro de destino en la etapa E y el registro fuente en la etapa W
-    Match_12D_E, // Coincidencia entre los registros fuente en la etapa D y el registro de destino en la etapa E
-    RegWriteM,  // Señal de escritura de registro en la etapa M
-    RegWriteW,  // Señal de escritura de registro en la etapa W
-    BranchTakenE,  // Indica si se toma una rama en la etapa E
-    MemtoRegE,  // Indica si la instrucción en la etapa E es una carga desde memoria
-    PCWrPendingF,  // Indica si hay una escritura pendiente en el contador de programa
-    PCSrcW,  // Indica la fuente del contador de programa en la etapa W
-    ForwardAE,  // Señal de reenvío para el primer operando en la etapa E
-    ForwardBE,  // Señal de reenvío para el segundo operando en la etapa E
-    ForwardCE,  // Señal de reenvío para el tercer operando en la etapa E (used in multiply operations)
-    StallF,  // Señal para detener la etapa F
-    StallD,  // Señal para detener la etapa D
-    FlushD,  // Señal para limpiar la etapa D
-    FlushE  // Señal para limpiar la etapa E
+    input wire clk,
+    input wire reset,
+
+    // Coincidencias entre los registros de destino de la etapa E y los registro fuente en la etapa M/W
+
+    input wire Match_1E_M,
+    input wire Match_1E_W,
+    input wire Match_2E_M,
+    input wire Match_2E_W,
+    input wire Match_3E_M,
+    input wire Match_3E_W,
+    input wire Match_4E_M,
+    input wire Match_4E_W,
+
+    // Coincidencia entre cualquiera de los registros fuente en la etapa D y el registro de destino en la etapa E
+    input wire Match_12D_E,
+
+
+    // Señales de escritura de registro
+    input wire [1:0] RegWriteM,
+    input wire [1:0] RegWriteW,
+
+    // Indica si se toma una rama en la etapa E
+    input wire BranchTakenE,
+
+    // Indica si la instrucción en la etapa E es una carga desde memoria
+    input wire MemtoRegE,
+
+    // Indica si hay una escritura pendiente en el contador de programa
+    input wire PCWrPendingF,
+
+    // Indica la fuente del contador de programa en la etapa W
+    input wire PCSrcW,
+
+    // Señal de reenvío para los operandos en la etapa E, para saber si se reenvía desde M o W.
+    output reg [1:0] ForwardAE,
+    output reg [1:0] ForwardBE,
+    output reg [1:0] ForwardCE,
+    output reg [1:0] ForwardDE,
+
+    // Detencion de ejecucion
+    output wire StallF,
+    output wire StallD,
+
+    // Limpieza de etapas
+    output wire FlushD,
+    output wire FlushE
 );
 
-  input wire clk;
-  input wire reset;
 
-  input wire Match_1E_M;
-  input wire Match_1E_W;
-  input wire Match_2E_M;
-  input wire Match_2E_W;
-  input wire Match_3E_M;
-  input wire Match_3E_W;
-  input wire Match_12D_E;
 
-  input wire RegWriteM;
-  input wire RegWriteW;
-  input wire BranchTakenE;
-  input wire MemtoRegE;
-  input wire PCWrPendingF;
-  input wire PCSrcW;
 
-  output reg [1:0] ForwardAE;
-  output reg [1:0] ForwardBE;
-  output reg [1:0] ForwardCE;
 
   wire ldrStallD;  // Señal interna para detectar un stall debido a una carga
 
-  output wire StallF;
-  output wire StallD;
-  output wire FlushD;
-  output wire FlushE;
 
   // El Hazard Unit detecta y maneja riesgos en un procesador pipelined.
   // Los riesgos de datos ocurren cuando una instrucción necesita un resultado
@@ -62,23 +65,28 @@ module hazardUnit (
   // desde las etapas de Memoria o Escritura a la instrucción dependiente.
 
 
-  reg temp;  // Variable local para el control
+  reg  temp;  // Variable local para el control
   always @(*) begin
 
     // Reenvío para el primer operando en la etapa E
-    if (Match_1E_M & RegWriteM) ForwardAE = 2'b10;  // Desde la etapa M
-    else if (Match_1E_W & RegWriteW) ForwardAE = 2'b01;  // Desde la etapa W
+    if (Match_1E_M & RegWriteM[0]) ForwardAE = 2'b10;  // Desde la etapa M
+    else if (Match_1E_W & RegWriteW[0]) ForwardAE = 2'b01;  // Desde la etapa W
     else ForwardAE = 2'b00;  // Desde el archivo de registros
 
     // Reenvío para el segundo operando en la etapa E
-    if (Match_2E_M & RegWriteM) ForwardBE = 2'b10;  // Desde la etapa M
-    else if (Match_2E_W & RegWriteW) ForwardBE = 2'b01;  // Desde la etapa W
+    if (Match_2E_M & RegWriteM[0]) ForwardBE = 2'b10;  // Desde la etapa M
+    else if (Match_2E_W & RegWriteW[0]) ForwardBE = 2'b01;  // Desde la etapa W
     else ForwardBE = 2'b00;  // Desde el archivo de registros
 
     // Reenvío para el tercer operando en la etapa E (usado en operaciones de multiplicación)
-    if (Match_3E_M & RegWriteM) ForwardCE = 2'b10;  // Desde la etapa M
-    else if (Match_3E_W & RegWriteW) ForwardCE = 2'b01;  // Desde la etapa W
+    if (Match_3E_M & RegWriteM[0]) ForwardCE = 2'b10;  // Desde la etapa M
+    else if (Match_3E_W & RegWriteW[0]) ForwardCE = 2'b01;  // Desde la etapa W
     else ForwardCE = 2'b00;  // Desde el archivo de registros
+
+    // Reenvío para el cuarto operando en la etapa E (usado en operaciones de multiplicación)
+    if (Match_4E_M & RegWriteM[0]) ForwardDE = 2'b10;  // Desde la etapa M
+    else if (Match_4E_W & RegWriteW[0]) ForwardDE = 2'b01;  // Desde la etapa W
+    else ForwardDE = 2'b00;  // Desde el archivo de registros
 
 
   end

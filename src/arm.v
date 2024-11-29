@@ -19,15 +19,16 @@ module arm (
   wire BranchTakenE;
   wire MemtoRegW;
   wire PCSrcW;
-  wire RegWriteW;
+  wire [1:0] RegWriteW;
   wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE;
   wire [31:0] InstrD;
-  wire RegWriteM;
+  wire [1:0] RegWriteM;
   wire MemtoRegE;
   wire PCWrPendingF;
   wire [1:0] ForwardAE;
   wire [1:0] ForwardBE;
   wire [1:0] ForwardCE;
+  wire [1:0] ForwardDE;
   wire StallF;
   wire StallD;
   wire FlushD;
@@ -38,13 +39,15 @@ module arm (
   wire Match_2E_W;
   wire Match_3E_M;
   wire Match_3E_W;
+  wire Match_4E_M;
+  wire Match_4E_W;
   wire Match_12D_E;
   wire branch;
   wire taken;
   wire predict_taken;
 
 
-  wire [3:0] FlagsE;
+  wire [ALU_FLAGS_WIDTH-1:0] FlagsE;
 
   controller Control_unit (
       .clk(clk),
@@ -95,10 +98,13 @@ module arm (
       .Match_2E_W(Match_2E_W),
       .Match_3E_M(Match_3E_M),
       .Match_3E_W(Match_3E_W),
+      .Match_4E_M(Match_4E_M),
+      .Match_4E_W(Match_4E_W),
       .Match_12D_E(Match_12D_E),
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
       .ForwardCE(ForwardCE),
+      .ForwardDE(ForwardDE),
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
@@ -118,6 +124,8 @@ module arm (
       .Match_2E_W(Match_2E_W),
       .Match_3E_M(Match_3E_M),
       .Match_3E_W(Match_3E_W),
+      .Match_4E_M(Match_4E_M),
+      .Match_4E_W(Match_4E_W),
       .Match_12D_E(Match_12D_E),
       .RegWriteM(RegWriteM),
       .RegWriteW(RegWriteW),
@@ -128,6 +136,7 @@ module arm (
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
       .ForwardCE(ForwardCE),
+      .ForwardDE(ForwardDE),
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
@@ -143,6 +152,6 @@ module arm (
   );
 
   // i fucking hate u
-  assign PCSrcW = predict_taken;
+  // assign PCSrcW = predict_taken;
 
 endmodule

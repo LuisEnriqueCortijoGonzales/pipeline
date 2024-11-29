@@ -22,6 +22,16 @@ module comparador_igualdad (
   assign y = a == b;  // Compara si 'operando_a' es igual a 'operando_b'
 endmodule
 
+module comparador_igualdad_doble (
+    input wire [(WIDTH*2) - 1:0] a,
+    input wire [WIDTH - 1:0] b,
+    output wire y
+);
+  parameter WIDTH = 8;
+  // TODO: compare a[(WIDTH*2)-1:WIDTH] == b if they are used
+  assign y = a[WIDTH-1:0] == b;
+endmodule
+
 module registro_flanco_positivo_habilitacion_limpieza (
     clk,  // Señal de reloj
     reset,  // Señal de reinicio

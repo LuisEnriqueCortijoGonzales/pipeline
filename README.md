@@ -41,12 +41,49 @@ The 5 bits used are the last 5 bits of the encodings for `OP[0] = 1`.
 
 | **Operation** | **ALUControl Encoding (5 bits)** | **Description**                                                                                   |
 | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `MLA`         | `01111`                          | Multiply-Accumulate: `Result = Ra + (A * B)`.                                                     |
-| `MLS`         | `10000`                          | Multiply-Subtract: `Result = Ra - (A * B)`.                                                       |
-| `UMULL`       | `10001`                          | Unsigned Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`). |
-| `UMLAL`       | `10010`                          | Unsigned Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                          |
-| `SMULL`       | `10011`                          | Signed Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`).   |
-| `SMLAL`       | `10100`                          | Signed Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                            |
+| `MLA`         | `01000`                          | Multiply-Accumulate: `Result = Ra + (A * B)`.                                                     |
+| `MLS`         | `01001`                          | Multiply-Subtract: `Result = Ra - (A * B)`.                                                       |
+| `UMULL`       | `01010`                          | Unsigned Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`). |
+| `UMLAL`       | `01011`                          | Unsigned Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                          |
+| `SMULL`       | `01100`                          | Signed Multiply Long: Multiplies two operands to produce a 64-bit result (`RdHi:RdLo = A * B`).   |
+| `SMLAL`       | `01101`                          | Signed Multiply-Accumulate Long: `RdHi:RdLo += A * B`.                                            |
+
+##### MLA / MLS
+
+| Cond | OP  | I   | command | S   | Rn  | Rd  | Ra  | NULL | Rm  |
+| ---- | --- | --- | ------- | --- | --- | --- | --- | ---- | --- |
+| 4b   | 2b  | 1b  | 4b      | 1b  | 4b  | 4b  | 4b  | 4b   | 4b  |
+
+- **Ra (4b):** Optional accumulated initial value
+
+##### UMULL / UMLAL / SMULL / SMLAL
+
+| Cond | OP  | I   | command | S   | Rn  | RdLo | RdHi | NULL | Rm  |
+| ---- | --- | --- | ------- | --- | --- | ---- | ---- | ---- | --- |
+| 4b   | 2b  | 1b  | 4b      | 1b  | 4b  | 4b   | 4b   | 4b   | 4b  |
+
+- **RdLo (4b):** Address of the less significant 32bits of the 64B number, also used as an accumulate (UMLAL, SMLAL)
+- **RdHi (4b):** Address of the more significant 32bits of the 64B number.
+
+
+##### Memory operations
+| Cond | OP | I | P | U | B | W | L | Rn | Rd | Offset/Immediate |
+
+ Campo             | Bits | Descripción                                                                 |
+|--------------------|------|-----------------------------------------------------------------------------|
+| **Cond**          | 4    | Condición para ejecutar la instrucción (e.g., `EQ`, `NE`, `AL`, etc.).       |
+| **00**            | 2    | Especifica que es una instrucción de carga/almacenamiento.                  |
+| **I**             | 1    | Define si el desplazamiento es inmediato (`0`) o basado en un registro (`1`).|
+| **P**             | 1    | Preindexado (`1`) o postindexado (`0`).                                     |
+| **U**             | 1    | Incremento (`1`) o decremento (`0`) de la dirección base.                   |
+| **B**             | 1    | Transferencia de bytes (`1`) o palabras completas (`0`).                   |
+| **W**             | 1    | Escribe la dirección calculada en el registro base (`1`).                  |
+| **L**             | 1    | Cargar (`1`) o almacenar (`0`).                                             |
+| **Rn**            | 4    | Registro base que contiene la dirección.                                    |
+| **Rd**            | 4    | Registro destino (para carga) o fuente (para almacenamiento).               |
+| **Offset/Immediate** | 12 | Valor de desplazamiento inmediato o especificación de un registro.         |
+
+
 
 ---
 

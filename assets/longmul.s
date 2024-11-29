@@ -1,0 +1,5 @@
+MOV R0, #255
+MOV R1, #255
+MOV R2, #0
+MOV R3, #0
+UMULL R2, R3, R0, R1
