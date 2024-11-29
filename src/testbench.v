@@ -171,7 +171,7 @@ module testbench;
   // Assign register values
   genvar i;
   generate
-    for (i = 0; i <= 5; i = i + 1) begin : gen_register_alias
+    for (i = 0; i <= 14; i = i + 1) begin : gen_register_alias
       assign R[i] = processor.arm.Data_path.Registros.Registros[i];
     end
   endgenerate

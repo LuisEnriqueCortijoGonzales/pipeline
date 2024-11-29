@@ -58,6 +58,7 @@ module controller (
   assign sets_flags = (InstrD[20]);
 
   reg is_64b_return;
+  reg is_bl;
 
   assign RegSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
 
@@ -67,7 +68,7 @@ module controller (
 
   assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : sets_flags;
 
-  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? 1'b1 : ~sets_flags;
+  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? is_bl : ~sets_flags; // TODO: is this setted during memory?
 
   assign RegWriteD = {writes_reg & is_64b_return, writes_reg};
 
@@ -80,6 +81,7 @@ module controller (
 
   always @(*) begin
     is_64b_return = 1'b0;
+    is_bl = 1'b0;
     if (ALUOpD) begin
       case ({
         InstrD[26], InstrD[24:21]
@@ -140,7 +142,10 @@ module controller (
       if (is_branch) begin
         case (InstrD[25:24])
           2'b00:   ALUControlD = 6'b010000;  // B
-          2'b01:   ALUControlD = 6'b010000;  // BL
+          2'b01: begin
+            ALUControlD = 6'b010000;
+            is_bl = 1'b1;
+          end  // BL
           2'b11:   ALUControlD = 6'b010010;  // CBZ Test & branch
           2'b10:   ALUControlD = 6'b010011;  // CBNZ Test & branch
           default: ALUControlD = 6'bxxxxxx;
