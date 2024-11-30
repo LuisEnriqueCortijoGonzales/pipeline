@@ -43,7 +43,9 @@ module top (
       .MemWriteM(MemWriteM),
       .ALUOutM(DataAdrM),
       .WriteDataM(WriteDataM),
-      .ReadDataM(ReadDataM)
+      .ReadDataM(ReadDataM),
+      .R0(R0),
+      .R1(R1),
   );
 
   // Memoria de instrucciones: almacena las instrucciones que el procesador ejecutará.
