@@ -16,7 +16,11 @@ module controller (
     output wire [1:0] RegWriteM,
     output wire MemtoRegE,
     output wire PCWrPendingF,
-    output wire [ALU_FLAGS_WIDTH-1:0] FlagsE
+    output wire [ALU_FLAGS_WIDTH-1:0] FlagsE,
+    output wire is_memory_strE,
+    output wire is_memory_postE,
+    output wire is_memory_strW,
+    output wire is_memory_postW
 );
   localparam ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
@@ -51,6 +55,8 @@ module controller (
   wire is_branch;
   wire is_immediate;
 
+  wire is_memory_postM, is_memory_strM;
+
   wire OP = InstrD[27:26];
 
   localparam DATA_PROCESSING = 2'b1?;
@@ -69,9 +75,43 @@ module controller (
 
   // MEMORY wires
   wire is_memory_reg = InstrD[25];  // I
-  wire is_memory_load = InstrD[20];  // L - Is load or store
   wire is_memory_add = InstrD[23];  // U - Is the offset added or subtracted
 
+  wire is_memory_load = InstrD[20];  // L - Is load or store
+
+  wire is_memory = ~is_data_processing & (~is_branch);
+  wire is_memory_str = is_memory & (~is_memory_load);
+
+  // P: 24
+  // W: 21
+  wire is_memory_pre = InstrD[21] & InstrD[24];  // P & W
+  wire is_memory_post = is_memory & (~InstrD[21]) & (~InstrD[24]);  // ~P & ~W
+  wire is_memory_WriteBack = is_memory_pre | is_memory_post;
+
+  registro_flanco_positivo #(
+      .WIDTH(2)
+  ) memory_flag_DE (
+      .clk  (clk),                               // Reloj del sistema
+      .reset(reset),                             // Señal de reinicio
+      .d    ({is_memory_str, is_memory_post}),   // Dato de entrada
+      .q    ({is_memory_strE, is_memory_postE})  // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(2)
+  ) memory_flag_EM (
+      .clk  (clk),                                // Reloj del sistema
+      .reset(reset),                              // Señal de reinicio
+      .d    ({is_memory_strE, is_memory_postE}),  // Dato de entrada
+      .q    ({is_memory_strM, is_memory_postM})   // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(2)
+  ) memory_flag_MW (
+      .clk  (clk),                                // Reloj del sistema
+      .reset(reset),                              // Señal de reinicio
+      .d    ({is_memory_strM, is_memory_postM}),  // Dato de entrada
+      .q    ({is_memory_strW, is_memory_postW})   // Dato de salida
+  );
 
   assign RegSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b01 : {~is_memory_load, 1'b0};
 
@@ -79,11 +119,18 @@ module controller (
 
   assign ALUSrcD = is_data_processing ? is_immediate : 1'b1;
 
-  assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : is_memory_load;
+  assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : is_memory_load | (is_memory_post & is_memory_str);
 
-  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? is_bl : is_memory_load;
+  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? is_bl : is_memory_load | is_memory_WriteBack;
 
-  assign RegWriteD = {writes_reg & is_64b_return, writes_reg};
+  assign RegWriteD = {
+    writes_reg & (is_64b_return | (is_memory_WriteBack & is_memory_load)), writes_reg
+  };
+  // States:
+  //   00 -> No write
+  //   01 -> Normal write (32 bits)
+  //   11 -> Double write (64 bits)
+
 
   assign MemWriteD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : ~is_memory_load;
 
@@ -211,12 +258,12 @@ module controller (
       .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE})
   );
   registro_flanco_positivo #(
-      .WIDTH(ALUCONTROL_WIDTH + 2)
+      .WIDTH(ALUCONTROL_WIDTH + 1)
   ) regsE (
       .clk(clk),
       .reset(reset),
-      .d({ALUSrcD, ALUControlD, CarryD}),
-      .q({ALUSrcE, ALUControlE, CarryE})
+      .d({ALUSrcD, ALUControlD}),
+      .q({ALUSrcE, ALUControlE})
   );
   registro_flanco_positivo #(
       .WIDTH(4)

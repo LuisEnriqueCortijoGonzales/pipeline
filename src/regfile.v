@@ -7,6 +7,7 @@ module regfile (
     // 01 -> Escribir en 'wa3'
     // 11 -> Escribir en 'wa3' y 'wa3_2'
 
+
     input wire [3:0] ra1,  // Dirección del primer registro a leer
     input wire [3:0] ra2,  // Dirección del segundo registro a leer
     input wire [3:0] ra3,  // Dirección del tercer registro a leer (used in long multiplication)
@@ -43,9 +44,8 @@ module regfile (
       end
       default: begin
       end
-
-
     endcase
+
 
   end
 

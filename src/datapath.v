@@ -15,6 +15,10 @@ module datapath (
     output wire [(DATA_WIDTH*2)-1:0] ALUOutM,
     output wire [31:0] WriteDataM,
     input wire [31:0] ReadDataM,
+    input wire is_memory_strE,
+    input wire is_memory_postE,
+    input wire is_memory_strW,
+    input wire is_memory_postW,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
     input wire [ALU_FLAGS_WIDTH-1:0] FlagsE,
     input wire predict_taken,
@@ -93,6 +97,10 @@ module datapath (
   wire [3:0] RA2E;
   wire [3:0] RA3E;
   wire [3:0] RA4E;
+
+  // RA1 will be written after a pre-index memory op
+  wire [3:0] RA1M;
+  wire [3:0] RA1W;
 
   wire [7:0] WA3E;
   wire [7:0] WA3M;
@@ -258,6 +266,7 @@ module datapath (
       .wa3_2(WA3W[7:4]),  // Dirección del segundo registro a escribir (LMUL)
       .wd3(WD3_IN),  // Dato a escribir
       .wd3_2(ResultW[(DATA_WIDTH*2)-1:DATA_WIDTH]),  // Dato a escribir (LMUL)
+
       .r15(PCPlus8D),  // Valor del registro 15 (PC + 8)
       .rd1(rd1D),  // Salida del primer registro leído
       .rd2(rd2D),  // Salida del segundo registro leído
@@ -344,6 +353,9 @@ module datapath (
       .d    (ExtImmD),  // Dato de entrada
       .q    (ExtImmE)   // Dato de salida
   );
+
+
+  wire [7:0] pre_wa3e;
   // Este registro almacena la dirección del registro de destino en la etapa de decodificación
   // y la transfiere a la etapa de ejecución para determinar dónde escribir el resultado.
   registro_flanco_positivo #(
@@ -352,8 +364,11 @@ module datapath (
       .clk  (clk),                            // Reloj del sistema
       .reset(reset),                          // Señal de reinicio
       .d    ({InstrD[11:8], InstrD[15:12]}),  // Dato de entrada
-      .q    (WA3E)                            // Dato de salida
+      .q    (pre_wa3e)                        // Dato de salida
   );
+  assign WA3E = is_memory_strE ? {4'd0, RA1E} : is_memory_postE ? {RA1E, pre_wa3e[3:0]} : pre_wa3e;
+
+
   // Este registro almacena la dirección del primer registro fuente en la etapa de decodificación
   // y la transfiere a la etapa de ejecución para el acceso a los datos.
   registro_flanco_positivo #(
@@ -395,6 +410,28 @@ module datapath (
       .d    (RA4D),   // Dato de entrada
       .q    (RA4E)    // Dato de salida
   );
+
+
+
+
+  // Passes RA1 to the WriteBack stage
+  registro_flanco_positivo #(
+      .WIDTH(4)
+  ) ra1_reg_EM (
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (RA1E),   // Dato de entrada
+      .q    (RA1M)    // Dato de salida
+  );
+  registro_flanco_positivo #(
+      .WIDTH(4)
+  ) ra1_reg_MW (
+      .clk  (clk),    // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d    (RA1M),   // Dato de entrada
+      .q    (RA1W)    // Dato de salida
+  );
+
 
   // Forwarding/Bypassing: Utiliza multiplexores para redirigir los resultados
   // de la ALU y datos de escritura directamente a las instrucciones que los
@@ -461,6 +498,7 @@ module datapath (
       .y (PCnextF)
   );
 
+  wire [(DATA_WIDTH*2)-1:0] ALUResultE_1;
   // ALU: Unidad Aritmética y Lógica que realiza operaciones aritméticas y lógicas
   alu ALU (
       .a(SrcAE),
@@ -470,9 +508,13 @@ module datapath (
       .ALUControl(ALUControlE),
       .CarryIn(FlagsE[1]),
       .CBZRn(WriteDataE),
-      .Result(ALUResultE),
+      .Result(ALUResultE_1),
       .ALUFlags(ALUFlagsE)
   );
+
+  // if postindex, pass srcae
+  assign ALUResultE = is_memory_postE ? {ALUResultE_1[DATA_WIDTH-1:0], SrcAE} : ALUResultE_1;
+
 
   // Este registro almacena el resultado de la ALU en la etapa de ejecución
   // y lo transfiere a la etapa de memoria para operaciones posteriores.
@@ -534,17 +576,8 @@ module datapath (
       .d(WA3M),
       .q(WA3W)
   );
-  // Este multiplexor selecciona el valor que se escribirá de vuelta en los registros,
-  // permitiendo elegir entre el resultado de la ALU o los datos leídos de memoria.
-  mux2 #(
-      .WIDTH(64)
-  ) res_mux (
-      .d0(ALUOutW),
-      .d1({32'h00000000, ReadDataW}),
 
-      .s(MemtoRegW),
-      .y(ResultW)
-  );
+  assign ResultW = ~MemtoRegW ? ALUOutW : (is_memory_postW ? ( is_memory_strW? {32'dx, ALUOutW[(DATA_WIDTH*2)-1:DATA_WIDTH]} : {ALUOutW[(DATA_WIDTH*2)-1:DATA_WIDTH], ReadDataW}) : {ALUOutW[DATA_WIDTH-1:0], ReadDataW});
 
 
   // ALUSRC 1

@@ -1,8 +1,31 @@
+from enum import Enum
+
+
+class INSTR_TYPE(Enum):
+    DATA_PROCESSING = 0
+    MEMORY = 1
+    BRANCH = 2
+
+
 # Function to format binary representation
-lengths = [4, 2, 1, 4, 1, 4, 4, 12]
+data_lengths = [4, 2, 1, 4, 1, 4, 4, 12]
+branch_lengths = [4, 2, 1, 4, 1, 4, 4, 12]
+memory_lengths = [4, 2, 6, 4, 4, 12]
+
+current_instr_type = INSTR_TYPE.MEMORY
 
 
 def format_bytes(s):
+    lengths = (
+        data_lengths
+        if current_instr_type == INSTR_TYPE.DATA_PROCESSING
+        else (
+            branch_lengths
+            if current_instr_type == INSTR_TYPE.BRANCH
+            else memory_lengths
+        )
+    )
+
     return " ".join(
         s[sum(lengths[:i]) : sum(lengths[: i + 1])] for i in range(len(lengths))
     )

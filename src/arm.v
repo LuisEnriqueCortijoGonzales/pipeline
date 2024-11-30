@@ -46,6 +46,10 @@ module arm (
   wire taken;
   wire predict_taken;
 
+  wire is_memory_strE;
+  wire is_memory_postE;
+  wire is_memory_strW;
+  wire is_memory_postW;
 
   wire [ALU_FLAGS_WIDTH-1:0] FlagsE;
 
@@ -67,7 +71,11 @@ module arm (
       .MemtoRegE(MemtoRegE),
       .PCWrPendingF(PCWrPendingF),
       .FlushE(FlushE),
-      .FlagsE(FlagsE)
+      .FlagsE(FlagsE),
+      .is_memory_strE(is_memory_strE),
+      .is_memory_postE(is_memory_postE),
+      .is_memory_strW(is_memory_strW),
+      .is_memory_postW(is_memory_postW)
 
   );
 
@@ -83,6 +91,10 @@ module arm (
       .MemtoRegW(MemtoRegW),
       .PCSrcW(PCSrcW),
       .RegWriteW(RegWriteW),
+      .is_memory_strE(is_memory_strE),
+      .is_memory_postE(is_memory_postE),
+      .is_memory_strW(is_memory_strW),
+      .is_memory_postW(is_memory_postW),
       .PCF(PCF),
       .InstrF(InstrF),
       .InstrD(InstrD),

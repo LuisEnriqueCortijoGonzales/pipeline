@@ -13,6 +13,7 @@ module conditional (
   wire overflow;  // Flag de desbordamiento
   wire ge;  // Señal que indica si es mayor o igual
   wire saturated;  // Señal de saturación
+  wire carry;
 
   // Asignación de los flags a las señales individuales
   assign {saturated, neg, zero, carry, overflow} = Flags;
