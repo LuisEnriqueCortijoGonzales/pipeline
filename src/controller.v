@@ -336,3 +336,4 @@ module controller (
   );
   assign PCWrPendingF = (PCSrcD | PCSrcE) | PCSrcM;
 endmodule
+//porque me meti a CS 
