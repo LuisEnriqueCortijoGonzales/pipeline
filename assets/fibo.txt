@@ -1,0 +1,11 @@
+
+MOV     R0, #5
+MOV     R1, #0
+MOV     R2, #1
+CMP     R0, #1
+BLS     4
+ADD     R3, R1, R2
+MOV     R1, R2
+MOV     R2, R3
+SUBS    R0, R0, #1
+BGT     -6

@@ -5,6 +5,7 @@ def arm_to_bin_hex(instruction):
         "ADC": "100001",
         "QADD": "100010",
         "SUB": "100011",
+        "SUBS": "100011",
         "SBS": "100100",
         "SBC": "100101",
         "QSUB": "100110",
@@ -44,12 +45,43 @@ def arm_to_bin_hex(instruction):
         "LDMIA": "00"
     }
 
+    # Diccionario de condiciones
+    condition_dict = {
+        "EQ": "0000",  # Equal
+        "NE": "0001",  # Not equal
+        "CS": "0010",  # Carry set
+        "CC": "0011",  # Carry clear
+        "MI": "0100",  # Minus
+        "PL": "0101",  # Plus
+        "VS": "0110",  # Overflow
+        "VC": "0111",  # No overflow
+        "HI": "1000",  # Unsigned higher
+        "LS": "1001",  # Unsigned lower or same
+        "GE": "1010",  # Signed greater than or equal
+        "LT": "1011",  # Signed less than
+        "GT": "1100",  # Signed greater than
+        "LE": "1101",  # Signed less than or equal
+        "AL": "1110",  # Always (default)
+        "NV": "1111"   # Never
+    }
+
     # Separar la instrucción en partes
     parts = instruction.replace(',', '').replace('[', '').replace(']', '').split()
     op = parts[0].upper()
 
-    # Codificación por defecto
-    condition = "1110"
+    # Determinar la condición
+    condition = "1110"  # Valor por defecto
+    if len(op) > 2 and op[-2:] in condition_dict:
+        condition = condition_dict[op[-2:]]
+        op = op[:-2]  # Remover la condición del opcode
+
+    # Modificaciones para instrucciones aritméticas con 'S'
+    if op.endswith('S') and op[:-1] in encoding_dict:
+        op = op[:-1]  # Remover 'S' para obtener el opcode base
+        bit_20 = "1"  # Indicar que se actualizan los flags
+    else:
+        bit_20 = "0"
+
     op_code = encoding_dict[op][:2]
     encoding = encoding_dict[op]
 
@@ -121,7 +153,11 @@ def arm_to_bin_hex(instruction):
     # Modificaciones para instrucciones de salto
     elif op in ["B", "BL", "CBZ", "CBNZ"]:
         op_code = "01"
-        imm24 = format(int(parts[1]), '024b')  # Convertir IMM24 a binario de 24 bits
+        imm_value = int(parts[1], 16) if parts[1].startswith('0x') else int(parts[1])
+        if imm_value < 0:
+            imm24 = format((1 << 24) + imm_value, '024b')  # Convertir a complemento a dos
+        else:
+            imm24 = format(imm_value, '024b')
         binary = f"{condition}{op_code}{encoding}{imm24}"
     else:
         # Resto del código para otras instrucciones
@@ -130,7 +166,6 @@ def arm_to_bin_hex(instruction):
         operand2 = parts[3] if len(parts) > 3 else parts[2]
         bit_25 = "1" if operand2.startswith('#') else "0"
         function = f"{bit_25}{encoding[2:]}"
-        bit_20 = "1" if op in ["MOV", "CMP", "TST", "TEQ"] else "0"
 
         if op in ["MLA", "MLS"]:
             ra = parts[3].strip(',')
@@ -166,7 +201,7 @@ def arm_to_bin_hex(instruction):
     return binary, hex_output
 
 # Ejemplo de uso
-instruction = "STMIA r1!, {r2, r3, r4}"
+instruction = "SUBS R0, R0, #1"
 binary, hex_output = arm_to_bin_hex(instruction)
 print("// " + instruction)
 print("// " + binary)
