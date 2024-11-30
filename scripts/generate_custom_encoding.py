@@ -45,8 +45,8 @@ def arm_to_bin_hex(instruction):
     }
 
     # Separar la instrucción en partes
-    parts = instruction.split()
-    op = parts[0]
+    parts = instruction.replace(',', '').replace('[', '').replace(']', '').split()
+    op = parts[0].upper()
 
     # Codificación por defecto
     condition = "1110"
@@ -54,34 +54,52 @@ def arm_to_bin_hex(instruction):
     encoding = encoding_dict[op]
 
     if op in ["LDR", "STR"]:
-        rd = parts[1].strip(',')
-        rn = parts[2].strip('[],')
-        offset = parts[3] if len(parts) > 3 else "0"
+        rd = parts[1]
+        rn = parts[2]
+        rm = parts[3]
         
-        I = "0"  # Suponiendo desplazamiento inmediato
-        P = "1"  # Preindexado
+        I = "0"  # Registro indexado
+        P = "1"  # Pre-indexado
         U = "1"  # Incremento
         B = "0"  # Palabras completas
         W = "0"  # No escribir en el registro base
         L = "1" if op == "LDR" else "0"  # Cargar o almacenar
 
-        if '!' in parts[2]:
-            P = "0"  # Postindexado
+        if '!' in instruction:
             W = "1"  # Escribir en el registro base
 
-        if len(parts) > 3 and parts[3].startswith('#'):
-            offset_value = int(parts[3].strip('#'))
-            U = "1" if offset_value >= 0 else "0"
-            offset_bin = format(abs(offset_value), '012b')
-        elif len(parts) > 3 and parts[3].startswith('R'):
-            I = "1"
-            shift = parts[4].split('#')[1]
-            offset_bin = f"{format(int(parts[3][1:]), '04b')}0000{format(int(shift), '02b')}"
+        # Caso especial para LDR/STR con desplazamiento y shifting
+        if len(parts) > 4 and parts[4].upper() in ["LSL", "LSR", "ASR", "ROR"]:
+            shift_type = parts[4].upper()
+            shift_amount = int(parts[5].strip('#'))
+            
+            # Aplicar el desplazamiento lógico
+            if shift_type == "LSL":
+                shifted_amount = shift_amount << 1
+            elif shift_type == "LSR":
+                shifted_amount = shift_amount >> 1
+            elif shift_type == "ASR":
+                shifted_amount = shift_amount >> 1  # ASR es similar a LSR para este propósito
+            elif shift_type == "ROR":
+                shifted_amount = (shift_amount >> 1) | ((shift_amount & 1) << 5)  # Rotar a la derecha
+
+            shift_type_bin = {
+                "LSL": "00",
+                "LSR": "01",
+                "ASR": "10",
+                "ROR": "11"
+            }[shift_type]
+            shift_amount_bin = format(shifted_amount, '06b')
+            I = "1"  # Indica que se usa un registro para el desplazamiento
+        else:
+            shift_type_bin = "00"
+            shift_amount_bin = "000000"
 
         rn_bin = format(int(rn[1:]), '04b')
         rd_bin = format(int(rd[1:]), '04b')
+        rm_bin = format(int(rm[1:]), '04b')
 
-        binary = f"{condition}{op_code}{I}{P}{U}{B}{W}{L}{rn_bin}{rd_bin}{offset_bin}"
+        binary = f"{condition}{op_code}{I}{P}{U}{B}{W}{L}{rn_bin}{rd_bin}{shift_amount_bin}{shift_type_bin}{rm_bin}"
     
     elif op in ["STMIA", "LDMDB", "STMDB", "LDMIA"]:
         rn = parts[1].strip('!,')
@@ -148,7 +166,7 @@ def arm_to_bin_hex(instruction):
     return binary, hex_output
 
 # Ejemplo de uso
-instruction = "LDR R0, [R9]"
+instruction = "STMIA r1!, {r2, r3, r4}"
 binary, hex_output = arm_to_bin_hex(instruction)
 print("// " + instruction)
 print("// " + binary)
