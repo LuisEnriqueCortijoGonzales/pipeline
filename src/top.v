@@ -3,7 +3,7 @@ module top (
     input wire reset
 );
   parameter DATA_WIDTH = 32;
-  localparam MEMFILE = "memfile.shift.dat";
+  localparam MEMFILE = "memfile.fibo.dat";
 
   wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;

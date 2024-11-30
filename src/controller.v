@@ -63,6 +63,13 @@ module controller (
   localparam BRANCH = 2'b01;
   localparam MEMORY = 2'b00;
 
+
+  localparam CMN = 6'b110101;  // CMN
+  localparam TST = 6'b110110;  // TST
+  localparam TEQ = 6'b110111;  // TEQ
+  localparam CMP = 6'b111000;  // CMP
+
+
   assign is_data_processing = InstrD[27];  // op[0]
   assign is_branch = InstrD[26];  // op[1]
 
@@ -71,6 +78,18 @@ module controller (
 
   reg  is_64b_return;
   reg  is_bl;
+
+  // TESTS
+  // mp<c><q> <Rn>, <Rm> {,<shift>} Rn - Rm{shifted} NZCV
+  // cmn<c><q> <Rn>, <Rm> {,<shift>} Rn + Rm{shifted} NZCV
+  // tst<c><q> <Rn>, <Rm> {,<shift>} Rn / Rm{shifted} NZCV
+  // teq<c><q> <Rn>, <Rm> {,<shift>} Rn 5 Rm{shifted} NZCV
+  // cmp<c><q> <Rn>, #<const> Rn - const NZCV
+  // cmn<c><q> <Rn>, #<const> Rn + const NZCV
+  // tst<c><q> <Rn>, #<const> Rn / const NZCV
+  // teq
+  reg  no_writeD;
+  wire no_writeE;
 
 
   // MEMORY wires
@@ -187,10 +206,10 @@ module controller (
           5'b10010: ALUControlD = 6'b110010;  // ORR
           5'b10011: ALUControlD = 6'b110011;  // ORN
           5'b10100: ALUControlD = 6'b110100;  // EOR
-          5'b10101: ALUControlD = 6'b110101;  // CMN
-          5'b10110: ALUControlD = 6'b110110;  // TST
-          5'b10111: ALUControlD = 6'b110111;  // TEQ
-          5'b11000: ALUControlD = 6'b111000;  // CMP
+          5'b10101: ALUControlD = CMN;
+          5'b10110: ALUControlD = TST;
+          5'b10111: ALUControlD = TEQ;
+          5'b11000: ALUControlD = CMP;
           5'b11001: ALUControlD = 6'b111001;  // MOV
           5'b11010: ALUControlD = 6'b111010;  // LSR
           5'b11011: ALUControlD = 6'b111011;  // ASR
@@ -199,6 +218,7 @@ module controller (
           5'b11110: ALUControlD = 6'b111110;  // RRX
           default:  ALUControlD = 6'bxxxxxx;
         endcase
+        no_writeD = ALUControlD == CMN | ALUControlD == TST | ALUControlD == TEQ | ALUControlD == CMP;
         FlagWriteD[1] = sets_flags;
         FlagWriteD[0] = sets_flags & ((ALUControlD == 6'b100000) | (ALUControlD == 6'b100001) | (ALUControlD == 6'b100010) | (ALUControlD == 6'b100011) |
       (ALUControlD == 6'b100100) | (ALUControlD == 6'b100101) | (ALUControlD == 6'b100110) | (ALUControlD == 6'b110000) | (ALUControlD == 6'b110001) |
@@ -254,8 +274,8 @@ module controller (
       .reset(reset),
       .en(1'b1),
       .clear(FlushE),
-      .d({FlagWriteD, BranchD, MemWriteD, RegWriteD, PCSrcD, MemtoRegD}),
-      .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE})
+      .d({FlagWriteD, BranchD, MemWriteD, RegWriteD, PCSrcD, MemtoRegD, no_writeD}),
+      .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE, no_writeE})
   );
   registro_flanco_positivo #(
       .WIDTH(ALUCONTROL_WIDTH + 1)
@@ -294,7 +314,7 @@ module controller (
   // condición evaluada en la etapa de ejecución, mejorando la precisión de
   // predicción y reduciendo el número de instrucciones incorrectas en el pipeline.
   assign BranchTakenE   = BranchE & CondExE;
-  assign RegWriteGatedE = CondExE ? RegWriteE : 2'b00;
+  assign RegWriteGatedE = no_writeE ? 2'b00 : CondExE ? RegWriteE : 2'b00;
   assign MemWriteGatedE = MemWriteE & CondExE;
   wire PCSrcGatedE;
   assign PCSrcGatedE = PCSrcE & CondExE;
