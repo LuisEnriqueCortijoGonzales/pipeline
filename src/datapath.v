@@ -540,7 +540,7 @@ module datapath (
       .WIDTH(64)
   ) res_mux (
       .d0(ALUOutW),
-      .d1({ReadDataW, 32'h00000000}),
+      .d1({32'h00000000, ReadDataW}),
 
       .s(MemtoRegW),
       .y(ResultW)

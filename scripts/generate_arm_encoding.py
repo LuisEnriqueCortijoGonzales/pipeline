@@ -16,8 +16,7 @@ def format_bytes(s):
 def assemble_instructions(instructions):
     """Assemble a list of instructions into hexadecimal."""
     # Join all instructions into a single string with line breaks
-    code = "\n".join(instructions)
-    encoding, _ = ks.asm(code)
+    encoding, count = ks.asm()
 
     if encoding is None:
         raise ValueError("Failed to assemble the instructions.")
@@ -49,83 +48,7 @@ def generate_encodings(instructions, filename):
             print(f"Instruction: {instr} -> {hex_encoding}")
 
 
-# Instruction function examples
-def add(rd, rn, operand2, shift=None):
-    if isinstance(operand2, int):
-        return f"add {rd}, {rn}, #{operand2}"
-    elif shift:
-        return f"add {rd}, {rn}, {operand2}, {shift}"
-    else:
-        return f"add {rd}, {rn}, {operand2}"
-
-
-def sub(rd, rn, operand2, shift=None):
-    if isinstance(operand2, int):
-        return f"sub {rd}, {rn}, #{operand2}"
-    elif shift:
-        return f"sub {rd}, {rn}, {operand2}, {shift}"
-    else:
-        return f"sub {rd}, {rn}, {operand2}"
-
-
-def mov(rd, operand):
-    if isinstance(operand, str):
-        return f"mov {rd}, {operand}"  # Register move
-    else:
-        return f"mov {rd}, #{operand}"  # Immediate value move
-
-
-def cmn(rn, operand2):
-    if isinstance(operand2, int):
-        return f"cmn {rn}, #{operand2}"
-    else:
-        return f"cmn {rn}, {operand2}"
-
-
-def mul(rd, rn, rm):
-    return f"mul {rd}, {rn}, {rm}"
-
-
-def lsl(rd, rm, shift):
-    return f"lsl {rd}, {rm}, #{shift}"
-
-
-def and_instr(rd, rn, operand2):
-    if isinstance(operand2, int):
-        return f"and {rd}, {rn}, #{operand2}"
-    else:
-        return f"and {rd}, {rn}, {operand2}"
-
-
-def eor(rd, rn, operand2):
-    if isinstance(operand2, int):
-        return f"eor {rd}, {rn}, #{operand2}"
-    else:
-        return f"eor {rd}, {rn}, {operand2}"
-
-
-def branch(label, condition=None):
-    if condition:
-        return f"b{condition} {label}"
-    else:
-        return f"b {label}"
-
-
-# Example usage
-instructions = [
-    mov("r0", 10),
-    sub("r0", "r0", 1),
-    add("r1", "r0", 6),
-    mov("r2", 2),
-    mul("r3", "r1", "r2"),
-    lsl("r2", "r2", 2),
-    and_instr("r5", "r2", "r2"),
-    eor("r4", "r0", "r2"),
-    cmn("r0", 1),
-    "label:",
-    branch("label", condition="eq"),
-    "nop",  # No operation (fills space, if needed)
-]
+instructions = b"MOV R0, #10"
 
 # Generate encodings and save to a file
 generate_encodings(instructions, "output.hex")

@@ -53,7 +53,6 @@ module regfile (
   // Asignación de salida para 'rd1'
   // Si 'ra1' es 15 (4'b1111), se devuelve 'r15', de lo contrario, se lee del registro 'ra1'
   assign rd1 = (ra1 == 4'b1111 ? r15 : Registros[ra1]);
-
   // Asignación de salida para 'rd2'
   // Si 'ra2' es 15 (4'b1111), se devuelve 'r15', de lo contrario, se lee del registro 'ra2'
   assign rd2 = (ra2 == 4'b1111 ? r15 : Registros[ra2]);

@@ -3,6 +3,7 @@ module controller (
     input wire reset,
     input wire [31:12] InstrD,
     input wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
+    input wire FlushE,
     output wire [1:0] RegSrcD,
     output wire [1:0] ImmSrcD,
     output wire ALUSrcE,
@@ -15,7 +16,6 @@ module controller (
     output wire [1:0] RegWriteM,
     output wire MemtoRegE,
     output wire PCWrPendingF,
-    input wire FlushE,
     output wire [ALU_FLAGS_WIDTH-1:0] FlagsE
 );
   localparam ALUCONTROL_WIDTH = 6;
@@ -51,95 +51,135 @@ module controller (
   wire is_branch;
   wire is_immediate;
 
+  wire OP = InstrD[27:26];
+
+  localparam DATA_PROCESSING = 2'b1?;
+  localparam BRANCH = 2'b01;
+  localparam MEMORY = 2'b00;
+
   assign is_data_processing = InstrD[27];  // op[0]
   assign is_branch = InstrD[26];  // op[1]
 
   assign is_immediate  /* or alusrc */ = InstrD[25];
   assign sets_flags = (InstrD[20]);
 
-  reg is_64b_return;
-  reg is_bl;
+  reg  is_64b_return;
+  reg  is_bl;
 
-  assign RegSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b01 : {~sets_flags, 1'b0};
+
+  // MEMORY wires
+  wire is_memory_reg = InstrD[25];  // I
+  wire is_memory_load = InstrD[20];  // L - Is load or store
+  wire is_memory_add = InstrD[23];  // U - Is the offset added or subtracted
+
+
+  assign RegSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b01 : {~is_memory_load, 1'b0};
 
   assign ImmSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b10 : 2'b01;
 
   assign ALUSrcD = is_data_processing ? is_immediate : 1'b1;
 
-  assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : sets_flags;
+  assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : is_memory_load;
 
-  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? is_bl : ~sets_flags; // TODO: is this setted during memory?
+  assign writes_reg = is_data_processing ? 1'b1 : is_branch ? is_bl : is_memory_load;
 
   assign RegWriteD = {writes_reg & is_64b_return, writes_reg};
 
-  assign MemWriteD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : sets_flags ? 1'b0 : 1'b1;
+  assign MemWriteD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : ~is_memory_load;
 
   assign BranchD = is_data_processing ? 1'b0 : is_branch ? 1'b1 : 1'b0;
 
   assign ALUOpD = is_data_processing;
 
 
+
+  localparam ADD = 6'b100000;
+  localparam SUB = 6'b100011;
+
+
   always @(*) begin
+
     is_64b_return = 1'b0;
     is_bl = 1'b0;
-    if (ALUOpD) begin
-      case ({
-        InstrD[26], InstrD[24:21]
-      })
-        5'b00000: ALUControlD = 6'b100000;  // ADD
-        5'b00001: ALUControlD = 6'b100001;  // ADC
-        5'b00010: ALUControlD = 6'b100010;  // QADD
-        5'b00011: ALUControlD = 6'b100011;  // SUB
-        5'b00100: ALUControlD = 6'b100100;  // SBS
-        5'b00101: ALUControlD = 6'b100101;  // SBC
-        5'b00110: ALUControlD = 6'b100110;  // QSUB
-        5'b00111: ALUControlD = 6'b100111;  // MUL
-        5'b01000: ALUControlD = 6'b101000;  // MLA
-        5'b01001: ALUControlD = 6'b101001;  // MLS
+    case (OP)
+      DATA_PROCESSING: begin
+        case ({
+          InstrD[26], InstrD[24:21]
+        })
+          5'b00000: ALUControlD = 6'b100000;  // ADD
+          5'b00001: ALUControlD = 6'b100001;  // ADC
+          5'b00010: ALUControlD = 6'b100010;  // QADD
+          5'b00011: ALUControlD = 6'b100011;  // SUB
+          5'b00100: ALUControlD = 6'b100100;  // SBS
+          5'b00101: ALUControlD = 6'b100101;  // SBC
+          5'b00110: ALUControlD = 6'b100110;  // QSUB
+          5'b00111: ALUControlD = 6'b100111;  // MUL
+          5'b01000: ALUControlD = 6'b101000;  // MLA
+          5'b01001: ALUControlD = 6'b101001;  // MLS
 
-        5'b01010: begin
-          ALUControlD   = 6'b101010;
-          is_64b_return = 1'b1;
-        end  // UMULL
-        5'b01011: begin
-          ALUControlD   = 6'b101011;
-          is_64b_return = 1'b1;
-        end  // UMLAL
-        5'b01100: begin
-          ALUControlD   = 6'b101100;
-          is_64b_return = 1'b1;
-        end  // SMULL
-        5'b01101: begin
-          ALUControlD   = 6'b101101;
-          is_64b_return = 1'b1;
-        end  // SMLAL
-        5'b01110: ALUControlD = 6'b101110;  // UDIV
-        5'b01111: ALUControlD = 6'b101111;  // SDIV
-        5'b10000: ALUControlD = 6'b110000;  // AND
-        5'b10001: ALUControlD = 6'b110001;  // BIC
-        5'b10010: ALUControlD = 6'b110010;  // ORR
-        5'b10011: ALUControlD = 6'b110011;  // ORN
-        5'b10100: ALUControlD = 6'b110100;  // EOR
-        5'b10101: ALUControlD = 6'b110101;  // CMN
-        5'b10110: ALUControlD = 6'b110110;  // TST
-        5'b10111: ALUControlD = 6'b110111;  // TEQ
-        5'b11000: ALUControlD = 6'b111000;  // CMP
-        5'b11001: ALUControlD = 6'b111001;  // MOV
-        5'b11010: ALUControlD = 6'b111010;  // LSR
-        5'b11011: ALUControlD = 6'b111011;  // ASR
-        5'b11100: ALUControlD = 6'b111100;  // LSL
-        5'b11101: ALUControlD = 6'b111101;  // ROR
-        5'b11110: ALUControlD = 6'b111110;  // RRX
-        default:  ALUControlD = 6'bxxxxxx;
-      endcase
-      FlagWriteD[1] = sets_flags;
-      FlagWriteD[0] = sets_flags & ((ALUControlD == 6'b100000) | (ALUControlD == 6'b100001) | (ALUControlD == 6'b100010) | (ALUControlD == 6'b100011) |
+          5'b01010: begin
+            ALUControlD   = 6'b101010;
+            is_64b_return = 1'b1;
+          end  // UMULL
+          5'b01011: begin
+            ALUControlD   = 6'b101011;
+            is_64b_return = 1'b1;
+          end  // UMLAL
+          5'b01100: begin
+            ALUControlD   = 6'b101100;
+            is_64b_return = 1'b1;
+          end  // SMULL
+          5'b01101: begin
+            ALUControlD   = 6'b101101;
+            is_64b_return = 1'b1;
+          end  // SMLAL
+          5'b01110: ALUControlD = 6'b101110;  // UDIV
+          5'b01111: ALUControlD = 6'b101111;  // SDIV
+          5'b10000: ALUControlD = 6'b110000;  // AND
+          5'b10001: ALUControlD = 6'b110001;  // BIC
+          5'b10010: ALUControlD = 6'b110010;  // ORR
+          5'b10011: ALUControlD = 6'b110011;  // ORN
+          5'b10100: ALUControlD = 6'b110100;  // EOR
+          5'b10101: ALUControlD = 6'b110101;  // CMN
+          5'b10110: ALUControlD = 6'b110110;  // TST
+          5'b10111: ALUControlD = 6'b110111;  // TEQ
+          5'b11000: ALUControlD = 6'b111000;  // CMP
+          5'b11001: ALUControlD = 6'b111001;  // MOV
+          5'b11010: ALUControlD = 6'b111010;  // LSR
+          5'b11011: ALUControlD = 6'b111011;  // ASR
+          5'b11100: ALUControlD = 6'b111100;  // LSL
+          5'b11101: ALUControlD = 6'b111101;  // ROR
+          5'b11110: ALUControlD = 6'b111110;  // RRX
+          default:  ALUControlD = 6'bxxxxxx;
+        endcase
+        FlagWriteD[1] = sets_flags;
+        FlagWriteD[0] = sets_flags & ((ALUControlD == 6'b100000) | (ALUControlD == 6'b100001) | (ALUControlD == 6'b100010) | (ALUControlD == 6'b100011) |
       (ALUControlD == 6'b100100) | (ALUControlD == 6'b100101) | (ALUControlD == 6'b100110) | (ALUControlD == 6'b110000) | (ALUControlD == 6'b110001) |
       (ALUControlD == 6'b110010) | (ALUControlD == 6'b110011) | (ALUControlD == 6'b110100) | (ALUControlD == 6'b110101) | (ALUControlD == 6'b110110) |
       (ALUControlD == 6'b110111) | (ALUControlD == 6'b111000) | (ALUControlD == 6'b111010) | (ALUControlD == 6'b111011) | (ALUControlD == 6'b111100) |
       (ALUControlD == 6'b111101) | (ALUControlD == 6'b111110));
-    end else begin
-      if (is_branch) begin
+      end
+      MEMORY: begin
+        case (InstrD[24:21])
+          4'b0000: ALUControlD = is_memory_add ? ADD : SUB;  // LDR Offset
+          4'b0010: ALUControlD = is_memory_add ? ADD : SUB;  // LDR Pre-offset
+          4'b0100: ALUControlD = is_memory_add ? ADD : SUB;  // LDR Post-offset
+          4'b0110: ALUControlD = is_memory_add ? ADD : SUB;  // LDR Indexed
+          4'b1000: ALUControlD = is_memory_add ? ADD : SUB;  // LDR Literal
+          4'b1011: ALUControlD = is_memory_add ? ADD : SUB;  // LDMDB Positive stack
+          4'b1101: ALUControlD = is_memory_add ? ADD : SUB;  // LDMIA Negative stack
+          4'b0001: ALUControlD = is_memory_add ? ADD : SUB;  // STR Offset
+          4'b0011: ALUControlD = is_memory_add ? ADD : SUB;  // STR Pre-offset
+          4'b0101: ALUControlD = is_memory_add ? ADD : SUB;  // STR Post-offset
+          4'b0111: ALUControlD = is_memory_add ? ADD : SUB;  // STR Indexed
+          4'b1001: ALUControlD = is_memory_add ? ADD : SUB;  // STR Literal
+          4'b1010: ALUControlD = is_memory_add ? ADD : SUB;  // STMIA Positive stack
+          4'b1100: ALUControlD = is_memory_add ? ADD : SUB;  // STMDB Negative stack
+          default: ALUControlD = 6'bxxxxxx;
+        endcase
+        FlagWriteD = 2'b00;
+      end
+      BRANCH: begin
         case (InstrD[25:24])
           2'b00:   ALUControlD = 6'b010000;  // B
           2'b01: begin
@@ -151,28 +191,13 @@ module controller (
           default: ALUControlD = 6'bxxxxxx;
         endcase
         FlagWriteD = 2'b00;
-      end else begin
-        case (InstrD[24:21])
-          4'b0000: ALUControlD = 6'b000010;  // LDR Offset
-          4'b0001: ALUControlD = 6'b000011;  // STR Offset
-          4'b0010: ALUControlD = 6'b000100;  // LDR Pre-offset
-          4'b0011: ALUControlD = 6'b000101;  // STR Pre-offset
-          4'b0100: ALUControlD = 6'b000110;  // LDR Post-offset
-          4'b0101: ALUControlD = 6'b000111;  // STR Post-offset
-          4'b0110: ALUControlD = 6'b001000;  // LDR Indexed
-          4'b0111: ALUControlD = 6'b001001;  // STR Indexed
-          4'b1000: ALUControlD = 6'b001010;  // LDR Literal
-          4'b1001: ALUControlD = 6'b001011;  // STR Literal
-          4'b1010: ALUControlD = 6'b001100;  // STMIA Positive stack
-          4'b1011: ALUControlD = 6'b001101;  // LDMDB Positive stack
-          4'b1100: ALUControlD = 6'b001110;  // STMDB Negative stack
-          4'b1101: ALUControlD = 6'b001111;  // LDMIA Negative stack
-          default: ALUControlD = 6'bxxxxxx;
-        endcase
-        FlagWriteD = 2'b00;
       end
-    end
+      default: ALUControlD = 6'bxxxxxx;
+    endcase
+
   end
+
+
   assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD[0]) | BranchD;
 
   registro_flanco_positivo_habilitacion_limpieza #(

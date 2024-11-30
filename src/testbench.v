@@ -47,6 +47,7 @@ module testbench;
   wire [5:0] ALUControlE;
   wire [5:0] ALUControlD;
   wire [31:0] R[0:14];
+  wire [31:0] MEM[0:2097151];
 
   wire [1:0] RegWriteM;
   wire [1:0] RegWriteW;
@@ -167,7 +168,6 @@ module testbench;
   assign wd3_2 = processor.arm.Data_path.Registros.wd3_2;
 
 
-
   // Assign register values
   genvar i;
   generate
@@ -175,14 +175,21 @@ module testbench;
       assign R[i] = processor.arm.Data_path.Registros.Registros[i];
     end
   endgenerate
+  // Assign memory values
+  genvar j;
+  generate
+    for (j = 0; j <= 50; j = j + 1) begin : gen_mem_alias
+      assign MEM[j] = processor.DataMem.RAM[j];
+    end
+  endgenerate
 
   initial begin
     $monitor(
-        "InstrD %b \n PCPlus8W %d | RegSrcW %b  | RegWriteD %b | RegWriteW %b | WA3W %d \n WA3IN: %d | WD3_IN: %d \n Forwards: %b %b %b %b \n ResultW %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n R14: %d R15: %d\n",
-        InstrD, PCPlus8W, RegSrcW, RegWriteD, RegWriteW, WA3W, WA3_IN, WD3_IN, ForwardAE,
+        "InstrD %b \n PCPlus8W %d | RegSrcW %b  | RegWriteD %b | RegWriteW %b | ALUSrcE %b | WA3W %d \n WA3IN: %d | WD3_IN: %d \n Forwards: %b %b %b %b \n ResultW %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d \n R14: %d R15: %d\n MEMORY: %d",
+        InstrD, PCPlus8W, RegSrcW, RegWriteD, RegWriteW, ALUSrcE, WA3W, WA3_IN, WD3_IN, ForwardAE,
         ForwardBE, ForwardCE, ForwardDE, ResultW, ALUOutM, RA1D, RA2D, RA3D, RA4D, rd1D, rd2D,
         rd3D, rd4D, SrcAE, SrcBE, SrcCE, SrcDE, ALUResultE, ALUControlD, ALUControlE, R[0], R[1],
-        R[2], R[3], R[13], R[14]);
+        R[2], R[3], R[14], R[15], MEM[28]);
   end
 
   // Verify results after certain time

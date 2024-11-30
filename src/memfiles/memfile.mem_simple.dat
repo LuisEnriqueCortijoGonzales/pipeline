@@ -1,0 +1,53 @@
+// Expected:
+// R0 = 24
+// R1 = 28
+// R2 = 3
+// STORE 3 TO MEMORY ADDRESS 28
+
+//     ldr r0, =var1  @ load the memory address of var1 via label adr_var1 into R0
+//     ldr r0, [PC, #8]
+// 1110 00 011001 1111 0000 000000001000
+e19f0008
+
+//     ldr r1, =var2  @ load the memory address of var2 via label adr_var2 into R1
+//     ldr r1, [PC, #8]
+// 1110 00 011001 1111 0001 000000001000
+e19f1008
+
+//     ldr r2, [r0]      @ load the value (0x03) at memory address found in R0 to register R2
+// 1110 00 011001 0000 0010 000000000000
+e1902000
+
+//     str r2, [r1]      @ store the value found in R2 (0x03) to the memory address found in R1
+// 1110 00 011000 0001 0010 000000000000
+e1812000
+
+// DATA ADDRESS
+
+// 0000 00 0 0000 0 0000 0000 000000011000
+00000018
+
+// 0000 00 0 0000 0 0000 0000 000000011100
+0000001c
+
+// DATA VALUES
+
+// 0000 00 0 0000 0 0000 0000 000000000011
+00000003
+
+// 0000 00 0 0000 0 0000 0000 000000000100
+00000004
+
+// .data          /* the .data section is dynamically created and its addresses cannot be easily predicted */
+// var1: .word 3  /* variable 1 in memory */
+// var2: .word 4  /* variable 2 in memory */
+//
+// .text          /* start of the text (code) section */
+// .global _start
+//
+// _start:
+//     ldr r0, =var1  @ load the memory address of var1 via label adr_var1 into R0
+//     ldr r1, =var2  @ load the memory address of var2 via label adr_var2 into R1
+//     ldr r2, [r0]      @ load the value (0x03) at memory address found in R0 to register R2
+//     str r2, [r1]      @ store the value found in R2 (0x03) to the memory address found in R1
+//
