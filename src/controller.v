@@ -268,7 +268,7 @@ module controller (
   assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD[0]) | BranchD;
 
   registro_flanco_positivo_habilitacion_limpieza #(
-      .WIDTH(8)
+      .WIDTH(9)
   ) flushedregsE (
       .clk(clk),
       .reset(reset),

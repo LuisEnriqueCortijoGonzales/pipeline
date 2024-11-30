@@ -184,8 +184,7 @@ module alu (
                 (ALUControl == SUB)    ? extended_sub[DATA_WIDTH] :
                    (ALUControl == ADC)    ? carry_adc :
                    (ALUControl == SBC)    ? carry_sbc :
-                   (ALUControl == LSHIFT || ALUControl == RSHIFT || ALUControl == ASHIFT) ? carry_shift :
-                   1'b0;
+                ((ALUControl == LSHIFT || ALUControl == RSHIFT || ALUControl == ASHIFT) ? carry_shift : ((ALUControl == CMP) ? ~extended_sub[DATA_WIDTH] : 1'b0));
 
 
 
