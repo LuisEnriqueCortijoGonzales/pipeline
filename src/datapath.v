@@ -446,6 +446,18 @@ module datapath (
       .y (SrcAE)
   );
 
+  wire [6:0] shift_bits;
+  registro_flanco_positivo #(
+      .WIDTH(7)
+  ) shifter_reg_DE (
+      .clk  (clk),           // Reloj del sistema
+      .reset(reset),         // Señal de reinicio
+      .d    (InstrD[11:5]),  // Dato de entrada
+      .q    (shift_bits)     // Dato de salida
+  );
+  wire [DATA_WIDTH-1:0] rd2E_preshift;
+
+
   mux3 #(
       .WIDTH(32)
   ) by_pass2_mux (
@@ -453,7 +465,12 @@ module datapath (
       .d1(ResultW[DATA_WIDTH-1:0]),
       .d2(ALUOutM[DATA_WIDTH-1:0]),
       .s (ForwardBE),
-      .y (WriteDataE)
+      .y (rd2E_preshift)
+  );
+  shifter rd2_shifter (
+      .register_data (rd2E_preshift),
+      .shifting_data (shift_bits),
+      .shifted_result(WriteDataE)
   );
 
   mux3 #(

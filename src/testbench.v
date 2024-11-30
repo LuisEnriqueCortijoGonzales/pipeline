@@ -97,6 +97,7 @@ module testbench;
   // Assign wires to internal signals
 
   assign InstrD = processor.arm.InstrD;
+  wire [4:0] controller_instr = {InstrD[26], InstrD[24:21]};
   assign PCF = processor.PCF;
   assign PCPlus8W = processor.arm.Data_path.PCPlus8W;
 
@@ -181,11 +182,11 @@ module testbench;
 
   initial begin
     $monitor(
-        "InstrD %b \n PCPlus8W %d | RegSrcW %b  | RegWriteD %b | RegWriteW %b | ALUSrcE %b | WA3W %d \n WA3IN: %d | WD3_IN: %d \n Forwards: %b %b %b %b \n ResultW %d %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUOutW %d | ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d %d %d %d \n R14: %d \n",
-        InstrD, PCPlus8W, RegSrcW, RegWriteD, RegWriteW, ALUSrcE, WA3W, WA3_IN, WD3_IN, ForwardAE,
-        ForwardBE, ForwardCE, ForwardDE, ResultW[63:32], ResultW[31:0], ALUOutM, RA1D, RA2D, RA3D,
-        RA4D, rd1D, rd2D, rd3D, rd4D, SrcAE, SrcBE, SrcCE, SrcDE, ALUOutW, ALUResultE, ALUControlD,
-        ALUControlE, r0, r1, r2, r3, r4, r5, r6, r14);
+        "InstrD %b - %b \n PCPlus8W %d | RegSrcW %b  | RegWriteD %b | RegWriteW %b | ALUSrcE %b | WA3W %d \n WA3IN: %d | WD3_IN: %d \n Forwards: %b %b %b %b \n ResultW %d %d | ALUOutM:%d | \n  RAxD: %d %d %d %d | RDxD: %d %d %d %d \n SrcA: %d | SrcB: %d | SrcC %d SrcD %d | \n ALUOutW %d | ALUResult: %d | ALUControlD: %b | ALUControlE: %b \n REGS: %d %d %d %d %d %d %d \n R14: %d \n",
+        InstrD, controller_instr, PCPlus8W, RegSrcW, RegWriteD, RegWriteW, ALUSrcE, WA3W, WA3_IN,
+        WD3_IN, ForwardAE, ForwardBE, ForwardCE, ForwardDE, ResultW[63:32], ResultW[31:0], ALUOutM,
+        RA1D, RA2D, RA3D, RA4D, rd1D, rd2D, rd3D, rd4D, SrcAE, SrcBE, SrcCE, SrcDE, ALUOutW,
+        ALUResultE, ALUControlD, ALUControlE, r0, r1, r2, r3, r4, r5, r6, r14);
   end
 
   // Verify results after certain time

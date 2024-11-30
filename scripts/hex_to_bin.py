@@ -12,7 +12,7 @@ data_lengths = [4, 2, 1, 4, 1, 4, 4, 12]
 branch_lengths = [4, 2, 1, 4, 1, 4, 4, 12]
 memory_lengths = [4, 2, 6, 4, 4, 12]
 
-current_instr_type = INSTR_TYPE.MEMORY
+current_instr_type = INSTR_TYPE.DATA_PROCESSING
 
 
 def format_bytes(s):
@@ -62,6 +62,6 @@ def process_file_in_place(file_path):
 
 
 # Specify the file path
-file_path = "memfile.mem.dat"
+file_path = "memfile.shift.dat"
 
 process_file_in_place(file_path)

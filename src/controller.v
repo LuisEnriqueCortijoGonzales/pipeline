@@ -57,7 +57,7 @@ module controller (
 
   wire is_memory_postM, is_memory_strM;
 
-  wire OP = InstrD[27:26];
+  wire [1:0] OP = InstrD[27:26];
 
   localparam DATA_PROCESSING = 2'b1?;
   localparam BRANCH = 2'b01;
@@ -149,7 +149,7 @@ module controller (
     is_64b_return = 1'b0;
     is_bl = 1'b0;
     case (OP)
-      DATA_PROCESSING: begin
+      2'b10, 2'b11: begin
         case ({
           InstrD[26], InstrD[24:21]
         })
