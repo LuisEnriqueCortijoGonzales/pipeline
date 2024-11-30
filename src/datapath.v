@@ -45,7 +45,10 @@ module datapath (
 
     input wire StallF,  // Señal para detener la etapa F del pipeline
     input wire StallD,  // Señal para detener la etapa D del pipeline
-    input wire FlushD   // Señal para limpiar la etapa D del pipeline
+    input wire FlushD,  // Señal para limpiar la etapa D del pipeline
+
+    output wire [DATA_WIDTH-1:0] R0,
+    output wire [DATA_WIDTH-1:0] R1
 );
   localparam ALU_FLAGS_WIDTH = 5;
   parameter ALUCONTROL_WIDTH = 6;
@@ -271,7 +274,9 @@ module datapath (
       .rd1(rd1D),  // Salida del primer registro leído
       .rd2(rd2D),  // Salida del segundo registro leído
       .rd3(rd3D),  // Salida del 3er registro
-      .rd4(rd4D)  // Salida del 4to registro
+      .rd4(rd4D),  // Salida del 4to registro
+      .R0(R0),
+      .R1(R1)
   );
   extend extender (
       .Instr (InstrD[23:0]),  // Parte de la instrucción a extender

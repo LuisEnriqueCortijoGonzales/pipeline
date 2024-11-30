@@ -24,12 +24,17 @@ module regfile (
     output wire [31:0] rd1,  // Datos leídos del primer registro
     output wire [31:0] rd2,  // Datos leídos del segundo registro
     output wire [31:0] rd3,  // Datos leídos del tercer registro (used in long multiplication)
-    output wire [31:0] rd4   // Datos leídos del cuarto registro (used in long multiplication)
+    output wire [31:0] rd4,  // Datos leídos del cuarto registro (used in long multiplication)
+    output wire [31:0] R0,
+    output wire [31:0] R1
 );
 
   // Declaración de un banco de registros de 32 bits de ancho y 15 registros de profundidad
   //Empleo de la palabra Registros para simplifcar el debug en Vivado
   reg [31:0] Registros[14:0];
+
+  assign R0 = Registros[0];
+  assign R1 = Registros[1];
 
   // IF we3 ->
   //    write wd3 to wa3 &

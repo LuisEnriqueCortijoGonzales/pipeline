@@ -19,15 +19,18 @@ module top (
   wire [31:0] ReadDataM;  // Datos leídos de la memoria
 
   // Señales para el display
-    wire [6:0] seg;
-    wire [3:0] an;
+  wire [6:0] seg;
+  wire [3:0] an;
 
-    // Instancia del divisor de reloj
-    wire slow_clk;
-    clock_divider clk_div (
-        .clk_in(clk),
-        .clk_out(slow_clk)
-    );
+  wire [31:0] R0;
+  wire [31:0] R1;
+
+  // Instancia del divisor de reloj
+  wire slow_clk;
+  clock_divider clk_div (
+      .clk_in (clk),
+      .clk_out(slow_clk)
+  );
 
   // Instancia del módulo 'arm', que representa el núcleo del procesador.
   // Este módulo maneja la ejecución de instrucciones y la interacción con la memoria.
@@ -69,12 +72,12 @@ module top (
   );
 
   display_controller display (
-        .clk(clk),  // Usa el reloj original para el multiplexado rápido
-        .R0(),  // Conecta R0
-        .R1(),  // Conecta R1
-        .seg(seg),
-        .an(an)
-    );
+      .clk(clk),  // Usa el reloj original para el multiplexado rápido
+      .R0 (R0),   // Conecta R0
+      .R1 (R1),   // Conecta R1
+      .seg(seg),
+      .an (an)
+  );
 
 
 

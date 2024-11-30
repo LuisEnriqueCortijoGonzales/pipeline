@@ -6,7 +6,9 @@ module arm (
     output wire MemWriteM,
     output wire [(DATA_WIDTH*2)-1:0] ALUOutM,
     output wire [31:0] WriteDataM,
-    input wire [31:0] ReadDataM
+    input wire [31:0] ReadDataM,
+    output wire [DATA_WIDTH-1:0] R0,
+    output wire [DATA_WIDTH-1:0] R1
 );
   localparam ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
@@ -119,7 +121,10 @@ module arm (
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
-      .predict_taken(predict_taken)
+      .predict_taken(predict_taken),
+      .R0(R0),
+      .R1(R1)
+
   );
 
 
