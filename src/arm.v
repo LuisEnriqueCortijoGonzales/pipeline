@@ -46,7 +46,7 @@ module arm (
   wire Match_12D_E;
   wire branch;
   wire taken;
-  wire predict_taken;
+  //wire predict_taken;
 
   wire is_memory_strE;
   wire is_memory_postE;
@@ -121,7 +121,7 @@ module arm (
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
-      .predict_taken(predict_taken),
+      //.predict_taken(predict_taken),
       .R0(R0),
       .R1(R1)
 
