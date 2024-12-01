@@ -1,3 +1,4 @@
+/*
 module branch_predictor (
     input  wire clk,
     input  wire reset,
@@ -41,3 +42,4 @@ module branch_predictor (
     endcase
   end
 endmodule
+*/
