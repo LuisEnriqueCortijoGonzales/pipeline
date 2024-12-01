@@ -3,7 +3,7 @@ module top (
     input wire reset
 );
   parameter DATA_WIDTH = 32;
-  localparam MEMFILE = "memfile.fibo.dat";
+  localparam MEMFILE = "memfile.dat";
 
   wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;
@@ -26,11 +26,11 @@ module top (
   wire [31:0] R1;
 
   // Instancia del divisor de reloj
-  wire slow_clk;
-  clock_divider clk_div (
-      .clk_in (clk),
-      .clk_out(slow_clk)
-  );
+  //wire slow_clk;
+  //clock_divider clk_div (
+  //    .clk_in (clk),
+  //    .clk_out(slow_clk)
+  //);
 
   // Instancia del módulo 'arm', que representa el núcleo del procesador.
   // Este módulo maneja la ejecución de instrucciones y la interacción con la memoria.
@@ -73,13 +73,13 @@ module top (
       .read_data(ReadDataM)
   );
 
-  display_controller display (
-      .clk(clk),  // Usa el reloj original para el multiplexado rápido
-      .R0 (R0),   // Conecta R0
-      .R1 (R1),   // Conecta R1
-      .seg(seg),
-      .an (an)
-  );
+  //display_controller display (
+  //    .clk(clk),  // Usa el reloj original para el multiplexado rápido
+  //    .R0 (R0),   // Conecta R0
+  //    .R1 (R1),   // Conecta R1
+  //    .seg(seg),
+  //    .an (an)
+ // );
 
 
 

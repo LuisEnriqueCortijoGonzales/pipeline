@@ -21,8 +21,8 @@ module datapath (
     input wire is_memory_postW,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
     input wire [ALU_FLAGS_WIDTH-1:0] FlagsE,
-    //input wire predict_taken,
-    //variables del manejo de hazards
+    input wire predict_taken,
+    variables del manejo de hazards
 
     output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
     output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E

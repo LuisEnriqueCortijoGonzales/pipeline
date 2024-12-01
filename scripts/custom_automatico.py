@@ -213,6 +213,6 @@ def process_instructions(input_file, output_file):
 
 
 # Ejemplo de uso
-input_file = "assets/fibo.txt"
+input_file = "assets/facto_piola.txt"
 output_file = "assets/fibo.dat"
 process_instructions(input_file, output_file)
