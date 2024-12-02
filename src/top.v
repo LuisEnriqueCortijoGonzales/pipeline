@@ -25,6 +25,12 @@ module top (
   wire [31:0] R1;
 
   // Instancia del divisor de reloj
+wire slow_clk1;
+  clock_divider1 clk_div1 (
+      .reset  (reset),
+      .clk_in (clk),
+      .clk_out(slow_clk1)
+  );
   wire slow_clk;
   clock_divider clk_div (
       .reset  (reset),
@@ -74,7 +80,7 @@ module top (
   );
 
   display_controller display (
-      .clk(slow_clk),  // Usa el reloj original para el multiplexado rápido
+      .clk(slow_clk1),  // Usa el reloj original para el multiplexado rápido
       .R0(R0),  // Conecta R0
       .R1(R1),  // Conecta R1
       .seg(seg),

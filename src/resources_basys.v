@@ -1,43 +1,45 @@
 module display_controller (
     input wire clk,  // Reloj para multiplexar los displays
+    input wire reset,
     input wire [31:0] R0,
     input wire [31:0] R1,
     output reg [6:0] seg,  // Segmentos del display
     output reg [3:0] an  // Anodos del display
 );
 
-  reg [ 3:0] digit;
-  reg [ 1:0] digit_select;
+  reg [3:0] digit;
   reg [31:0] display_value;
   reg [19:0] refresh_counter;  // Contador para multiplexar los displays
 
-  // Multiplexar entre R0 y R1
-  always @(posedge clk) begin
-    refresh_counter <= refresh_counter + 1;
-    if (refresh_counter == 0) begin
-      display_value <= R1;
+  // Actualización del valor a mostrar y manejo del reset
+  always @(posedge clk or posedge reset) begin
+    if (reset) begin
+      display_value <= 32'b0;  // Reiniciar el valor del display
+      refresh_counter <= 0;
+    end else begin
+      display_value <= R1;  // Mostrar siempre el valor de R1
+      refresh_counter <= refresh_counter + 1;
     end
   end
 
-  // Selección de dígito
+  // Selección de dígito y encendido de anodos correspondientes
   always @(posedge clk) begin
-    digit_select <= refresh_counter[19:18];
-    case (digit_select)
+    case (refresh_counter[1:0])
       2'b00: begin
-        an <= 4'b1110;
         digit <= display_value[3:0];
+        an <= 4'b1110;  // Encender el primer dígito
       end
       2'b01: begin
-        an <= 4'b1101;
         digit <= display_value[7:4];
+        an <= 4'b1101;  // Encender el segundo dígito
       end
       2'b10: begin
-        an <= 4'b1011;
         digit <= display_value[11:8];
+        an <= 4'b1011;  // Encender el tercer dígito
       end
       2'b11: begin
-        an <= 4'b0111;
         digit <= display_value[15:12];
+        an <= 4'b0111;  // Encender el cuarto dígito
       end
     endcase
   end
@@ -67,15 +69,38 @@ module display_controller (
 
 endmodule
 
+
 module clock_divider (
     input  wire clk_in,
     input  wire reset,
     output reg  clk_out
 );
   reg [31:0] counter = 0;
-  parameter DIVISOR = 100;
+  parameter DIVISOR = 25000000;  //para un clock de 5 segundos
 
+  always @(posedge clk_in) begin
 
+    if (reset) begin
+      counter <= 0;
+      clk_out <= 0;
+    end else begin
+      counter <= counter + 1;
+      if (counter >= DIVISOR) begin
+        clk_out <= ~clk_out;
+        counter <= 0;
+      end
+    end
+
+  end
+endmodule
+
+module clock_divider1 (
+    input  wire clk_in,
+    input  wire reset,
+    output reg  clk_out
+);
+  reg [31:0] counter = 0;
+  parameter DIVISOR = 100000;  //para un clock de 5 segundos
 
   always @(posedge clk_in) begin
 
