@@ -15,7 +15,7 @@ module display_controller (
   always @(posedge clk) begin
     refresh_counter <= refresh_counter + 1;
     if (refresh_counter == 0) begin
-      display_value <= (display_value == R0) ? R1 : R0;
+      display_value <= R1;
     end
   end
 
@@ -73,7 +73,7 @@ module clock_divider (
     output reg  clk_out
 );
   reg [31:0] counter = 0;
-  parameter DIVISOR = 1000;  //para un clock de 15 segundos
+  parameter DIVISOR = 100;
 
 
 

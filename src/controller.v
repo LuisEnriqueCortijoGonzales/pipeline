@@ -218,7 +218,6 @@ module controller (
           5'b11110: ALUControlD = 6'b111110;  // RRX
           default:  ALUControlD = 6'bxxxxxx;
         endcase
-        no_writeD = ALUControlD == CMN | ALUControlD == TST | ALUControlD == TEQ | ALUControlD == CMP;
         FlagWriteD[1] = sets_flags;
         FlagWriteD[0] = sets_flags & ((ALUControlD == 6'b100000) | (ALUControlD == 6'b100001) | (ALUControlD == 6'b100010) | (ALUControlD == 6'b100011) |
       (ALUControlD == 6'b100100) | (ALUControlD == 6'b100101) | (ALUControlD == 6'b100110) | (ALUControlD == 6'b110000) | (ALUControlD == 6'b110001) |
@@ -262,6 +261,8 @@ module controller (
       end
       default: ALUControlD = 6'bxxxxxx;
     endcase
+    // Latch removal optimization
+    no_writeD = ALUControlD == CMN | ALUControlD == TST | ALUControlD == TEQ | ALUControlD == CMP;
 
   end
 
