@@ -69,16 +69,26 @@ endmodule
 
 module clock_divider (
     input  wire clk_in,
+    input  wire reset,
     output reg  clk_out
 );
   reg [31:0] counter = 0;
-  parameter DIVISOR = 750000000;  //para un clock de 15 segundos
+  parameter DIVISOR = 1000;  //para un clock de 15 segundos
+
+
 
   always @(posedge clk_in) begin
-    counter <= counter + 1;
-    if (counter >= DIVISOR) begin
+
+    if (reset) begin
       counter <= 0;
-      clk_out <= ~clk_out;
+      clk_out <= 0;
+    end else begin
+      counter <= counter + 1;
+      if (counter >= DIVISOR) begin
+        clk_out <= ~clk_out;
+        counter <= 0;
+      end
     end
+
   end
 endmodule

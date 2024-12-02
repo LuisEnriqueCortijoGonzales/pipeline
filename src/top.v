@@ -27,6 +27,7 @@ module top (
   // Instancia del divisor de reloj
   wire slow_clk;
   clock_divider clk_div (
+      .reset  (reset),
       .clk_in (clk),
       .clk_out(slow_clk)
   );
@@ -35,7 +36,7 @@ module top (
   // Este módulo maneja la ejecución de instrucciones y la interacción con la memoria.
 
   arm arm (
-      .clk(clk),
+      .clk(slow_clk),
       .reset(reset),
       .PCF(PCF),
       .InstrF(InstrF),
@@ -65,7 +66,7 @@ module top (
   DataMemory #(
   // .MEMFILE(MEMFILE)
   ) DataMem (
-      .clk(clk),
+      .clk(slow_clk),
       .we(MemWriteM),
       .address(DataAdrM[DATA_WIDTH-1:0]),
       .write_data(WriteDataM),
@@ -73,11 +74,11 @@ module top (
   );
 
   display_controller display (
-      .clk(clk),  // Usa el reloj original para el multiplexado rápido
-      .R0 (R0),   // Conecta R0
-      .R1 (R1),   // Conecta R1
+      .clk(slow_clk),  // Usa el reloj original para el multiplexado rápido
+      .R0(R0),  // Conecta R0
+      .R1(R1),  // Conecta R1
       .seg(seg),
-      .an (an)
+      .an(an)
   );
 
 

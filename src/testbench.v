@@ -31,7 +31,7 @@ module testbench;
     reset = 0;  // De-assert reset
 
     // Let the processor run for a certain number of cycles
-    #10000;  // Adjust as needed to allow program execution
+    #10000000;  // Adjust as needed to allow program execution
 
     // Finish simulation
     $finish;
@@ -192,7 +192,7 @@ module testbench;
   // Verify results after certain time
   initial begin
     // Wait until after reset and a few cycles
-    #10000;
+    #10000000;
 
   end
 
