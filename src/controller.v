@@ -275,9 +275,11 @@ module controller (
       .reset(reset),
       .en(1'b1),
       .clear(FlushE),
+      .clear_value(9'b000000000),
       .d({FlagWriteD, BranchD, MemWriteD, RegWriteD, PCSrcD, MemtoRegD, no_writeD}),
       .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE, no_writeE})
   );
+
   registro_flanco_positivo #(
       .WIDTH(ALUCONTROL_WIDTH + 1)
   ) regsE (
@@ -337,4 +339,4 @@ module controller (
   );
   assign PCWrPendingF = (PCSrcD | PCSrcE) | PCSrcM;
 endmodule
-//porque me meti a CS 
+//porque me meti a CS

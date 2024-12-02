@@ -159,15 +159,15 @@ module arm (
       .FlushE(FlushE)
   );
 
-  branch_predictor bp (
-      .clk(clk),
-      .reset(reset),
-      .branch(branch),
-      .taken(taken),
-      .predict_taken(predict_taken)
-  );
+  // branch_predictor bp (
+  //     .clk(clk),
+  //     .reset(reset),
+  //     .branch(branch),
+  //     .taken(taken),
+  //     .predict_taken(predict_taken)
+  // );
 
   // i fucking hate u
-  assign PCSrcW = predict_taken;
+  // assign PCSrcW = predict_taken;
 
 endmodule

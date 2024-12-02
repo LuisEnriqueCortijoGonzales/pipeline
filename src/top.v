@@ -53,7 +53,7 @@ module top (
   // 'PCF' es la dirección de la instrucción actual, y 'InstrF' es la instrucción leída.
 
   InstructionMemory #(
-      .MEMFILE(MEMFILE)
+  // .MEMFILE(MEMFILE)
   ) InstrMem (
       .address(PCF),
       .instruction(InstrF)
@@ -79,7 +79,7 @@ module top (
   //    .R1 (R1),   // Conecta R1
   //    .seg(seg),
   //    .an (an)
- // );
+  // );
 
 
 

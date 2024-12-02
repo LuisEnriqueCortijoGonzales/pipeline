@@ -21,8 +21,7 @@ module datapath (
     input wire is_memory_postW,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
     input wire [ALU_FLAGS_WIDTH-1:0] FlagsE,
-    input wire predict_taken,
-    variables del manejo de hazards
+    // variables del manejo de hazards
 
     output wire Match_1E_M, // Indica si hay coincidencia entre el registro de escritura en la etapa M y el primer registro fuente en la etapa E
     output wire Match_1E_W, // Indica si hay coincidencia entre el registro de escritura en la etapa W y el primer registro fuente en la etapa E
@@ -153,18 +152,6 @@ module datapath (
       .y (PCnext1F)
   );
 
-  // Este multiplexor decide si el pipeline debe seguir con la siguiente instrucción
-  // secuencial o si debe tomar una rama, utilizando el resultado de la ALU para
-  // calcular la nueva dirección del PC en caso de que se tome la rama.
-  mux2 #(
-      .WIDTH(32)
-  ) branch_mux (
-      .d0(PCnext1F),
-      .d1(ALUResultE[31:0]),
-      .s (BranchTakenE),
-      .y (PCnextF)
-  );
-
   // Stall: Controla el estancamiento de instrucciones en el pipeline para
   // resolver dependencias de datos o control, insertando burbujas cuando sea
   // necesario.
@@ -194,12 +181,13 @@ module datapath (
   registro_flanco_positivo_habilitacion_limpieza #(
       .WIDTH(32)
   ) instr_reg (
-      .clk  (clk),      // Reloj del sistema
-      .reset(reset),    // Señal de reinicio
-      .en   (~StallD),  // Habilitación del registro, se activa cuando no hay stall
-      .clear(FlushD),   // Limpia el registro si hay un cambio de control
-      .d    (InstrF),   // Dato de entrada, la instrucción actual
-      .q    (InstrD)    // Dato de salida, la instrucción almacenada
+      .clk(clk),  // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .en(~StallD),  // Habilitación del registro, se activa cuando no hay stall
+      .clear(FlushD),  // Limpia el registro si hay un cambio de control
+      .clear_value(32'b00001000000000000000000000000000),
+      .d(InstrF),  // Dato de entrada, la instrucción actual
+      .q(InstrD)  // Dato de salida, la instrucción almacenada
   );
 
   wire [1:0] RegSrcE;
@@ -510,7 +498,7 @@ module datapath (
       .s (ALUSrcE),
       .y (SrcBE)
   );
-/*
+  /*
   mux2 #(
       .WIDTH(32)
   ) mux_predictor (
@@ -520,6 +508,19 @@ module datapath (
       .y (PCnextF)
   );
 */
+
+  // Este multiplexor decide si el pipeline debe seguir con la siguiente instrucción
+  // secuencial o si debe tomar una rama, utilizando el resultado de la ALU para
+  // calcular la nueva dirección del PC en caso de que se tome la rama.
+  mux2 #(
+      .WIDTH(32)
+  ) branch_mux (
+      .d0(PCnext1F),
+      .d1(ALUResultE[31:0]),
+      .s (BranchTakenE),
+      .y (PCnextF)
+  );
+
   wire [(DATA_WIDTH*2)-1:0] ALUResultE_1;
   // ALU: Unidad Aritmética y Lógica que realiza operaciones aritméticas y lógicas
   alu ALU (

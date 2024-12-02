@@ -37,6 +37,7 @@ module registro_flanco_positivo_habilitacion_limpieza (
     reset,  // Señal de reinicio
     en,  // Señal de habilitación
     clear,  // Señal de limpieza
+    clear_value,
     d,  // Datos de entrada
     q  // Datos de salida
 );
@@ -45,12 +46,13 @@ module registro_flanco_positivo_habilitacion_limpieza (
   input wire reset;  // Entrada de reinicio
   input wire en;  // Entrada de habilitación
   input wire clear;  // Entrada de limpieza
+  input wire [WIDTH-1:0] clear_value;
   input wire [WIDTH - 1:0] d;  // Datos de entrada de WIDTH bits
   output reg [WIDTH - 1:0] q;  // Datos de salida de WIDTH bits
   always @(posedge clk or posedge reset)
     if (reset) q <= 0;  // Reinicia 'datos_salida' a 0 si 'reinicio' está activo
     else if (en) begin
-      if (clear) q <= 0;  // Limpia 'datos_salida' a 0 si 'limpieza' está activo
+      if (clear) q <= clear_value;
       else q <= d;  // De lo contrario, carga 'datos_entrada' en 'datos_salida'
     end
 endmodule
