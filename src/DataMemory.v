@@ -9,9 +9,11 @@ module DataMemory #(
 );
   reg [31:0] RAM[50:0];
 
+  localparam FIBONACCI_N = 8'd9;
+
   initial begin
 
-    RAM[0] = 32'hEF200005;
+    RAM[0] = {24'hEF2000, FIBONACCI_N};
     RAM[1] = 32'hEF201001;
     RAM[2] = 32'hEF202001;
     RAM[3] = 32'hEF100001;
