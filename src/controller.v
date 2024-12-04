@@ -20,7 +20,8 @@ module controller (
     output wire is_memory_strE,
     output wire is_memory_postE,
     output wire is_memory_strW,
-    output wire is_memory_postW
+    output wire is_memory_postW,
+    output wire shiftedE
 );
   localparam ALUCONTROL_WIDTH = 6;
   localparam ALU_FLAGS_WIDTH = 5;
@@ -75,6 +76,7 @@ module controller (
 
   reg  is_64b_return;
   reg  is_bl;
+  reg  shiftedD;
 
   // TESTS
   // mp<c><q> <Rn>, <Rm> {,<shift>} Rn - Rm{shifted} NZCV
@@ -93,9 +95,9 @@ module controller (
   wire is_memory_reg = InstrD[25];  // I
   wire is_memory_add = InstrD[23];  // U - Is the offset added or subtracted
 
-  wire is_memory_load = InstrD[20];  // L - Is load or store
 
   wire is_memory = ~is_data_processing & (~is_branch);
+  wire is_memory_load = is_memory & InstrD[20];  // L - Is load or store
   wire is_memory_str = is_memory & (~is_memory_load);
 
   // P: 24
@@ -156,7 +158,6 @@ module controller (
   assign ALUOpD = is_data_processing;
 
 
-
   localparam ADD = 6'b100000;
   localparam SUB = 6'b100011;
 
@@ -165,6 +166,8 @@ module controller (
 
     is_64b_return = 1'b0;
     is_bl = 1'b0;
+    shiftedD = 1'b1;
+
     case (OP)
       2'b10, 2'b11: begin
         case ({
@@ -184,18 +187,23 @@ module controller (
           5'b01010: begin
             ALUControlD   = 6'b101010;
             is_64b_return = 1'b1;
+            shiftedD      = 1'b0;
+
           end  // UMULL
           5'b01011: begin
             ALUControlD   = 6'b101011;
             is_64b_return = 1'b1;
+            shiftedD      = 1'b0;
           end  // UMLAL
           5'b01100: begin
             ALUControlD   = 6'b101100;
             is_64b_return = 1'b1;
+            shiftedD      = 1'b0;
           end  // SMULL
           5'b01101: begin
             ALUControlD   = 6'b101101;
             is_64b_return = 1'b1;
+            shiftedD      = 1'b0;
           end  // SMLAL
           5'b01110: ALUControlD = 6'b101110;  // UDIV
           5'b01111: ALUControlD = 6'b101111;  // SDIV
@@ -272,13 +280,13 @@ module controller (
 
 
   registro_flanco_positivo_habilitacion_limpieza #(
-      .WIDTH(9 + ALUCONTROL_WIDTH + 1 + 4 + 5)
+      .WIDTH(9 + ALUCONTROL_WIDTH + 1 + 4 + 5 + 1)
   ) flushedregsE (
       .clk(clk),
       .reset(reset),
       .en(1'b1),
       .clear(FlushE),
-      .clear_value(25'd0),
+      .clear_value(26'd0),
       .d({
         FlagWriteD,
         BranchD,
@@ -290,7 +298,8 @@ module controller (
         ALUSrcD,
         ALUControlD,
         InstrD[31:28],
-        FlagsNextE
+        FlagsNextE,
+        shiftedD
       }),
       .q({
         FlagWriteE,
@@ -303,7 +312,8 @@ module controller (
         ALUSrcE,
         ALUControlE,
         CondE,
-        FlagsE
+        FlagsE,
+        shiftedE
       })
   );
 

@@ -7,7 +7,7 @@ module top (
   parameter DATA_WIDTH = 32;
 
   localparam MEMFILE = "memfile.mem.dat";
-  localparam USE_HARDCODED = 1;
+  localparam USE_HARDCODED = 0;
 
   wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;

@@ -62,6 +62,8 @@ module arm (
 
   wire WrongPredictionE = PredictTakenE != BranchTakenE;
 
+  wire shiftedE;
+
   controller Control_unit (
       .clk(clk),
       .reset(reset),
@@ -84,6 +86,7 @@ module arm (
       .is_memory_strE(is_memory_strE),
       .is_memory_postE(is_memory_postE),
       .is_memory_strW(is_memory_strW),
+      .shiftedE(shiftedE),
       .is_memory_postW(is_memory_postW)
 
   );
@@ -134,6 +137,7 @@ module arm (
       .PCPlus8D(PCPlus8D),
       .PCPlus4F(PCPlus4F),
       .isBranchF(isBranchF),
+      .shiftedE(shiftedE),
       .WrongPredictionE(WrongPredictionE)
   );
 
