@@ -5,7 +5,9 @@ module top (
     output wire [3:0] an
 );
   parameter DATA_WIDTH = 32;
-  // localparam MEMFILE = "memfile.dat";
+
+  localparam MEMFILE = "memfile.mem.dat";
+  localparam USE_HARDCODED = 1;
 
   wire [(DATA_WIDTH*2)-1:0] DataAdrM;
   wire [31:0] WriteDataM;
@@ -59,7 +61,8 @@ wire slow_clk1;
   // 'PCF' es la dirección de la instrucción actual, y 'InstrF' es la instrucción leída.
 
   InstructionMemory #(
-  // .MEMFILE(MEMFILE)
+      .MEMFILE(MEMFILE),
+      .USE_HARDCODED(USE_HARDCODED)
   ) InstrMem (
       .address(PCF),
       .instruction(InstrF)
@@ -70,7 +73,8 @@ wire slow_clk1;
   // y 'ReadDataM' son los datos leídos de la memoria.
 
   DataMemory #(
-  // .MEMFILE(MEMFILE)
+      .MEMFILE(MEMFILE),
+      .USE_HARDCODED(USE_HARDCODED)
   ) DataMem (
       .clk(slow_clk),
       .we(MemWriteM),

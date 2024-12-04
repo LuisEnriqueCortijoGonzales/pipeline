@@ -164,29 +164,23 @@ module datapath (
       .next_pc(PCnextF)
   );
 
-  registro_flanco_positivo #(
-      .WIDTH(32)
-  ) pc_reg (
-      .clk(clk),
-      .reset(reset),
-      .d(PCPlus4F + 32'd4),
-      .q(PCPlus8D)
-  );
+  wire [31:0] PCPlus4D;
 
   // Flush: Limpia las instrucciones en el pipeline en respuesta a cambios de
   // control, como saltos o predicciones de ramas incorrectas, para mantener
   // la coherencia del flujo de instrucciones.
   registro_flanco_positivo_habilitacion_limpieza #(
-      .WIDTH(32)
+      .WIDTH(32 + 32)
   ) instr_reg (
       .clk(clk),  // Reloj del sistema
       .reset(reset),  // Señal de reinicio
       .en(~StallD),  // Habilitación del registro, se activa cuando no hay stall
       .clear(FlushD),  // Limpia el registro si hay un cambio de control
-      .clear_value(32'b00001000000000000000000000000000),
-      .d(InstrF),  // Dato de entrada, la instrucción actual
-      .q(InstrD)  // Dato de salida, la instrucción almacenada
+      .clear_value({32'b00001000000000000000000000000000, 32'd0}),
+      .d({InstrF, PCPlus4F}),  // Dato de entrada, la instrucción actual
+      .q({InstrD, PCPlus4D})  // Dato de salida, la instrucción almacenada
   );
+  assign PCPlus8D = PCPlus4D + 32'd4;
 
   wire [1:0] RegSrcE;
   wire [1:0] RegSrcM;
