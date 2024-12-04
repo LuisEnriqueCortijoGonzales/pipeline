@@ -1,0 +1,124 @@
+// Expected results:
+// R0: 40          // Points to var3
+// R1: 44          // Points to literal_val
+// R2: 3               // Value of var1
+// R3: 3               // Value loaded from var2
+// R4: 3               // Value loaded from var2 (pre-offset)
+// R5: 3               // Value loaded from var2 (post-offset)
+// R6:69                // Value loaded from 0x1014 (assumed)
+
+//     ldr r0, =var1          @ Load the address of var1 into R0
+// ldr r0, [PC, #40]
+// 1110 00 011001 1111 0000 000000101000
+e19f0028
+
+//     ldr r1, =var2          @ Load the address of var2 into R1
+// ldr r1, [PC, #40]
+// 1110 00 011001 1111 0001 000000101000
+e19f1028
+
+//     ldr r2, [r0]           @ Load the value at address R0 (var1) into R2 (R2 = 3)
+// 1110 00 011001 0000 0010 000000000000
+e1902000
+
+//     str r2, [r1]           @ Store the value in R2 to the address in R1 (var2 = 3)
+// 1110 00 011000 0001 0010 000000000000
+e1812000
+
+//     ldr r3, [r0, #4]       @ Load the value at (var1 + 4) into R3 (R3 = var2 = 3)
+// 1110 00 011001 0000 0011 000000000100
+e1903004
+
+//     str r3, [r1, #4]       @ Store R3 into (var2 + 4) (Assuming var3 is next, var3 = 3)
+// 1110 00 011000 0001 0011 000000000100
+e1813004
+
+//here
+//     ldr r4, [r0, #4]!      @ Load the value at (var1 + 4) into R4 and update R0 to R0 + 4
+// 1110 00 011011 0000 0100 000000000100
+e1b04004
+
+//     str r4, [r1, #4]!      @ Store R4 into (var2 + 4) and update R1 to R1 + 4
+// 1110 00 011010 0001 0100 000000000100
+e1a14004
+
+//     /* Post-Offset Addressing */
+//     ldr r5, [r0], #4       @ Load the value at R0 into R5 and then update R0 to R0 + 4
+// 1110 00 001001 0000 0101 000000000100
+e0905004
+
+//     str r5, [r1], #4       @ Store R5 into R1 and then update R1 to R1 + 4
+// 1110 00 001000 0001 0101 000000000100
+e0815004
+
+//     /* Indexed Addressing */
+//     ldr r6, [r0, r3, LSL #2] @ Load the value at (R0 + (R3 << 2)) into R6
+// 1110 00 111001 0000 0110 000100000011
+e3906103
+
+//     str r6, [r1, r3, LSL #2] @ Store R6 into (R1 + (R3 << 2))
+// 1110 00 111000 0001 0110 000100000011
+e3816103
+
+// ADDRESSES
+
+// 0000 00 000000 0000 0000 000000111000
+00000038
+
+// 0000 00 000000 0000 0000 000000111100
+0000003c
+
+// MEMORY
+
+// 0000 00 000000 0000 0000 000000000011
+00000003
+
+// 0000 00 000000 0000 0000 000000000011
+00000003
+
+// 0000 00 000000 0000 0000 000000000011
+00000003
+
+// 0000 00 000000 0000 1010 101111001101
+0000abcd
+
+// 0000 00 000000 0000 0000 000000000000
+00000000
+
+// 0000 00 000000 0000 0000 000001000101
+00000045
+
+
+// .data
+// var1:      .word 3          /* Variable 1 in memory */
+// var2:      .word 4          /* Variable 2 in memory */
+// var3:      .word 5          /* Variable 3 for indexed addressing */
+// literal_val: .word 0xABCD   /* Literal value */
+// ignored: .word 0x0
+// r6_val: .word 69
+//
+//     .text
+//     .global _start
+//
+// _start:
+//     /* Base Loading and Storing */
+//     ldr r0, =var1          @ Load the address of var1 into R0
+//     ldr r1, =var2          @ Load the address of var2 into R1
+//     ldr r2, [r0]           @ Load the value at address R0 (var1) into R2 (R2 = 3)
+//     str r2, [r1]           @ Store the value in R2 to the address in R1 (var2 = 3)
+//
+//     /* Offset Addressing */
+//     ldr r3, [r0, #4]       @ Load the value at (var1 + 4) into R3 (R3 = var2 = 3)
+//     str r3, [r1, #4]       @ Store R3 into (var2 + 4) (Assuming var3 is next, var3 = 3)
+//
+//     /* Pre-Offset Addressing */
+//     ldr r4, [r0, #4]!      @ Load the value at (var1 + 4) into R4 and update R0 to R0 + 4
+//     str r4, [r1, #4]!      @ Store R4 into (var2 + 4) and update R1 to R1 + 4
+//
+//     /* Post-Offset Addressing */
+//     ldr r5, [r0], #4       @ Load the value at R0 into R5 and then update R0 to R0 + 4
+//     str r5, [r1], #4       @ Store R5 into R1 and then update R1 to R1 + 4
+//
+//     /* Indexed Addressing */
+//     ldr r6, [r0, r3, LSL #2] @ Load the value at (R0 + (R3 << 2)) into R6
+//     str r6, [r1, r3, LSL #2] @ Store R6 into (R1 + (R3 << 2))

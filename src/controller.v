@@ -133,7 +133,8 @@ module controller (
 
   assign ImmSrcD = is_data_processing ? 2'b00 : is_branch ? 2'b10 : 2'b01;
 
-  assign ALUSrcD = is_data_processing ? is_immediate : 1'b1;
+  // assign ALUSrcD = is_data_processing ? is_immediate : 1'b1;
+  assign ALUSrcD = is_data_processing ? is_immediate : is_branch ? 1'b1 : ~is_immediate;
 
   assign MemtoRegD = is_data_processing ? 1'b0 : is_branch ? 1'b0 : is_memory_load | (is_memory_post & is_memory_str);
 
