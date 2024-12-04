@@ -7,17 +7,17 @@ module display_controller (
     output reg [3:0] an  // Anodos del display
 );
 
-  reg [3:0] digit;
+  reg [ 3:0] digit;
   reg [31:0] display_value;
   reg [19:0] refresh_counter;  // Contador para multiplexar los displays
 
   // Actualización del valor a mostrar y manejo del reset
   always @(posedge clk or posedge reset) begin
     if (reset) begin
-      display_value <= 32'b0;  // Reiniciar el valor del display
+      display_value   <= 32'b0;  // Reiniciar el valor del display
       refresh_counter <= 0;
     end else begin
-      display_value <= R1;  // Mostrar siempre el valor de R1
+      display_value   <= R1;  // Mostrar siempre el valor de R1
       refresh_counter <= refresh_counter + 1;
     end
   end

@@ -20,7 +20,6 @@ module arm (
   wire ALUSrcE;
   wire BranchTakenE;
   wire MemtoRegW;
-  wire PCSrcW;
   wire [1:0] RegWriteW;
   wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE;
   wire [31:0] InstrD;
@@ -44,7 +43,6 @@ module arm (
   wire Match_4E_M;
   wire Match_4E_W;
   wire Match_12D_E;
-  wire branch;
   wire taken;
   //wire predict_taken;
 
@@ -54,6 +52,15 @@ module arm (
   wire is_memory_postW;
 
   wire [ALU_FLAGS_WIDTH-1:0] FlagsE;
+  wire [31:0] PCPlus8D;
+  wire [31:0] PCPlus4F;
+  wire [31:0] PredictedBranchPC;
+
+  wire PredictTakenF;
+  wire PredictTakenD;
+  wire PredictTakenE;
+
+  wire WrongPredictionE = PredictTakenE != BranchTakenE;
 
   controller Control_unit (
       .clk(clk),
@@ -64,10 +71,10 @@ module arm (
       .ImmSrcD(ImmSrcD),
       .ALUSrcE(ALUSrcE),
       .BranchTakenE(BranchTakenE),
+      .PredictTakenE(PredictTakenE),
       .ALUControlE(ALUControlE),
       .MemWriteM(MemWriteM),
       .MemtoRegW(MemtoRegW),
-      .PCSrcW(PCSrcW),
       .RegWriteW(RegWriteW),
       .RegWriteM(RegWriteM),
       .MemtoRegE(MemtoRegE),
@@ -91,7 +98,8 @@ module arm (
       .BranchTakenE(BranchTakenE),
       .ALUControlE(ALUControlE),
       .MemtoRegW(MemtoRegW),
-      .PCSrcW(PCSrcW),
+      .PredictTakenF(PredictTakenF),
+      .PredictedBranchPC(PredictedBranchPC),
       .RegWriteW(RegWriteW),
       .is_memory_strE(is_memory_strE),
       .is_memory_postE(is_memory_postE),
@@ -121,10 +129,12 @@ module arm (
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
-      //.predict_taken(predict_taken),
       .R0(R0),
-      .R1(R1)
-
+      .R1(R1),
+      .PCPlus8D(PCPlus8D),
+      .PCPlus4F(PCPlus4F),
+      .isBranchF(isBranchF),
+      .WrongPredictionE(WrongPredictionE)
   );
 
 
@@ -148,7 +158,6 @@ module arm (
       .BranchTakenE(BranchTakenE),
       .MemtoRegE(MemtoRegE),
       .PCWrPendingF(PCWrPendingF),
-      .PCSrcW(PCSrcW),
       .ForwardAE(ForwardAE),
       .ForwardBE(ForwardBE),
       .ForwardCE(ForwardCE),
@@ -156,18 +165,45 @@ module arm (
       .StallF(StallF),
       .StallD(StallD),
       .FlushD(FlushD),
-      .FlushE(FlushE)
+      .FlushE(FlushE),
+      .WrongPredictionE(WrongPredictionE)
   );
 
-  // branch_predictor bp (
-  //     .clk(clk),
-  //     .reset(reset),
-  //     .branch(branch),
-  //     .taken(taken),
-  //     .predict_taken(predict_taken)
-  // );
+  wire isBranchF = InstrF[27:26] == 2'b01;
+  branch_predictor bp (
+      .clk(clk),
+      .reset(reset),
+      .branch(isBranchF),
+      .taken(BranchTakenE),
+      .predict_taken(PredictTakenF)
+  );
+  // if ~branch, PredictTakenF = 0
+  assign PredictedBranchPC = {{6{InstrF[23]}}, InstrF[23:0], 2'b00} + PCPlus4F + 4;
 
-  // i fucking hate u
-  // assign PCSrcW = predict_taken;
+
+  // Propagate predict taken
+
+  registro_flanco_positivo #(
+      .WIDTH(1)
+  ) reg_PredictTaken_FD (
+      .clk(clk),  // Reloj del sistema
+      .reset(reset),  // Señal de reinicio
+      .d(PredictTakenF),  // Dato de entrada
+      .q(PredictTakenD)  // Dato de salida
+  );
+
+
+  registro_flanco_positivo_habilitacion_limpieza #(
+      .WIDTH(1)
+  ) reg_PredictTaken_DE (
+      .clk(clk),
+      .reset(reset),
+      .en(1'b1),
+      .clear(FlushE),
+      .clear_value(1'b0),
+      .d(PredictTakenD),
+      .q(PredictTakenE)
+  );
+
 
 endmodule

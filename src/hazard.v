@@ -30,9 +30,6 @@ module hazardUnit (
     // Indica si hay una escritura pendiente en el contador de programa
     input wire PCWrPendingF,
 
-    // Indica la fuente del contador de programa en la etapa W
-    input wire PCSrcW,
-
     // Señal de reenvío para los operandos en la etapa E, para saber si se reenvía desde M o W.
     output reg [1:0] ForwardAE,
     output reg [1:0] ForwardBE,
@@ -45,9 +42,11 @@ module hazardUnit (
 
     // Limpieza de etapas
     output wire FlushD,
-    output wire FlushE
-);
+    output wire FlushE,
 
+    input wire WrongPredictionE
+
+);
 
 
 
@@ -99,13 +98,15 @@ module hazardUnit (
   assign StallD = ldrStallD;
 
   // Detener la etapa F si hay un stall o una escritura pendiente en el PC
-  assign StallF = ldrStallD | PCWrPendingF;
+  // TODO: possible wrong value propagation
+  assign StallF = ldrStallD;
 
   // Limpiar la etapa E si hay un stall o se toma una rama
-  assign FlushE = ldrStallD | BranchTakenE;
+  assign FlushE = ldrStallD | WrongPredictionE;
 
   // Limpiar la etapa D si hay una escritura pendiente en el PC o se toma una rama
-  assign FlushD = (PCWrPendingF | PCSrcW) | BranchTakenE;
+  // TODO: possible wrong value propagation
+  assign FlushD = WrongPredictionE;
 
   // Inicializa el registro interno
   initial temp = 0;
