@@ -7,7 +7,8 @@ module datapath (
     input wire BranchTakenE,
     input wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
     input wire MemtoRegW,
-    input wire PCSrcW,
+    input wire PredictTakenF,
+    input wire [31:0] PredictedBranchPC,
     input wire [1:0] RegWriteW,
     output wire [31:0] PCF,
     input wire [31:0] InstrF,
@@ -47,7 +48,13 @@ module datapath (
     input wire FlushD,  // Señal para limpiar la etapa D del pipeline
 
     output wire [DATA_WIDTH-1:0] R0,
-    output wire [DATA_WIDTH-1:0] R1
+    output wire [DATA_WIDTH-1:0] R1,
+
+    input wire isBranchF,
+
+    output wire [31:0] PCPlus8D,
+    output wire [31:0] PCPlus4F,
+    input wire WrongPredictionE
 );
   localparam ALU_FLAGS_WIDTH = 5;
   parameter ALUCONTROL_WIDTH = 6;
@@ -55,8 +62,7 @@ module datapath (
 
   //fin de las variables del manejo de hazards
 
-  wire [31:0] PCPlus4F;
-  wire [31:0] PCnext1F;
+  wire [31:0] PredictedPC;
   wire [31:0] PCnextF;
   wire [31:0] ExtImmD;
 
@@ -65,7 +71,6 @@ module datapath (
   wire [31:0] rd3D;
   wire [31:0] rd4D;
 
-  wire [31:0] PCPlus8D;
   wire [31:0] PCPlus8E;
   wire [31:0] PCPlus8M;
   wire [31:0] PCPlus8W;
@@ -119,38 +124,15 @@ module datapath (
   // Este multiplexor selecciona la dirección del primer registro fuente
   // para la etapa de decodificación, permitiendo elegir entre un valor
   // de la instrucción o un valor literal.
-  mux2 #(
-      .WIDTH(4)
-  ) ra1_mux (
-      .d0(InstrD[19:16]),  // Selección de bits de la instrucción
-      .d1(4'b1111),        // 15
-      .s (RegSrcD[0]),     // Señal de selección
-      .y (RA1D)            // Salida del mux
-  );
+  assign RA1D = RegSrcD[0] ? 4'd15 : InstrD[19:16];
+
 
   // Este multiplexor selecciona la dirección del segundo registro fuente
   // para la etapa de decodificación, permitiendo elegir entre dos
   // diferentes partes de la instrucción.
-  mux2 #(
-      .WIDTH(4)
-  ) ra2_mux (
-      .d0(InstrD[3:0]),    // Selección de bits de la instrucción
-      .d1(InstrD[15:12]),  // Alternativa de selección
-      .s (RegSrcD[1]),     // Señal de selección
-      .y (RA2D)            // Salida del mux
-  );
+  assign RA2D = RegSrcD[1] ? InstrD[15:12] : InstrD[3:0];
 
-  // Este multiplexor selecciona la siguiente dirección del contador de programa (PC),
-  // permitiendo elegir entre la dirección secuencial (PC + 4) o el resultado de una
-  // operación previa, como un salto o una llamada a subrutina.
-  mux2 #(
-      .WIDTH(DATA_WIDTH)
-  ) pc_next_mux (
-      .d0(PCPlus4F),
-      .d1(ResultW[DATA_WIDTH-1:0]),
-      .s (PCSrcW),
-      .y (PCnext1F)
-  );
+
 
   // Stall: Controla el estancamiento de instrucciones en el pipeline para
   // resolver dependencias de datos o control, insertando burbujas cuando sea
@@ -164,16 +146,32 @@ module datapath (
       .d(PCnextF),
       .q(PCF)
   );
-  //un adder de toda la vida
-  adder #(
-      .WIDTH(32)
-  ) pc_add (
-      .a(PCF),
-      .b(32'h00000004),
-      .y(PCPlus4F)
+
+
+  assign PCPlus4F = PCF + 32'd4;
+
+  NextPC next_pc (
+      .clk(clk),
+      .reset(reset),
+      .PCPlus4F(PCPlus4F),
+      .is_branchF(isBranchF),
+      .PredictTakenF(PredictTakenF),
+      .PredictedBranchPC(PredictedBranchPC),
+      .BranchTakenE(BranchTakenE),
+      .ALUResultE(ALUResultE[31:0]),
+      .WrongPredictionE(WrongPredictionE),
+      .PCPlus8E(PCPlus8E),
+      .next_pc(PCnextF)
   );
 
-  assign PCPlus8D = PCPlus4F;
+  registro_flanco_positivo #(
+      .WIDTH(32)
+  ) pc_reg (
+      .clk(clk),
+      .reset(reset),
+      .d(PCPlus4F + 32'd4),
+      .q(PCPlus8D)
+  );
 
   // Flush: Limpia las instrucciones en el pipeline en respuesta a cambios de
   // control, como saltos o predicciones de ramas incorrectas, para mantener
@@ -203,6 +201,7 @@ module datapath (
       .d    (RegSrcD),  // Dato de entrada
       .q    (RegSrcE)   // Dato de salida
   );
+
   registro_flanco_positivo #(
       .WIDTH(2)
   ) RegSrcMux_EM (
@@ -224,25 +223,8 @@ module datapath (
 
   // BL Muxes
 
-  wire [31:0] WD3_IN;
-  mux2 #(
-      .WIDTH(32)
-  ) WD3_BL_MUX (
-      .d0(ResultW[DATA_WIDTH-1:0]),
-      .d1(PCPlus8W - 32'd4),
-      .s (RegSrcW[0]),
-      .y (WD3_IN)
-  );
-
-  wire [3:0] WA3_IN;
-  mux2 #(
-      .WIDTH(4)
-  ) WA3W_BL_MUX (
-      .d0(WA3W[3:0]),
-      .d1(4'b1110),  // PC14
-      .s(RegSrcW[0]),
-      .y(WA3_IN)
-  );
+  wire [31:0] WD3_IN = RegSrcW[0] ? PCPlus8W - 32'd4 : ResultW[DATA_WIDTH-1:0];
+  wire [ 3:0] WA3_IN = RegSrcW[0] ? 4'b1110 : WA3W[3:0];
 
 
   regfile Registros (  //el registro de registros para ver los xregistros
@@ -490,36 +472,7 @@ module datapath (
   //fin del forwarding/bypassing
   // Este multiplexor selecciona el segundo operando para la ALU en la etapa de ejecución,
   // permitiendo elegir entre los datos a escribir o un valor inmediato extendido.
-  mux2 #(
-      .WIDTH(32)
-  ) srcb_mux (
-      .d0(WriteDataE),
-      .d1(ExtImmE),
-      .s (ALUSrcE),
-      .y (SrcBE)
-  );
-  /*
-  mux2 #(
-      .WIDTH(32)
-  ) mux_predictor (
-      .d0(PCnext1F),
-      .d1(ALUResultE[31:0]),
-      .s (predict_taken),
-      .y (PCnextF)
-  );
-*/
-
-  // Este multiplexor decide si el pipeline debe seguir con la siguiente instrucción
-  // secuencial o si debe tomar una rama, utilizando el resultado de la ALU para
-  // calcular la nueva dirección del PC en caso de que se tome la rama.
-  mux2 #(
-      .WIDTH(32)
-  ) branch_mux (
-      .d0(PCnext1F),
-      .d1(ALUResultE[31:0]),
-      .s (BranchTakenE),
-      .y (PCnextF)
-  );
+  assign SrcBE = ALUSrcE ? ExtImmE : WriteDataE;
 
   wire [(DATA_WIDTH*2)-1:0] ALUResultE_1;
   // ALU: Unidad Aritmética y Lógica que realiza operaciones aritméticas y lógicas
@@ -601,7 +554,6 @@ module datapath (
   );
 
   assign ResultW = ~MemtoRegW ? ALUOutW : (is_memory_postW ? ( is_memory_strW? {32'dx, ALUOutW[(DATA_WIDTH*2)-1:DATA_WIDTH]} : {ALUOutW[(DATA_WIDTH*2)-1:DATA_WIDTH], ReadDataW}) : {ALUOutW[DATA_WIDTH-1:0], ReadDataW});
-
 
   // ALUSRC 1
 

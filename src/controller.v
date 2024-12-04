@@ -8,10 +8,10 @@ module controller (
     output wire [1:0] ImmSrcD,
     output wire ALUSrcE,
     output wire BranchTakenE,
+    input wire PredictTakenE,
     output wire [ALUCONTROL_WIDTH-1:0] ALUControlE,
     output wire MemWriteM,
     output wire MemtoRegW,
-    output wire PCSrcW,
     output wire [1:0] RegWriteW,
     output wire [1:0] RegWriteM,
     output wire MemtoRegE,
@@ -41,9 +41,6 @@ module controller (
   wire BranchE;
   reg [1:0] FlagWriteD;
   wire [1:0] FlagWriteE;
-  wire PCSrcD;
-  wire PCSrcE;
-  wire PCSrcM;
 
   wire [3:0] CondE;
 
@@ -267,44 +264,49 @@ module controller (
   end
 
 
-  assign PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD[0]) | BranchD;
+  wire PCSrcD = ((InstrD[15:12] == 4'b1111) & RegWriteD[0]) | BranchD;
+  wire PCSrcE;
+  wire PCSrcM;
+  wire PCSrcW;
+
 
   registro_flanco_positivo_habilitacion_limpieza #(
-      .WIDTH(9)
+      .WIDTH(9 + ALUCONTROL_WIDTH + 1 + 4 + 5)
   ) flushedregsE (
       .clk(clk),
       .reset(reset),
       .en(1'b1),
       .clear(FlushE),
-      .clear_value(9'b000000000),
-      .d({FlagWriteD, BranchD, MemWriteD, RegWriteD, PCSrcD, MemtoRegD, no_writeD}),
-      .q({FlagWriteE, BranchE, MemWriteE, RegWriteE, PCSrcE, MemtoRegE, no_writeE})
+      .clear_value(25'd0),
+      .d({
+        FlagWriteD,
+        BranchD,
+        MemWriteD,
+        RegWriteD,
+        MemtoRegD,
+        no_writeD,
+        PCSrcD,
+        ALUSrcD,
+        ALUControlD,
+        InstrD[31:28],
+        FlagsNextE
+      }),
+      .q({
+        FlagWriteE,
+        BranchE,
+        MemWriteE,
+        RegWriteE,
+        MemtoRegE,
+        no_writeE,
+        PCSrcE,
+        ALUSrcE,
+        ALUControlE,
+        CondE,
+        FlagsE
+      })
   );
 
-  registro_flanco_positivo #(
-      .WIDTH(ALUCONTROL_WIDTH + 1)
-  ) regsE (
-      .clk(clk),
-      .reset(reset),
-      .d({ALUSrcD, ALUControlD}),
-      .q({ALUSrcE, ALUControlE})
-  );
-  registro_flanco_positivo #(
-      .WIDTH(4)
-  ) condregE (
-      .clk(clk),
-      .reset(reset),
-      .d(InstrD[31:28]),
-      .q(CondE)
-  );
-  registro_flanco_positivo #(
-      .WIDTH(5)
-  ) flagsreg (
-      .clk(clk),
-      .reset(reset),
-      .d(FlagsNextE),
-      .q(FlagsE)
-  );
+
   conditional Cond (
       .Cond(CondE),
       .Flags(FlagsE),
@@ -320,8 +322,10 @@ module controller (
   assign BranchTakenE   = BranchE & CondExE;
   assign RegWriteGatedE = no_writeE ? 2'b00 : CondExE ? RegWriteE : 2'b00;
   assign MemWriteGatedE = MemWriteE & CondExE;
+
   wire PCSrcGatedE;
   assign PCSrcGatedE = PCSrcE & CondExE;
+
   registro_flanco_positivo #(
       .WIDTH(5)
   ) regs_M (
@@ -338,6 +342,5 @@ module controller (
       .d({MemtoRegM, RegWriteM, PCSrcM}),
       .q({MemtoRegW, RegWriteW, PCSrcW})
   );
-  assign PCWrPendingF = (PCSrcD | PCSrcE) | PCSrcM;
 endmodule
 //porque me meti a CS

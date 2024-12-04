@@ -73,7 +73,7 @@ module clock_divider (
     output reg  clk_out
 );
   reg [31:0] counter = 0;
-  parameter DIVISOR = 100;
+  parameter DIVISOR = 10;
 
 
 

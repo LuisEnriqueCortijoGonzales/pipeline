@@ -33,11 +33,13 @@ module branch_predictor (
 
   // Predicción de la rama
   always @(*) begin
-    case (state)
-      STRONGLY_NOT_TAKEN, WEAKLY_NOT_TAKEN: predict_taken = 1'b0;
-      WEAKLY_TAKEN, STRONGLY_TAKEN:         predict_taken = 1'b1;
-      default:                              predict_taken = 1'bx;
+    if (branch == 1'b0) predict_taken = 1'b0;
+    else
+      case (state)
+        STRONGLY_NOT_TAKEN, WEAKLY_NOT_TAKEN: predict_taken = 1'b0;
+        WEAKLY_TAKEN, STRONGLY_TAKEN:         predict_taken = 1'b0;
+        default:                              predict_taken = 1'b0;
+      endcase
 
-    endcase
   end
 endmodule

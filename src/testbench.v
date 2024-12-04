@@ -104,11 +104,6 @@ module testbench;
   assign Wa3_IN = processor.arm.Data_path.WA3_IN;
   assign WD3_IN = processor.arm.Data_path.WD3_IN;
 
-  assign PCSrcW = processor.arm.PCSrcW;
-  assign PCSrcD = processor.arm.Control_unit.PCSrcD;
-  assign PCSrcE = processor.arm.Control_unit.PCSrcE;
-  assign PCSrcM = processor.arm.Control_unit.PCSrcM;
-
   assign ImmSrcD = processor.arm.ImmSrcD;
 
   assign ExtImmE = processor.arm.Data_path.ExtImmD;

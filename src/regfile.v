@@ -14,10 +14,10 @@ module regfile (
     input wire [3:0] ra4,  // Dirección del cuarto registro a leer (used in long multiplication)
 
     input wire [3:0] wa3,  // Dirección del registro a escribir
-    input wire [3:0] wa3_2,  // Dirección del segundo registro a escribir (used in long multiplication)
+    input wire [3:0] wa3_2,  // Dirección del segundo registro a escribir (used in long multiplication & post/pre LDR)
 
     input wire [31:0] wd3,  // Datos a escribir en el registro
-    input wire [31:0] wd3_2,  // Datos a escribir en el segundo registro (used in long multiplication)
+    input wire [31:0] wd3_2,  // Datos a escribir en el segundo registro (used in long multiplication & post/pre LDR)
 
     input wire [31:0] r15,  // Valor especial para el registro 15 usado para el PC
 
