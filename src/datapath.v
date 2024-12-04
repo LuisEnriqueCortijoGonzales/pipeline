@@ -19,6 +19,7 @@ module datapath (
     input wire is_memory_strE,
     input wire is_memory_postE,
     input wire is_memory_strW,
+    input wire shiftedE,
     input wire is_memory_postW,
     output wire [ALU_FLAGS_WIDTH-1:0] ALUFlagsE,
     input wire [ALU_FLAGS_WIDTH-1:0] FlagsE,
@@ -436,11 +437,14 @@ module datapath (
       .s (ForwardBE),
       .y (rd2E_preshift)
   );
+
+  wire [DATA_WIDTH-1:0] shifted_data;
   shifter rd2_shifter (
       .register_data (rd2E_preshift),
       .shifting_data (shift_bits),
-      .shifted_result(WriteDataE)
+      .shifted_result(shifted_data)
   );
+  assign WriteDataE = shiftedE ? shifted_data : rd2E_preshift;
 
   mux3 #(
       .WIDTH(32)
